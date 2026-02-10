@@ -27,7 +27,7 @@ Twelve years ago, in October 2014 I released the first such calendar covering tw
 
 See [architecture.md](./architecture.md) for detailed technical documentation on the layout engine and codebase structure.
 
-## © Credits
+## 🙏🏻 Credits
 
 **2014-2026 [Michael Kvrivishvili](https://www.linkedin.com/in/michael-kvrivishvili-39ab062/), Maxim Osovsky**.
 This work is licensed under the **Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)**.
