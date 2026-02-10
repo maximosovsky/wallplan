@@ -145,8 +145,8 @@ function calBoxCel(day, rawDow, dayLast, weekNum, addClasses, dayNames, weekStar
 function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
 	const { days: WEEK_DAYS, narrow: WEEK_DAYS_NARROW, offset: wsOffset } = getOrderedDays(weekStart);
 
+	const _parts = { emp: {}, hor: {}, ver: {}, box: {}, wkn: {} };
 	const helpers = {
-		emp: {}, hor: {}, ver: {}, box: {}, wkn: {},
 		index: [],
 		iname: [],
 		iyear: [],
@@ -179,12 +179,12 @@ function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
 		const day = curDate.getDate();
 		const lastDay = getLastDayOfMonth(curDate);
 
-		if (!(index in helpers.emp)) {
-			helpers.emp[index] = '';
-			helpers.wkn[index] = '';
-			helpers.hor[index] = '';
-			helpers.ver[index] = '';
-			helpers.box[index] = '';
+		if (!(index in _parts.emp)) {
+			_parts.emp[index] = [];
+			_parts.wkn[index] = [];
+			_parts.hor[index] = [];
+			_parts.ver[index] = [];
+			_parts.box[index] = [];
 		}
 
 		const weekLine = (adjustedDow === 0 && day !== 1) ? ' wk' : '';
@@ -199,17 +199,17 @@ function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
 			wnLabel = `<span class="hwn">${wn}</span>`;
 		}
 		const wnFirst = (day === 1) ? ' h-f' : '';
-		helpers.wkn[index] += `<td class="e-h${wnFirst}${weekLine}"><div>&nbsp;</div>${wnLabel}</td>`;
+		_parts.wkn[index].push(`<td class="e-h${wnFirst}${weekLine}"><div>&nbsp;</div>${wnLabel}</td>`);
 
-		helpers.emp[index] += calHorCel(day, ' ', weekLine);
-		helpers.hor[index] += calHorCel(day, WEEK_DAYS_NARROW[adjustedDow], weekend + weekLine);
-		helpers.ver[index] += calVerRow(day, WEEK_DAYS_BASE[rawDow], weekend + weekLine, holiday, showWeekNum);
-		helpers.box[index] += calBoxCel(day, rawDow, lastDay, getWeekNumber(curDate), weekend, WEEK_DAYS, wsOffset);
+		_parts.emp[index].push(calHorCel(day, ' ', weekLine));
+		_parts.hor[index].push(calHorCel(day, WEEK_DAYS_NARROW[adjustedDow], weekend + weekLine));
+		_parts.ver[index].push(calVerRow(day, WEEK_DAYS_BASE[rawDow], weekend + weekLine, holiday, showWeekNum));
+		_parts.box[index].push(calBoxCel(day, rawDow, lastDay, getWeekNumber(curDate), weekend, WEEK_DAYS, wsOffset));
 
 		if (day === lastDay) {
 			// Добить вертикальный до 31 строки
 			for (let n = 0; n < 31 - day; n++) {
-				helpers.ver[index] += calVerRow();
+				_parts.ver[index].push(calVerRow());
 			}
 			helpers.index.push(index);
 			helpers.iname.push(MONTHS[curDate.getMonth() + 1]);
@@ -220,15 +220,19 @@ function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
 		curDate.setDate(curDate.getDate() + 1);
 	}
 
+	// Join array parts into strings
+	const emp = {}, hor = {}, ver = {}, box = {}, wkn = {};
+	for (const idx of helpers.index) {
+		emp[idx] = _parts.emp[idx].join('');
+		hor[idx] = _parts.hor[idx].join('');
+		ver[idx] = _parts.ver[idx].join('');
+		box[idx] = _parts.box[idx].join('');
+		wkn[idx] = _parts.wkn[idx].join('');
+	}
+
 	// Сборка HTML (аналог PHP arr r1-r6)
-	const arr = {
-		r1: '<td></td>',
-		r2: '<td></td>',
-		r3: '<td></td>',
-		r4: '<td></td>',
-		r5: '<td></td>',
-		r6: '<td></td>',
-	};
+	const r1 = ['<td></td>'], r2 = ['<td></td>'], r3 = ['<td></td>'];
+	const r4 = ['<td></td>'], r5 = ['<td></td>'], r6 = ['<td></td>'];
 
 	for (let i = 0; i <= totalLength; i++) {
 		// Determine border class based on month
@@ -241,51 +245,49 @@ function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
 
 		// r4: первый столбец — пустой горизонтальный с заголовком
 		if (i === 0) {
-			let r4init = '<td><table width="100%" class="m-hor">';
-			r4init += '<tr><td class="h"><div>&nbsp;</div>&nbsp;</td></tr>';
+			const r4init = ['<td><table width="100%" class="m-hor">'];
+			r4init.push('<tr><td class="h"><div>&nbsp;</div>&nbsp;</td></tr>');
 			for (let n = 0; n < emptyRows; n++) {
-				r4init += '<tr>' + calHorCel(1) + '</tr>';
+				r4init.push('<tr>' + calHorCel(1) + '</tr>');
 			}
-			r4init += '</table></td>';
-			arr.r4 = r4init;
+			r4init.push('</table></td>');
+			r4[0] = r4init.join('');
 		}
 
 		// r1: Год
 		if (i === 0 || isYear) {
-			arr.r1 += `<td class="year ${blClass}"><h1>${helpers.iyear[i]}</h1></td>`;
+			r1.push(`<td class="year ${blClass}"><h1>${helpers.iyear[i]}</h1></td>`);
 		} else {
-			arr.r1 += '<td></td>';
+			r1.push('<td></td>');
 		}
 
 		// r2: Название месяца
-		arr.r2 += `<td class="${blClass} pln mv"><h2>${helpers.iname[i]}</h2></td>`;
+		r2.push(`<td class="${blClass} pln mv"><h2>${helpers.iname[i]}</h2></td>`);
 
 		// r3: Вертикальный календарь
-		arr.r3 += `<td class="${blClass} plr mv-b"><table width="100%">${helpers.ver[helpers.index[i]]}</table></td>`;
+		r3.push(`<td class="${blClass} plr mv-b"><table width="100%">${ver[helpers.index[i]]}</table></td>`);
 
 		// r4: Горизонтальный + пустые строки
-		let r4 = `<td class="${blClass}"><table width="100%" class="m-hor">`;
-		r4 += '<tr>' + helpers.hor[helpers.index[i]] + '</tr>';
-		r4 += '<tr>' + helpers.wkn[helpers.index[i]] + '</tr>';
+		const r4parts = [`<td class="${blClass}"><table width="100%" class="m-hor">`];
+		r4parts.push('<tr>' + hor[helpers.index[i]] + '</tr>');
+		r4parts.push('<tr>' + wkn[helpers.index[i]] + '</tr>');
 		for (let n = 1; n < emptyRows; n++) {
-			r4 += '<tr>' + helpers.emp[helpers.index[i]] + '</tr>';
+			r4parts.push('<tr>' + emp[helpers.index[i]] + '</tr>');
 		}
-		r4 += '</table></td>';
-		arr.r4 += r4;
+		r4parts.push('</table></td>');
+		r4.push(r4parts.join(''));
 
 		// r5: Название месяца для box
-		arr.r5 += `<td class="${blClass} mb"><h3>${helpers.iname[i]}</h3></td>`;
+		r5.push(`<td class="${blClass} mb"><h3>${helpers.iname[i]}</h3></td>`);
 
 		// r6: Box-календарь
-		arr.r6 += `<td class="${blClass} plr"><table width="100%">${helpers.box[helpers.index[i]]}</table></td>`;
+		r6.push(`<td class="${blClass} plr"><table width="100%">${box[helpers.index[i]]}</table></td>`);
 	}
 
-	const rows = [arr.r1, arr.r2, arr.r3, arr.r4, arr.r5, arr.r6];
-	let html = '<table autosize="1" class="br"><tbody>\n';
-	html += rows.map(r => '<tr>' + r + '</tr>').join('\n');
-	html += '\n</tbody></table>';
-
-	return html;
+	const rows = [r1, r2, r3, r4, r5, r6];
+	return '<table autosize="1" class="br"><tbody>\n' +
+		rows.map(r => '<tr>' + r.join('') + '</tr>').join('\n') +
+		'\n</tbody></table>';
 }
 
 // ─── Months / Years toggle ───
@@ -306,6 +308,36 @@ function toggleMonthsYears() {
 		input.max = 49;
 	}
 	updateCalendar();
+}
+
+// Shared page building logic
+function buildPages(totalMonths, emptyRows, weekStart) {
+	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
+	const clampedRows = Math.max(5, Math.min(15, rows));
+	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
+	const totalM = Math.max(1, Math.min(120, totalMonths));
+	const numPages = Math.max(1, Math.ceil(totalM / mpp));
+
+	const pagesParts = [];
+	for (let p = 0; p < numPages; p++) {
+		const offset = p * mpp;
+		const count = Math.min(mpp, totalM - offset);
+		const calHTML = generateCalendar(count, clampedRows, weekStart, offset);
+		pagesParts.push(`<div class="cal-page" data-page="${p}">${calHTML}</div>`);
+	}
+	const pagesHTML = pagesParts.join('');
+
+	if (currentPaper.copies && currentPaper.copies > 1) {
+		const copiesParts = [];
+		for (let c = 0; c < currentPaper.copies; c++) {
+			if (c > 0) copiesParts.push('<div class="cut-line"></div>');
+			copiesParts.push('<div class="cal-copy">' + pagesHTML + '</div>');
+		}
+		document.getElementById('calendar').innerHTML = copiesParts.join('');
+	} else {
+		document.getElementById('calendar').innerHTML = pagesHTML;
+	}
+	autoFitViewport();
 }
 
 // Инициализация
@@ -339,32 +371,7 @@ function init() {
 	}
 
 	const totalMonths = yearsMode ? months * 12 : months;
-
-	// Calculate pages
-	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
-	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
-	const totalM = Math.max(1, Math.min(120, totalMonths));
-	const numPages = Math.max(1, Math.ceil(totalM / mpp));
-
-	let pagesHTML = '';
-	for (let p = 0; p < numPages; p++) {
-		const offset = p * mpp;
-		const count = Math.min(mpp, totalM - offset);
-		const calHTML = generateCalendar(count, emptyRows, weekStart, offset);
-		pagesHTML += `<div class="cal-page" data-page="${p}">${calHTML}</div>`;
-	}
-
-	if (currentPaper.copies && currentPaper.copies > 1) {
-		let copiesHTML = '';
-		for (let c = 0; c < currentPaper.copies; c++) {
-			if (c > 0) copiesHTML += '<div class="cut-line"></div>';
-			copiesHTML += '<div class="cal-copy">' + pagesHTML + '</div>';
-		}
-		document.getElementById('calendar').innerHTML = copiesHTML;
-	} else {
-		document.getElementById('calendar').innerHTML = pagesHTML;
-	}
-	autoFitViewport();
+	buildPages(totalMonths, emptyRows, weekStart);
 }
 
 function updateCalendar() {
@@ -382,30 +389,7 @@ function updateCalendar() {
 	if (yearsMode) url.searchParams.set('u', 'y'); else url.searchParams.delete('u');
 	window.history.replaceState({}, '', url);
 
-	// Calculate pages
-	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
-	const totalM = Math.max(1, Math.min(120, totalMonths));
-	const numPages = Math.max(1, Math.ceil(totalM / mpp));
-
-	let pagesHTML = '';
-	for (let p = 0; p < numPages; p++) {
-		const offset = p * mpp;
-		const count = Math.min(mpp, totalM - offset);
-		const calHTML = generateCalendar(count, Math.max(5, Math.min(15, rows)), weekStart, offset);
-		pagesHTML += `<div class="cal-page" data-page="${p}">${calHTML}</div>`;
-	}
-
-	if (currentPaper.copies && currentPaper.copies > 1) {
-		let copiesHTML = '';
-		for (let c = 0; c < currentPaper.copies; c++) {
-			if (c > 0) copiesHTML += '<div class="cut-line"></div>';
-			copiesHTML += '<div class="cal-copy">' + pagesHTML + '</div>';
-		}
-		document.getElementById('calendar').innerHTML = copiesHTML;
-	} else {
-		document.getElementById('calendar').innerHTML = pagesHTML;
-	}
-	autoFitViewport();
+	buildPages(totalMonths, rows, weekStart);
 }
 
 function toggleRowsSlider() {
@@ -413,9 +397,11 @@ function toggleRowsSlider() {
 	slider.style.display = slider.style.display === 'none' ? '' : 'none';
 }
 
+let _rowsTimer;
 function onRowsSlider(val) {
 	document.getElementById('rows-value').textContent = val;
-	updateCalendar();
+	clearTimeout(_rowsTimer);
+	_rowsTimer = setTimeout(updateCalendar, 80);
 }
 
 // ─── Viewport state ───
@@ -441,6 +427,28 @@ let currentPaperKey = 'a4';
 let totalPages = 1;
 let monthsPerPage = 7;
 let calendarScale = 1; // how much to shrink calendar to fit paper
+
+// ─── Cached DOM pools (avoid destroy/recreate on every pan) ───
+const _paperPool = [];   // paper-sheet-extra elements
+const _guidePool = [];   // guide-page-v elements
+
+function _getPooledDiv(pool, index, className, parent) {
+	if (index < pool.length) {
+		pool[index].style.display = '';
+		return pool[index];
+	}
+	const el = document.createElement('div');
+	el.className = className;
+	parent.appendChild(el);
+	pool.push(el);
+	return el;
+}
+
+function _hidePoolFrom(pool, startIndex) {
+	for (let i = startIndex; i < pool.length; i++) {
+		pool[i].style.display = 'none';
+	}
+}
 
 function updatePageInfo() {
 	const el = document.getElementById('page-info');
@@ -644,8 +652,6 @@ function applyViewport() {
 
 	// --- Render paper sheets (1 per page) ---
 	const paper = document.getElementById('paper-sheet');
-	// Remove old extra sheets
-	document.querySelectorAll('.paper-sheet-extra').forEach(el => el.remove());
 
 	// Position page 1
 	paper.style.left = originScreenX + 'px';
@@ -653,10 +659,9 @@ function applyViewport() {
 	paper.style.width = paperW + 'px';
 	paper.style.height = paperH + 'px';
 
-	// Create extra pages
+	// Reuse pooled extra paper sheets
 	for (let p = 1; p < totalPages; p++) {
-		const extra = document.createElement('div');
-		extra.className = 'paper-sheet-extra';
+		const extra = _getPooledDiv(_paperPool, p - 1, 'paper-sheet-extra', document.body);
 		extra.style.position = 'fixed';
 		extra.style.zIndex = '1';
 		extra.style.background = 'var(--mol-cream)';
@@ -667,8 +672,8 @@ function applyViewport() {
 		extra.style.top = paperTopY + 'px';
 		extra.style.width = paperW + 'px';
 		extra.style.height = paperH + 'px';
-		document.body.insertBefore(extra, paper.nextSibling);
 	}
+	_hidePoolFrom(_paperPool, Math.max(0, totalPages - 1));
 
 	const paperBottomY = paperTopY + paperH;
 
@@ -731,30 +736,25 @@ function applyViewport() {
 	const guideH = document.getElementById('guide-h-a4');
 	guideH.style.top = (paperTopY + marginPx) + 'px';
 
-	// Remove old dynamic guides
-	document.querySelectorAll('.guide-page-v').forEach(el => el.remove());
-
-	// Create vertical guide pairs (left + right) for each page
+	// Reuse pooled dynamic guides
 	const guideVA4 = document.getElementById('guide-v-a4');
 	guideVA4.style.display = 'none'; // replaced by dynamic guides
 
+	let guideIdx = 0;
 	for (let p = 0; p < totalPages; p++) {
 		const pageLeft = originScreenX + p * (paperW + pageGap);
 
 		// Left guide (printable area left edge)
-		const gL = document.createElement('div');
-		gL.className = 'guide guide-v guide-page-v';
+		const gL = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-v', document.body);
 		gL.style.left = (pageLeft + marginPx) + 'px';
-		document.body.appendChild(gL);
 
 		// Right guide (printable area right edge)
 		if (currentPaper.w !== null) {
-			const gR = document.createElement('div');
-			gR.className = 'guide guide-v guide-page-v';
+			const gR = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-v', document.body);
 			gR.style.left = (pageLeft + paperW - marginPx) + 'px';
-			document.body.appendChild(gR);
 		}
 	}
+	_hidePoolFrom(_guidePool, guideIdx);
 
 	// Hide old margin guides
 	document.getElementById('guide-margin-bottom').style.display = 'none';
@@ -1001,7 +1001,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, { passive: false });
 
 	// ── Window resize ──
-	window.addEventListener('resize', applyViewport);
+	let _resizeTimer;
+	window.addEventListener('resize', () => {
+		clearTimeout(_resizeTimer);
+		_resizeTimer = setTimeout(applyViewport, 150);
+	});
 
 	// ── Draggable controls panels ──
 	document.querySelectorAll('.controls').forEach(panel => {
