@@ -1,0 +1,722 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;300;400;500;700&display=swap');
+
+/* ─── Moleskine-inspired palette ─── */
+:root {
+	--mol-cream: #FDF6E3;
+	--mol-paper: #FAF3E0;
+	--mol-ink: #2C2C2C;
+	--mol-ink-light: #5A5A5A;
+	--mol-cover: #3C3C3C;
+	--mol-desk: #8B7D6B;
+	--mol-desk-dark: #6B5D4B;
+	--mol-elastic: #C41E3A;
+	--mol-bookmark: #C41E3A;
+	--mol-border: #C8B89A;
+	--mol-border-light: #D4C5A9;
+	--mol-ruler-bg: #F5ECD7;
+	--mol-ruler-tick: #8B7D6B;
+	--mol-ruler-text: #6B5D4B;
+	--mol-ctrl-bg: #F5ECD7;
+	--mol-ctrl-border: #C8B89A;
+	--mol-red: #C41E3A;
+}
+
+html,
+body {
+	font-family: 'IBM Plex Sans', FreeSans, sans-serif;
+	font-size: 9.8pt;
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+	background: var(--mol-desk);
+	background-image:
+		radial-gradient(ellipse at 30% 50%, rgba(139, 125, 107, 0.3), transparent 70%),
+		linear-gradient(180deg, #7A6C5A 0%, #8B7D6B 40%, #9A8C7A 100%);
+}
+
+table,
+tr,
+td,
+h1,
+h2,
+h3 {
+	margin: 0;
+	padding: 0;
+	border-spacing: 0;
+	border-collapse: separate;
+}
+
+td {
+	position: relative;
+	overflow: hidden;
+	vertical-align: top;
+}
+
+.bt {
+	border-top: solid .25pt var(--mol-ink) !important;
+}
+
+.wk {
+	border-top: solid .25pt var(--mol-ink) !important;
+}
+
+.bb {
+	border-bottom: solid .25pt var(--mol-ink) !important;
+}
+
+.bl {
+	width: 26rem;
+	border-left: solid 2.5px var(--mol-ink) !important;
+}
+
+.bl.bl-quarter {
+	border-left-width: 2pt !important;
+}
+
+.bl.bl-year {
+	border-left-width: 3pt !important;
+}
+
+.br {
+	border-right: solid .75pt var(--mol-ink) !important;
+}
+
+.plr {
+	padding-left: 1rem;
+}
+
+.pln {
+	padding-left: .75rem;
+}
+
+.year {
+	padding: 0 0 1.25rem .7rem;
+}
+
+td.mv {
+	padding-top: 0;
+	padding-bottom: .3rem;
+}
+
+td.mv-b {
+	padding-top: 0;
+	padding-bottom: .8rem;
+}
+
+td.mb {
+	padding: 1.25rem 0 .5rem .9rem !important;
+}
+
+h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 4.5rem;
+	font-weight: lighter;
+	letter-spacing: -.03em;
+}
+
+h2 {
+	margin: 0;
+	padding: 0;
+	font-size: 3.5rem;
+	font-weight: lighter;
+	letter-spacing: -.025em;
+}
+
+h3 {
+	font-size: 1.75rem;
+	font-weight: normal;
+	letter-spacing: .015rem;
+}
+
+td.h {
+	font-size: .45rem;
+	text-align: center;
+	width: .85rem;
+	min-width: .85rem;
+	max-width: .85rem;
+	overflow-x: hidden;
+	padding: .2rem .1em .2rem .1em;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+td.h.wk,
+td.e-h.wk {
+	border-left: solid 2px var(--mol-ink) !important;
+	border-top: none !important;
+}
+
+td.e-h {
+	margin: 0;
+	width: .85rem;
+	min-width: .85rem;
+	max-width: .85rem;
+	height: 3rem;
+	border-left: solid .25pt var(--mol-ink);
+	border-bottom: solid .25pt var(--mol-ink);
+	box-sizing: border-box;
+}
+
+td.e-h.h-f {
+	border-left: none;
+}
+
+.h>div {
+	padding-bottom: .05rem;
+}
+
+td.bwd,
+td.bd {
+	font-size: 1rem;
+	vertical-align: bottom;
+}
+
+td.bwd {
+	margin: 0;
+	padding: .1rem 0 .3rem 0;
+	width: 9%;
+	font-size: .65rem;
+	font-weight: normal;
+}
+
+td.bd {
+	margin: 0;
+	padding: .4rem 0 .1rem 0;
+	width: 9%;
+}
+
+td.bwn {
+	width: 25%;
+	vertical-align: bottom;
+	padding-left: .3rem !important;
+	padding-bottom: .17rem !important;
+	font-size: .65rem;
+}
+
+td.vl {
+	margin: 0;
+	padding-top: .35rem;
+	padding-bottom: .15rem;
+}
+
+.vd {
+	font-size: 1.5rem;
+}
+
+.vw {
+	font-size: .75rem !important;
+	letter-spacing: .05em !important;
+}
+
+.vwn {
+	font-size: .55rem;
+	color: var(--mol-ink-light);
+	letter-spacing: .02em;
+}
+
+.hwn {
+	position: absolute;
+	bottom: 1px;
+	left: 0;
+	right: 0;
+	font-size: .35rem;
+	color: var(--mol-ink-light);
+	line-height: 1;
+	text-align: center;
+}
+
+td.vl.hd {
+	padding-right: .6rem;
+	padding-bottom: .325rem;
+	font-size: .65rem;
+	letter-spacing: .025em;
+	text-align: right;
+	vertical-align: bottom;
+}
+
+.red {
+	color: var(--mol-red);
+}
+
+.clear {
+	clear: both;
+}
+
+/* Controls — Moleskine floating panel */
+.controls {
+	position: fixed;
+	top: 120px;
+	right: 60px;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+	padding: .45rem .8rem .45rem .5rem;
+	background: var(--mol-ctrl-bg);
+	border: 1px solid var(--mol-ctrl-border);
+	border-radius: 4px;
+	box-shadow: 0 1px 6px rgba(60, 40, 20, .2);
+	font-size: .8rem;
+	color: var(--mol-ink);
+	cursor: grab;
+	user-select: none;
+}
+
+.gantt-panel {
+	top: auto;
+	right: auto;
+	flex-direction: column;
+	gap: .4rem;
+	padding: .4rem;
+	border-radius: 4px;
+	width: 2rem;
+	align-items: stretch;
+}
+
+/* Miro-style black tooltips */
+.gantt-panel [data-tooltip] {
+	position: relative;
+}
+
+.gantt-panel [data-tooltip]::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	left: calc(100% + 8px);
+	top: 50%;
+	transform: translateY(-50%);
+	background: #1a1a1a;
+	color: #fff;
+	font-size: .72rem;
+	font-weight: 400;
+	padding: .3rem .55rem;
+	border-radius: 4px;
+	white-space: nowrap;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .15s;
+	z-index: 1002;
+}
+
+.gantt-panel [data-tooltip]:hover::after {
+	opacity: 1;
+}
+
+.gantt-panel input[type="number"] {
+	width: 100%;
+	text-align: center;
+	padding: .15rem 0;
+	box-sizing: border-box;
+}
+
+.gantt-panel button {
+	min-width: auto;
+	padding: .1rem 0;
+	font-size: .85rem;
+	font-weight: 500;
+	border: none;
+	background: none;
+	border-radius: 3px;
+	transition: background .15s;
+	cursor: pointer;
+}
+
+.gantt-panel button:hover {
+	background: var(--mol-border-light);
+}
+
+.rows-value {
+	display: block;
+	text-align: center;
+	font-size: .85rem;
+	font-weight: 500;
+	cursor: grab;
+	padding: .1rem 0;
+	border-radius: 3px;
+	transition: background .15s;
+}
+
+.rows-value:hover {
+	background: var(--mol-border-light);
+}
+
+.rows-slider {
+	writing-mode: vertical-lr;
+	direction: rtl;
+	width: 100%;
+	height: 80px;
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+	accent-color: var(--mol-ink-light);
+}
+
+.rows-slider::-webkit-slider-thumb {
+	cursor: grab;
+}
+
+.rows-slider::-moz-range-thumb {
+	cursor: grab;
+}
+
+.rows-slider:active::-webkit-slider-thumb {
+	cursor: grabbing;
+}
+
+.rows-slider:active::-moz-range-thumb {
+	cursor: grabbing;
+}
+
+.controls:active {
+	cursor: grabbing;
+}
+
+.controls label {
+	display: flex;
+	align-items: center;
+	gap: .35rem;
+	cursor: default;
+}
+
+.controls input[type="number"] {
+	width: 3.2rem;
+	padding: .2rem .35rem;
+	border: 1px solid var(--mol-border);
+	border-radius: 3px;
+	background: var(--mol-cream);
+	font-family: inherit;
+	font-size: inherit;
+	color: var(--mol-ink);
+}
+
+.controls select {
+	padding: .25rem .4rem;
+	border: 1px solid var(--mol-border);
+	border-radius: 3px;
+	background: var(--mol-cream);
+	font-family: inherit;
+	font-size: inherit;
+	color: var(--mol-ink);
+	cursor: pointer;
+}
+
+/* Print dropdown */
+.print-group {
+	position: relative;
+}
+
+.print-menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	background: var(--mol-ctrl-bg);
+	border: 1px solid var(--mol-ctrl-border);
+	border-radius: 4px;
+	box-shadow: 0 3px 12px rgba(60, 40, 20, .2);
+	padding: .3rem 0;
+	min-width: 5rem;
+	z-index: 1001;
+}
+
+.print-menu hr {
+	border: none;
+	border-top: 1px solid var(--mol-border-light);
+	margin: .25rem 0;
+}
+
+.pm-item {
+	display: block;
+	width: 100%;
+	padding: .3rem .7rem;
+	border: none;
+	background: none;
+	font-family: inherit;
+	font-size: .78rem;
+	color: var(--mol-ink);
+	text-align: left;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+.pm-item:hover {
+	background: var(--mol-border-light);
+}
+
+.pm-item.active {
+	font-weight: 500;
+	background: var(--mol-border-light);
+}
+
+.pm-print {
+	font-weight: 500;
+}
+
+.controls:not(.gantt-panel) button {
+	padding: .25rem .8rem;
+	border: 1px solid var(--mol-ink-light);
+	border-radius: 3px;
+	background: var(--mol-cream);
+	font-family: inherit;
+	font-size: inherit;
+	color: var(--mol-ink);
+	cursor: pointer;
+	transition: background .15s;
+	min-width: 3.2rem;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.controls:not(.gantt-panel) button:hover {
+	background: var(--mol-border-light);
+}
+
+.controls button svg {
+	display: block;
+}
+
+/* Rulers — Moleskine warm tones */
+.ruler {
+	position: fixed;
+	z-index: 999;
+	background: var(--mol-ruler-bg);
+	border: none;
+}
+
+.ruler-left {
+	left: 0;
+	top: 0;
+	width: 20px;
+	height: 100vh;
+	border-right: 1px solid var(--mol-border);
+}
+
+.ruler-bottom {
+	left: 0;
+	bottom: 0;
+	height: 20px;
+	width: 100vw;
+	border-top: 1px solid var(--mol-border);
+}
+
+.ruler-corner {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 20px;
+	height: 20px;
+	z-index: 1000;
+	background: var(--mol-ruler-bg);
+	border-right: 1px solid var(--mol-border);
+	border-top: 1px solid var(--mol-border);
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+/* Guides */
+.guide {
+	position: fixed;
+	z-index: 998;
+	pointer-events: none;
+}
+
+/* Paper sheet — Moleskine cream */
+#paper-sheet {
+	position: fixed;
+	z-index: 1;
+	background: var(--mol-cream);
+	border-radius: 8px;
+	box-shadow:
+		1px 1px 4px rgba(60, 40, 20, .15),
+		3px 3px 12px rgba(60, 40, 20, .1);
+	pointer-events: none;
+}
+
+#calendar {
+	z-index: 2;
+	color: var(--mol-ink);
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.guide-h {
+	left: 0;
+	width: 100vw;
+	height: 0;
+	border-top: 1px dashed var(--mol-elastic);
+}
+
+.guide-v {
+	top: 0;
+	height: 100vh;
+	width: 0;
+	border-left: 1px dashed #5B8AA0;
+}
+
+.guide-margin.guide-h {
+	border-top: 1px dashed #B07050;
+}
+
+.guide-margin.guide-v {
+	border-left: 1px dashed #6BA0B0;
+}
+
+/* ─── Dark theme (Moleskine Black) ─── */
+body.dark {
+	background: #1A1A1A;
+	background-image:
+		radial-gradient(ellipse at 30% 50%, rgba(40, 35, 30, 0.5), transparent 70%),
+		linear-gradient(180deg, #151515 0%, #1A1A1A 40%, #222 100%);
+	color: #D4C5A9;
+}
+
+body.dark .controls {
+	background: #2A2520;
+	border-color: #4A4035;
+	color: #D4C5A9;
+}
+
+body.dark .controls button {
+	background: #2A2520;
+	border-color: #5A5045;
+	color: #D4C5A9;
+}
+
+body.dark .controls button:hover {
+	background: #3A3530;
+}
+
+body.dark .controls input[type="number"] {
+	background: #2A2520;
+	border-color: #4A4035;
+	color: #D4C5A9;
+}
+
+body.dark .controls select {
+	background: #2A2520;
+	border-color: #4A4035;
+	color: #D4C5A9;
+}
+
+body.dark .ruler {
+	background: #252015;
+}
+
+body.dark .ruler-left {
+	border-right-color: #4A4035;
+}
+
+body.dark .ruler-bottom {
+	border-top-color: #4A4035;
+}
+
+body.dark .ruler-corner {
+	background: #252015;
+	border-right-color: #4A4035;
+	border-top-color: #4A4035;
+}
+
+body.dark #paper-sheet {
+	background: #2C2820;
+	box-shadow:
+		1px 1px 4px rgba(0, 0, 0, .3),
+		3px 3px 12px rgba(0, 0, 0, .2);
+}
+
+body.dark #calendar {
+	color: #D4C5A9;
+}
+
+body.dark td.h,
+body.dark td.e-h {
+	border-color: #5A5045;
+}
+
+body.dark .bt {
+	border-top-color: #5A5045 !important;
+}
+
+body.dark .bb {
+	border-bottom-color: #5A5045 !important;
+}
+
+body.dark .bl {
+	border-left-color: #5A5045 !important;
+}
+
+body.dark .br {
+	border-right-color: #5A5045 !important;
+}
+
+body.dark .red {
+	color: #E06070;
+}
+
+/* Cut line for ×2 mode */
+.cut-line {
+	width: 100%;
+	margin: 20mm 0;
+	border: none;
+	border-top: 0.5px dashed var(--mol-ink-light);
+	height: 0;
+}
+
+/* Print */
+@media print {
+
+	.controls,
+	.ruler,
+	.ruler-corner,
+	.guide,
+	#paper-sheet {
+		display: none !important;
+	}
+
+	body,
+	body.dark {
+		margin: 0;
+		padding: 0;
+		background: #fff;
+		color: #000;
+		overflow: visible;
+	}
+
+	body.dark .red {
+		color: #e10000;
+	}
+
+	body.dark .bt {
+		border-top-color: black !important;
+	}
+
+	body.dark .bb {
+		border-bottom-color: black !important;
+	}
+
+	body.dark .bl {
+		border-left-color: black !important;
+	}
+
+	body.dark .br {
+		border-right-color: black !important;
+	}
+
+	body.dark td.h,
+	body.dark td.e-h {
+		border-color: black;
+	}
+}
+
+/* Page info label next to printer */
+#page-info {
+	margin-left: 4px;
+	font-size: 0.85em;
+	opacity: 0.7;
+}
+
+/* 914mm single format: compact Gantt cells (width set by JS) */
+body.paper-914 td.h,
+body.paper-914 td.e-h {
+	font-size: .35rem;
+	padding: .15rem .05em;
+}
