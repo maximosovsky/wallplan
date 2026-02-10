@@ -4,7 +4,7 @@
 
 📅 Every year I publish a new version of a multi-year calendar. The publishing industry mostly makes calendars for just the next year, limiting our ability to plan in detail many years ahead.
 
-Twelve years ago, in October 2014 I [released] (https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) the first such calendar covering two years.
+Twelve years ago, in October 2014 I [released](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) the first such calendar covering two years.
 🚇 For many years we laid out calendars manually, until in 2020, [Michael Kvrivishvili](https://wayfinding.pro/cal/?l=6) — the designer of the official Boston Metro map — developed a service specifically for me to generate a calendar for any number of months, with any number of Gantt rows.
 
 
