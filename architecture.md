@@ -115,9 +115,9 @@ Grid lines are collected as path data strings during the month loop and emitted 
 - Desktop controls hidden
 - Bottom toolbar (52px, frosted glass `backdrop-filter: blur(16px)`)
 - Bottom sheet (slide-up, cubic-bezier animation) with:
-  - Duration presets: 6mo, 1yr, 2yr, 5yr, 7yr, 10yr, 20yr
-  - Paper format chips
-  - Gantt rows slider
+  - Duration: two scroll-wheel pickers (years 0–20, months 0–11) with snap-scroll
+  - Paper format chips + roll length display (e.g. `· 1.5 m`) for 914mm formats
+  - Gantt rows: chip buttons (6 / 8 / 10 / 12)
   - Week start toggle
 - Download popup (SVG/PDF) on toolbar icon
 
