@@ -1,13 +1,13 @@
 # Project Architecture: WallPlan Calendar Generator
 
 ## Overview
-Web-based tool generating printable SVG calendars with a Moleskine-inspired aesthetic. Precision layout for A4, A3, and engineering 914mm paper with three calendar types: Vertical, Gantt, and Box.
+Web-based tool generating printable SVG calendars with a Moleskine-inspired aesthetic. Precision layout for A4, A3, and engineering 914mm paper with three calendar types: Vertical, Gantt, and Box. Supports durations from 6 months to 20 years.
 
 ## Technology Stack
 - **Frontend**: Vanilla JavaScript, CSS3, HTML5
 - **Rendering**: Pure SVG (no canvas/HTML tables)
-- **Backend (Minimal)**: PHP (`index.php`) for optional state persistence
-- **Libraries**: `html2canvas`, `jspdf` for export
+- **PDF Export**: `jspdf` + `svg2pdf.js` (CDN) with embedded IBM Plex Sans fonts
+- **Mobile**: Touch pan/pinch-to-zoom, iOS-like bottom toolbar
 
 ## Core Components
 
@@ -31,6 +31,9 @@ Generates a complete SVG element with three calendar sections per month column:
 - Week numbers: placed only under Monday (week start)
 
 **R5–R6: Box Calendar** — Traditional 7×6 mini grid with week numbers
+
+#### P3: Batch Path Optimization
+Grid lines are collected as path data strings during the month loop and emitted as 4 batched `<path>` elements (vertical gray/week, Gantt gray/week) instead of thousands of individual `<line>` elements, significantly reducing DOM count.
 
 #### Width Calculation — Two Modes
 
@@ -80,21 +83,56 @@ Generates a complete SVG element with three calendar sections per month column:
 - Uses `copyH` (paper height / copies) for scaling, not full paper height
 - `printH = copyH - 14mm` (7mm margins each side)
 - For fixed paper: also constrains by width
+- Mobile (<768px): skips ruler gap, adjusts left margin
 
 **`applyViewport()`** — Positions SVG pages on screen:
 - Pages side by side (X axis)
 - Copies stacked vertically (Y axis) within same page
 - Roll paper: trims paper div width to actual content
 
-### 4. Styling System (`style.css`)
-- CSS variables: `--mol-paper`, `--mol-ink`, `--mol-ink-light`
-- Typography: IBM Plex Sans (calendar), Inter (UI), Cinzel (headers)
-- Print: `@media print` ensures WYSIWYG
+### 4. Export System
 
-### 5. Rulers & Guides
+**`downloadSVG()`** — Multi-format SVG export:
+- A4/A3: each page as separate `.svg` file
+- 914×2/×4: copies combined into single tall SVG using `<g>` offsets
+- Filename: `wallplan_{format}_{months}mo_{rows}rows_{DD-MM-YYYY}.svg`
+
+**`printPDF()`** — Programmatic PDF generation:
+- Uses `jspdf` + `svg2pdf.js` for vector PDF
+- IBM Plex Sans fonts (Light/Regular/Medium) fetched from `fonts/`, cached as base64, registered on each new document
+- Falls back to `window.print()` if libraries unavailable
+- Filename: `wallplan_{format}_{months}mo_{rows}rows_{DD-MM-YYYY}.pdf`
+
+### 5. Touch & Mobile Support
+
+**Touch events** (capture phase on `window`):
+- Single finger: pan (drag viewport)
+- Two fingers: pinch-to-zoom (centered on gesture midpoint)
+- `requestAnimationFrame` batching for smooth 60fps
+- Excludes controls, rulers, toolbar, bottom sheet
+
+**Mobile UI** (`@media max-width: 768px`):
+- Desktop controls hidden
+- Bottom toolbar (52px, frosted glass `backdrop-filter: blur(16px)`)
+- Bottom sheet (slide-up, cubic-bezier animation) with:
+  - Duration presets: 6mo, 1yr, 2yr, 5yr, 7yr, 10yr, 20yr
+  - Paper format chips
+  - Gantt rows slider
+  - Week start toggle
+- Download popup (SVG/PDF) on toolbar icon
+
+### 6. Styling System (`style.css`)
+- CSS variables: `--mol-paper`, `--mol-ink`, `--mol-ink-light`
+- Typography: IBM Plex Sans (calendar + UI)
+- Print: `@media print` ensures WYSIWYG
+- `touch-action: none` globally, `auto` on controls
+- `pointer-events: none` on `#calendar` (touches pass through to handler)
+
+### 7. Rulers & Guides
 - Horizontal/vertical rulers with cm/m switching
 - Vertical guides at printable area edges
 - Paper sheet visualization (white rectangles)
+- Hidden on mobile (<768px)
 
 ## Paper Sizes
 
@@ -107,7 +145,7 @@ Generates a complete SVG element with three calendar sections per month column:
 | `914x4` | ∞×914mm | all on 1 page | 4 (228mm each) |
 
 ## File Structure
-- `index.html` / `index.php` — Entry point, UI shell
-- `calendar.js` — SVG renderer, viewport, state management
-- `style.css` — Themes, print optimization
-- `fonts/` — Local font assets (IBM Plex Sans)
+- `index.html` — Entry point, UI shell (desktop + mobile)
+- `calendar.js` — SVG renderer, viewport, export, touch, mobile UI logic
+- `style.css` — Themes, mobile toolkit, print optimization
+- `fonts/` — Local font assets (IBM Plex Sans, 14 weights)

@@ -653,11 +653,11 @@ function onRowsSlider(val) {
 	document.getElementById('rows-value').textContent = val;
 	// Sync mobile
 	const mobRows = document.getElementById('mob-rows');
-	const mobSlider = document.getElementById('mob-rows-slider');
-	const mobVal = document.getElementById('mob-rows-val');
 	if (mobRows) mobRows.textContent = val;
-	if (mobSlider) mobSlider.value = val;
-	if (mobVal) mobVal.textContent = val;
+	// Highlight active rows chip
+	document.querySelectorAll('.mob-chip-opt[data-rows]').forEach(b => {
+		b.classList.toggle('active', parseInt(b.dataset.rows) === parseInt(val));
+	});
 	clearTimeout(_rowsTimer);
 	_rowsTimer = setTimeout(updateCalendar, 80);
 }
@@ -1079,37 +1079,101 @@ function toggleMobDL() {
 
 function mobSetPaper(key) {
 	setPaperSize(key);
+	setTimeout(_updateMobRollLen, 200);
 }
 
-function mobSetDuration(months) {
-	document.getElementById('months-input').value = months;
-	// Highlight active duration chip
-	document.querySelectorAll('#mob-duration-chips .mob-chip-opt').forEach(b => {
-		b.classList.toggle('active', parseInt(b.dataset.mo) === months);
-	});
-	_updateMobMonthsLabel(months);
-	updateCalendar();
-}
+// ─── Scroll wheels ───
+let _wheelYr = 1, _wheelMo = 0;
+let _wheelTimer;
 
-function _updateMobMonthsLabel(months) {
-	const mobMonths = document.getElementById('mob-months');
-	const mobLabel = document.getElementById('mob-months-label');
-	if (!mobMonths || !mobLabel) return;
-	if (months >= 12 && months % 12 === 0) {
-		mobMonths.textContent = months / 12;
-		mobLabel.textContent = 'yr';
-	} else {
-		mobMonths.textContent = months;
-		mobLabel.textContent = 'mo';
+function _initMobWheels() {
+	const yrEl = document.getElementById('mob-wheel-yr');
+	const moEl = document.getElementById('mob-wheel-mo');
+	if (!yrEl || !moEl) return;
+
+	// Build year items (0-20)
+	yrEl.innerHTML = '<div class="mob-wheel-pad"></div>';
+	for (let i = 0; i <= 20; i++) {
+		const d = document.createElement('div');
+		d.className = 'mob-wheel-item' + (i === _wheelYr ? ' active' : '');
+		d.textContent = i;
+		d.dataset.v = i;
+		d.onclick = () => _scrollWheelTo(yrEl, i);
+		yrEl.appendChild(d);
 	}
+	yrEl.innerHTML += '<div class="mob-wheel-pad"></div>';
+
+	// Build month items (0-11)
+	moEl.innerHTML = '<div class="mob-wheel-pad"></div>';
+	for (let i = 0; i <= 11; i++) {
+		const d = document.createElement('div');
+		d.className = 'mob-wheel-item' + (i === _wheelMo ? ' active' : '');
+		d.textContent = i;
+		d.dataset.v = i;
+		d.onclick = () => _scrollWheelTo(moEl, i);
+		moEl.appendChild(d);
+	}
+	moEl.innerHTML += '<div class="mob-wheel-pad"></div>';
+
+	// Scroll to initial values
+	requestAnimationFrame(() => {
+		_scrollWheelTo(yrEl, _wheelYr, false);
+		_scrollWheelTo(moEl, _wheelMo, false);
+	});
+
+	// Scroll listeners
+	yrEl.addEventListener('scroll', () => _onWheelScroll(yrEl, 'yr'), { passive: true });
+	moEl.addEventListener('scroll', () => _onWheelScroll(moEl, 'mo'), { passive: true });
 }
 
-function mobRowsChange(val) {
-	document.getElementById('mob-rows-val').textContent = val;
-	document.getElementById('mob-rows').textContent = val;
-	// Sync desktop slider
+function _scrollWheelTo(el, val, smooth = true) {
+	const items = el.querySelectorAll('.mob-wheel-item');
+	const target = Array.from(items).find(d => parseInt(d.dataset.v) === val);
+	if (!target) return;
+	const offsetTop = target.offsetTop - el.offsetTop - 40; // center item
+	el.scrollTo({ top: offsetTop, behavior: smooth ? 'smooth' : 'auto' });
+}
+
+function _onWheelScroll(el, type) {
+	const items = el.querySelectorAll('.mob-wheel-item');
+	const center = el.scrollTop + 60; // ~center of visible area
+	let closest = null, closestDist = Infinity;
+	items.forEach(d => {
+		const dist = Math.abs((d.offsetTop - el.offsetTop) - center + 20);
+		if (dist < closestDist) { closestDist = dist; closest = d; }
+	});
+	if (!closest) return;
+	const val = parseInt(closest.dataset.v);
+
+	// Highlight active
+	items.forEach(d => d.classList.toggle('active', d === closest));
+
+	if (type === 'yr') _wheelYr = val;
+	else _wheelMo = val;
+
+	// Debounce update
+	clearTimeout(_wheelTimer);
+	_wheelTimer = setTimeout(_applyWheelDuration, 150);
+}
+
+function _applyWheelDuration() {
+	const totalMonths = _wheelYr * 12 + _wheelMo;
+	if (totalMonths < 1) return; // min 1 month
+	document.getElementById('months-input').value = totalMonths;
+	_updateMobMonthsLabel(totalMonths);
+	updateCalendar();
+	setTimeout(_updateMobRollLen, 200);
+}
+
+// ─── Rows chips ───
+function mobSetRows(val) {
 	document.getElementById('rows-slider').value = val;
 	document.getElementById('rows-value').textContent = val;
+	document.getElementById('mob-rows').textContent = val;
+	// Highlight active chip
+	document.querySelectorAll('.mob-chip-opt[data-rows]').forEach(b => {
+		b.classList.toggle('active', parseInt(b.dataset.rows) === val);
+	});
 	clearTimeout(_rowsTimer);
 	_rowsTimer = setTimeout(updateCalendar, 80);
 }
@@ -1128,15 +1192,54 @@ function mobSetWeek(day) {
 	updateCalendar();
 }
 
+// ─── Roll length display ───
+function _updateMobRollLen() {
+	const el = document.getElementById('mob-roll-len');
+	if (!el) return;
+	if (currentPaper.w !== null) {
+		el.textContent = '';
+		return;
+	}
+	const firstPage = document.querySelector('#calendar .cal-page');
+	if (firstPage) {
+		const screenW = firstPage.getBoundingClientRect().width;
+		const paperW_mm = screenW / (viewport.zoom * MM_PX) + 20;
+		const meters = (paperW_mm / 1000).toFixed(1);
+		el.textContent = '· ' + meters + ' m';
+	} else {
+		el.textContent = '';
+	}
+}
+
+// ─── Smart toolbar label ───
+function _updateMobMonthsLabel(months) {
+	const mobMonths = document.getElementById('mob-months');
+	const mobLabel = document.getElementById('mob-months-label');
+	if (!mobMonths || !mobLabel) return;
+	if (months >= 12 && months % 12 === 0) {
+		mobMonths.textContent = months / 12;
+		mobLabel.textContent = 'yr';
+	} else {
+		mobMonths.textContent = months;
+		mobLabel.textContent = 'mo';
+	}
+}
+
 function _syncMobileUI() {
 	const months = parseInt(document.getElementById('months-input').value) || 12;
 	_updateMobMonthsLabel(months);
+	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const mobRows = document.getElementById('mob-rows');
-	if (mobRows) mobRows.textContent = document.getElementById('rows-slider').value;
-	// Highlight active duration chip
-	document.querySelectorAll('#mob-duration-chips .mob-chip-opt').forEach(b => {
-		b.classList.toggle('active', parseInt(b.dataset.mo) === months);
+	if (mobRows) mobRows.textContent = rows;
+	// Highlight active rows chip
+	document.querySelectorAll('.mob-chip-opt[data-rows]').forEach(b => {
+		b.classList.toggle('active', parseInt(b.dataset.rows) === rows);
 	});
+	// Set wheel values
+	_wheelYr = Math.floor(months / 12);
+	_wheelMo = months % 12;
+	_initMobWheels();
+	setTimeout(_updateMobRollLen, 300);
 }
 
 // Helper: DD-MM-YYYY date string

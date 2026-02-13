@@ -103,18 +103,19 @@
 		<div class="mob-sheet-handle"></div>
 		<div class="mob-sheet-section">
 			<div class="mob-sheet-label">Duration</div>
-			<div class="mob-chips mob-chips-wrap" id="mob-duration-chips">
-				<button class="mob-chip-opt" data-mo="6" onclick="mobSetDuration(6)">6 mo</button>
-				<button class="mob-chip-opt active" data-mo="12" onclick="mobSetDuration(12)">1 yr</button>
-				<button class="mob-chip-opt" data-mo="24" onclick="mobSetDuration(24)">2 yr</button>
-				<button class="mob-chip-opt" data-mo="60" onclick="mobSetDuration(60)">5 yr</button>
-				<button class="mob-chip-opt" data-mo="84" onclick="mobSetDuration(84)">7 yr</button>
-				<button class="mob-chip-opt" data-mo="120" onclick="mobSetDuration(120)">10 yr</button>
-				<button class="mob-chip-opt" data-mo="240" onclick="mobSetDuration(240)">20 yr</button>
+			<div class="mob-wheels">
+				<div class="mob-wheel-col">
+					<div class="mob-wheel" id="mob-wheel-yr"></div>
+					<div class="mob-wheel-unit">yr</div>
+				</div>
+				<div class="mob-wheel-col">
+					<div class="mob-wheel" id="mob-wheel-mo"></div>
+					<div class="mob-wheel-unit">mo</div>
+				</div>
 			</div>
 		</div>
 		<div class="mob-sheet-section">
-			<div class="mob-sheet-label">Paper format</div>
+			<div class="mob-sheet-label">Paper format <span id="mob-roll-len" class="mob-roll-len"></span></div>
 			<div class="mob-chips" id="mob-paper-chips">
 				<button class="mob-chip-opt active" data-size="a4" onclick="mobSetPaper('a4')">A4</button>
 				<button class="mob-chip-opt" data-size="a3" onclick="mobSetPaper('a3')">A3</button>
@@ -125,10 +126,11 @@
 		</div>
 		<div class="mob-sheet-section">
 			<div class="mob-sheet-label">Gantt rows</div>
-			<div class="mob-rows-control">
-				<input type="range" id="mob-rows-slider" class="mob-slider" min="6" max="12" step="2" value="10"
-					oninput="mobRowsChange(this.value)">
-				<span id="mob-rows-val">10</span>
+			<div class="mob-chips">
+				<button class="mob-chip-opt" data-rows="6" onclick="mobSetRows(6)">6</button>
+				<button class="mob-chip-opt" data-rows="8" onclick="mobSetRows(8)">8</button>
+				<button class="mob-chip-opt active" data-rows="10" onclick="mobSetRows(10)">10</button>
+				<button class="mob-chip-opt" data-rows="12" onclick="mobSetRows(12)">12</button>
 			</div>
 		</div>
 		<div class="mob-sheet-section">

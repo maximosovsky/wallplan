@@ -684,13 +684,86 @@ body {
 		background: var(--mol-border-light);
 	}
 
-	/* Duration chips wrap */
-	.mob-chips-wrap {
-		flex-wrap: wrap;
+	/* Scroll wheels */
+	.mob-wheels {
+		display: flex;
+		justify-content: center;
+		gap: 8px;
+		align-items: flex-end;
 	}
 
-	.mob-chips-wrap .mob-chip-opt {
-		flex: 0 0 auto;
-		padding: 10px 14px;
+	.mob-wheel-col {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.mob-wheel {
+		width: 64px;
+		height: 120px;
+		overflow-y: auto;
+		scroll-snap-type: y mandatory;
+		border: 1px solid var(--mol-border);
+		border-radius: 10px;
+		background: var(--mol-cream);
+		-webkit-overflow-scrolling: touch;
+		position: relative;
+	}
+
+	.mob-wheel::-webkit-scrollbar {
+		display: none;
+	}
+
+	.mob-wheel {
+		scrollbar-width: none;
+	}
+
+	.mob-wheel-item {
+		height: 40px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		scroll-snap-align: center;
+		font-size: 1.1rem;
+		font-weight: 400;
+		color: var(--mol-ink-light);
+		cursor: pointer;
+		transition: color .1s, font-weight .1s;
+		user-select: none;
+	}
+
+	.mob-wheel-item.active {
+		font-weight: 600;
+		color: var(--mol-ink);
+		font-size: 1.2rem;
+	}
+
+	.mob-wheel-unit {
+		font-size: .6rem;
+		color: var(--mol-ink-light);
+		text-transform: uppercase;
+		letter-spacing: .05em;
+	}
+
+	/* Roll length badge */
+	.mob-roll-len {
+		font-weight: 500;
+		color: var(--mol-ink);
+		font-size: .7rem;
+		text-transform: none;
+		letter-spacing: 0;
+	}
+
+	.mob-wheel-pad {
+		height: 40px;
+		flex-shrink: 0;
+	}
+
+	/* Remove old slider/rows refs */
+	.mob-rows-control,
+	.mob-slider,
+	#mob-rows-val {
+		display: none;
 	}
 }
