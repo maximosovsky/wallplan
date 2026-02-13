@@ -1,3 +1,5 @@
+// ─── WallPlan Calendar — SVG Renderer ───
+
 // Справочники
 const MONTHS = [
 	'', 'January', 'February', 'March', 'April', 'May', 'June',
@@ -19,8 +21,6 @@ function getOrderedDays(weekStart) {
 
 // US Federal Holidays — динамическое вычисление
 function getNthWeekday(year, month, weekday, n) {
-	// weekday: 0=Sun, 1=Mon, ... 6=Sat
-	// n: 1=first, 2=second, etc.
 	const first = new Date(year, month, 1);
 	let day = ((weekday - first.getDay()) + 7) % 7 + 1;
 	day += (n - 1) * 7;
@@ -28,47 +28,38 @@ function getNthWeekday(year, month, weekday, n) {
 }
 
 function getLastWeekday(year, month, weekday) {
-	const last = new Date(year, month + 1, 0); // last day of month
+	const last = new Date(year, month + 1, 0);
 	const lastDate = last.getDate();
 	const lastDow = last.getDay();
 	let diff = ((lastDow - weekday) + 7) % 7;
 	return lastDate - diff;
 }
 
+const _holidayCache = {};
 function getHolidays(year) {
+	if (_holidayCache[year]) return _holidayCache[year];
 	const h = {};
 	const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
-
-	// Fixed-date holidays
 	add(1, 1, "New Year's Day");
 	add(6, 19, 'Juneteenth');
 	add(7, 4, 'Independence Day');
 	add(11, 11, 'Veterans Day');
 	add(12, 25, 'Christmas Day');
-
-	// Floating holidays (weekday 1 = Monday, 4 = Thursday)
-	add(1, getNthWeekday(year, 0, 1, 3), 'Martin Luther King Jr. Day');  // 3rd Mon in Jan
-	add(2, getNthWeekday(year, 1, 1, 3), "Presidents' Day");             // 3rd Mon in Feb
-	add(5, getLastWeekday(year, 4, 1), 'Memorial Day');                 // Last Mon in May
-	add(9, getNthWeekday(year, 8, 1, 1), 'Labor Day');                    // 1st Mon in Sep
-	add(10, getNthWeekday(year, 9, 1, 2), 'Columbus Day');                // 2nd Mon in Oct
-	add(11, getNthWeekday(year, 10, 4, 4), 'Thanksgiving Day');           // 4th Thu in Nov
-
+	add(1, getNthWeekday(year, 0, 1, 3), 'Martin Luther King Jr. Day');
+	add(2, getNthWeekday(year, 1, 1, 3), "Presidents' Day");
+	add(5, getLastWeekday(year, 4, 1), 'Memorial Day');
+	add(9, getNthWeekday(year, 8, 1, 1), 'Labor Day');
+	add(10, getNthWeekday(year, 9, 1, 2), 'Columbus Day');
+	add(11, getNthWeekday(year, 10, 4, 4), 'Thanksgiving Day');
+	_holidayCache[year] = h;
 	return h;
 }
 
 // Утилиты для дат
-function getUSDayOfWeek(date) {
-	// 0=Sun, 1=Mon, ... 6=Sat (US convention)
-	return date.getDay();
-}
-
-function getLastDayOfMonth(date) {
-	return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-}
+function getUSDayOfWeek(date) { return date.getDay(); }
+function getLastDayOfMonth(date) { return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate(); }
 
 function getWeekNumber(date) {
-	// ISO 8601 week number
 	const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
 	const dayNum = d.getUTCDay() || 7;
 	d.setUTCDate(d.getUTCDate() + 4 - dayNum);
@@ -76,84 +67,74 @@ function getWeekNumber(date) {
 	return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
 }
 
-function pad2(n) {
-	return String(n).padStart(2, '0');
+function pad2(n) { return String(n).padStart(2, '0'); }
+function formatIndex(date) { return String(date.getFullYear()).slice(2) + pad2(date.getMonth() + 1); }
+
+// ─── SVG Helper ───
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs, parent) {
+	const el = document.createElementNS(SVG_NS, tag);
+	if (attrs) for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+	if (parent) parent.appendChild(el);
+	return el;
 }
 
-function formatIndex(date) {
-	return String(date.getFullYear()).slice(2) + pad2(date.getMonth() + 1);
-}
+// ─── SVG Layout Constants (in unitless "points", 1pt ≈ on-screen px at scale 1) ───
+const LAYOUT = {
+	// Month column — all months have equal width
+	monthColW: 340,     // width of one month column (equal for all months)
 
-// Генерация ячейки горизонтального календаря
-function calHorCel(day = 0, dayName = ' ', addClasses = '') {
-	const isEmptyPrefix = (dayName === ' ') ? 'e-' : '';
-	const firstClass = (day === 1) ? ' h-f' : '';
-	const classes = isEmptyPrefix + 'h' + firstClass + addClasses;
-	const displayDay = (dayName === ' ') ? '' : day;
-	return `<td class="${classes}"><div>${dayName}</div>${displayDay}</td>`;
-}
+	// Gantt row height
+	cellH: 14,          // height of one Gantt row (empty)
 
-// Генерация строки вертикального календаря
-function calVerRow(day = '&nbsp;', dayName = ' ', addClasses = '', holidayName = '', weekNum = '') {
-	const firstClass = (day === 1) ? ' bt' : '';
-	const classes = 'vl bb' + firstClass + addClasses;
-	const wn = weekNum ? `<span class="vwn">${weekNum}</span>` : '';
-	return `<tr><td class="${classes}"><span class="vd">${day}</span> <span class="vw">${dayName}</span></td><td class="${classes} hd">${wn} ${holidayName}</td></tr>`;
-}
+	// Day label row
+	dayLabelH: 7,       // height of narrow day letter row
+	dayNumH: 9,         // day number row height
 
-// Генерация ячейки сетки (box)
-function calBoxCel(day, rawDow, dayLast, weekNum, addClasses, dayNames, weekStartOffset) {
-	// rawDow: 0=Sun .. 6=Sat; weekStartOffset: 0 for Sun, 1 for Mon
-	const adjustedDow = (rawDow - weekStartOffset + 7) % 7; // 0=first col, 6=last col
-	let html = '';
-	const isLastCol = (adjustedDow === 6);
-	const classes = 'bd' + (isLastCol ? ' b-sun' : '') + addClasses;
+	// Vertical calendar
+	verRowH: 11,        // height per day in vertical section
 
-	if (adjustedDow === 0 || day === 1) {
-		html += '<tr>';
-		if (day === 1) {
-			for (let key = 0; key < dayNames.length; key++) {
-				// Highlight weekend day names
-				const origIdx = (key + weekStartOffset) % 7; // map back to 0=Sun
-				const isWE = (origIdx === 0 || origIdx === 6);
-				html += `<td class="bwd bb${isWE ? ' red' : ''}${key === 6 ? ' b-sun' : ''}">${dayNames[key]}</td>`;
-			}
-			html += '<td></td></tr><tr>';
-			for (let n = 0; n < adjustedDow; n++) {
-				html += '<td class="bd"> </td>';
-			}
-		}
-	}
+	// Month names & year
+	monthNameH: 30,     // month name row height
+	yearH: 20,          // year label row height
+	monthBottomPad: 0, // padding below vertical calendar
 
-	html += `<td class="${classes}">${day}</td>`;
+	// Box calendar (mini month grid)
+	boxNameH: 28,       // month name row above box grid
+	boxCellH: 11,       // height of one box calendar row
+	boxHeaderH: 8,      // day-of-week header row
 
-	if (day === dayLast) {
-		let rest = 6 - adjustedDow;
-		for (let n = 0; n < rest; n++) {
-			html += `<td class="${classes}"> </td>`;
-		}
-	}
+	// Spacer column (first column, left side)
+	spacerW: 0,
 
-	if (adjustedDow === 6) {
-		html += `<td class="bwn">${weekNum}</td></tr>`;
-	}
+	// Borders
+	monthBorderW: 0.5,
+	quarterBorderW: 0.75,
+	yearBorderW: 1,
 
-	return html;
-}
+	// Week separator line within Gantt
+	weekLineW: 0.2,
 
-// Основная функция генерации
-function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
+	// Fonts
+	fontFamily: "'IBM Plex Sans', FreeSans, sans-serif",
+};
+
+// ─── Colors ───
+const COLORS = {
+	ink: '#2C2C2C',
+	inkLight: '#5A5A5A',
+	red: '#C41E3A',
+	border: '#C8B89A',
+	cellLine: '#999999',
+};
+
+// ─── SVG Calendar Generator ───
+function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxMonthsPerPage = 0) {
 	const { days: WEEK_DAYS, narrow: WEEK_DAYS_NARROW, offset: wsOffset } = getOrderedDays(weekStart);
+	const L = LAYOUT;
 
-	const _parts = { emp: {}, hor: {}, ver: {}, box: {}, wkn: {} };
-	const helpers = {
-		index: [],
-		iname: [],
-		iyear: [],
-		imonth: [],
-	};
-	const seenWeeks = new Set();
-
+	// ── Compute calendar data ──
 	const now = new Date();
 	const startDate = new Date(now.getFullYear(), now.getMonth() + startOffset, 1);
 	const totalLength = months - 1;
@@ -164,130 +145,392 @@ function generateCalendar(months, emptyRows, weekStart, startOffset = 0) {
 		holidaysByYear[y] = getHolidays(y);
 	}
 
+	// Collect per-month data
+	const monthsData = [];
 	const curDate = new Date(startDate);
 	const loopEnd = new Date(endDate);
 	loopEnd.setDate(loopEnd.getDate() + 1);
+
+	let currentMonthDays = [];
+	let currentIndex = null;
 
 	while (curDate < loopEnd) {
 		const md = pad2(curDate.getMonth() + 1) + pad2(curDate.getDate());
 		const yearHolidays = holidaysByYear[curDate.getFullYear()];
 		const holiday = yearHolidays[md] || '';
-		const rawDow = getUSDayOfWeek(curDate); // 0=Sun, 6=Sat
-		const weekend = (rawDow === 0 || rawDow === 6) ? ' red' : '';
-		const adjustedDow = (rawDow - wsOffset + 7) % 7; // position in ordered week
+		const rawDow = getUSDayOfWeek(curDate);
+		const isWeekend = (rawDow === 0 || rawDow === 6);
+		const adjustedDow = (rawDow - wsOffset + 7) % 7;
 		const index = formatIndex(curDate);
 		const day = curDate.getDate();
 		const lastDay = getLastDayOfMonth(curDate);
 
-		if (!(index in _parts.emp)) {
-			_parts.emp[index] = [];
-			_parts.wkn[index] = [];
-			_parts.hor[index] = [];
-			_parts.ver[index] = [];
-			_parts.box[index] = [];
-		}
-
-		const weekLine = (adjustedDow === 0 && day !== 1) ? ' wk' : '';
-		const showWeekNum = (adjustedDow === 0 || day === 1) ? getWeekNumber(curDate) : '';
-
-		// Week number for first Gantt row (unique per year)
-		const wn = getWeekNumber(curDate);
-		const wnKey = curDate.getFullYear() + '-' + wn;
-		let wnLabel = '';
-		if ((adjustedDow === 0 || day === 1) && !seenWeeks.has(wnKey)) {
-			seenWeeks.add(wnKey);
-			wnLabel = `<span class="hwn">${wn}</span>`;
-		}
-		const wnFirst = (day === 1) ? ' h-f' : '';
-		_parts.wkn[index].push(`<td class="e-h${wnFirst}${weekLine}"><div>&nbsp;</div>${wnLabel}</td>`);
-
-		_parts.emp[index].push(calHorCel(day, ' ', weekLine));
-		_parts.hor[index].push(calHorCel(day, WEEK_DAYS_NARROW[adjustedDow], weekend + weekLine));
-		_parts.ver[index].push(calVerRow(day, WEEK_DAYS_BASE[rawDow], weekend + weekLine, holiday, showWeekNum));
-		_parts.box[index].push(calBoxCel(day, rawDow, lastDay, getWeekNumber(curDate), weekend, WEEK_DAYS, wsOffset));
-
-		if (day === lastDay) {
-			// Добить вертикальный до 31 строки
-			for (let n = 0; n < 31 - day; n++) {
-				_parts.ver[index].push(calVerRow());
+		if (index !== currentIndex) {
+			if (currentIndex !== null) {
+				monthsData[monthsData.length - 1].days = currentMonthDays;
 			}
-			helpers.index.push(index);
-			helpers.iname.push(MONTHS[curDate.getMonth() + 1]);
-			helpers.iyear.push(String(curDate.getFullYear()));
-			helpers.imonth.push(curDate.getMonth() + 1);
+			currentIndex = index;
+			currentMonthDays = [];
+			monthsData.push({
+				index,
+				name: MONTHS[curDate.getMonth() + 1],
+				year: String(curDate.getFullYear()),
+				monthNum: curDate.getMonth() + 1,
+				days: [],
+			});
 		}
+
+		currentMonthDays.push({
+			day,
+			rawDow,
+			adjustedDow,
+			isWeekend,
+			holiday,
+			lastDay,
+			weekNum: getWeekNumber(curDate),
+			isFirstOfMonth: day === 1,
+			isWeekStart: adjustedDow === 0,
+		});
 
 		curDate.setDate(curDate.getDate() + 1);
 	}
-
-	// Join array parts into strings
-	const emp = {}, hor = {}, ver = {}, box = {}, wkn = {};
-	for (const idx of helpers.index) {
-		emp[idx] = _parts.emp[idx].join('');
-		hor[idx] = _parts.hor[idx].join('');
-		ver[idx] = _parts.ver[idx].join('');
-		box[idx] = _parts.box[idx].join('');
-		wkn[idx] = _parts.wkn[idx].join('');
+	if (currentMonthDays.length > 0 && monthsData.length > 0) {
+		monthsData[monthsData.length - 1].days = currentMonthDays;
 	}
 
-	// Сборка HTML (аналог PHP arr r1-r6)
-	const r1 = ['<td></td>'], r2 = ['<td></td>'], r3 = ['<td></td>'];
-	const r4 = ['<td></td>'], r5 = ['<td></td>'], r6 = ['<td></td>'];
+	// ── Calculate dimensions ──
+	const numMonths = monthsData.length;
 
-	for (let i = 0; i <= totalLength; i++) {
-		// Determine border class based on month
-		const mon = helpers.imonth[i];
-		const isYear = i > 0 && helpers.iyear[i - 1] !== helpers.iyear[i];
-		const isQuarter = [1, 4, 7, 10].includes(mon);
-		let blClass = 'bl';
-		if (isYear) blClass += ' bl-year';
-		else if (isQuarter) blClass += ' bl-quarter';
+	// Calculate total height first (needed for aspect ratio)
+	const r1H = L.yearH;
+	const r2H = L.monthNameH;
+	const r3H = 31 * L.verRowH + L.monthBottomPad;
+	const ganttHeaderH = L.dayLabelH + L.dayNumH;
+	const ganttRowH = L.cellH;
+	const r4H = ganttHeaderH + emptyRows * ganttRowH;
+	const r5H = L.boxNameH;
+	const boxRows = 6; // max weeks in a month
+	const r6H = L.boxHeaderH + boxRows * L.boxCellH;
+	const totalH = r1H + r2H + r3H + r4H + r5H + r6H;
 
-		// r4: первый столбец — пустой горизонтальный с заголовком
-		if (i === 0) {
-			const r4init = ['<td><table width="100%" class="m-hor">'];
-			r4init.push('<tr><td class="h"><div>&nbsp;</div>&nbsp;</td></tr>');
-			for (let n = 0; n < emptyRows; n++) {
-				r4init.push('<tr>' + calHorCel(1) + '</tr>');
+	// Dynamic month column width
+	const MARGIN_MM = 7;
+	const copies = currentPaper.copies || 1;
+	const copyH = currentPaper.h / copies;
+	const colCountForWidth = (currentPaper.w !== null && maxMonthsPerPage > 0) ? maxMonthsPerPage : numMonths;
+	let mW;
+
+	if (currentPaper.w === null) {
+		// Roll paper: width driven by minimum cell size (mm)
+		const printH_mm = copyH - 2 * MARGIN_MM;
+		const minCellMm = copies === 1 ? 4 : copies === 2 ? 2.7 : 1.7;
+		mW = minCellMm * 31 * totalH / printH_mm;
+	} else {
+		// Fixed paper (A4/A3): width driven by aspect ratio
+		const printAspect = (currentPaper.w - 2 * MARGIN_MM) / (copyH - 2 * MARGIN_MM);
+		const targetTotalW = totalH * printAspect;
+		mW = Math.max(80, (targetTotalW - L.spacerW) / colCountForWidth);
+	}
+
+	// 914mm single: format-specific font/line overrides
+	const is914s = (currentPaper.w === null && copies === 1);
+	const F = {
+		verMonth: is914s ? 16 : 20,       // vertical calendar month name
+		ganttDay: is914s ? 2 : 3,          // Gantt day-of-week letters
+		ganttNum: is914s ? 1.8 : 2.5,      // Gantt day numbers
+		ganttWk: is914s ? 1.8 : 2.5,      // Gantt week numbers
+		boxMonth: is914s ? 12 : 15,        // box calendar month name
+		boxDow: is914s ? 6 : 8,          // box day-of-week headers
+		boxDay: is914s ? 5.5 : 7,        // box day numbers
+		boxWk: is914s ? 3 : 4,          // box week numbers
+		yearBorderW: is914s ? 0.5 : L.yearBorderW,
+	};
+
+	// Total width — use full page capacity so first page fills completely
+	const totalContentW = L.spacerW + colCountForWidth * mW;
+
+	// ── Create SVG ──
+	const svg = document.createElementNS(SVG_NS, 'svg');
+	svg.setAttribute('viewBox', `0 0 ${totalContentW} ${totalH}`);
+	svg.setAttribute('xmlns', SVG_NS);
+	svg.setAttribute('width', totalContentW);
+	svg.setAttribute('height', totalH);
+	svg.style.overflow = 'visible';
+
+	// Embedded style for exported SVG
+	const styleEl = svgEl('style', {}, svg);
+	styleEl.textContent = `
+		text { font-family: ${L.fontFamily}; fill: ${COLORS.ink}; }
+		.red { fill: ${COLORS.red}; }
+		.ink-light { fill: ${COLORS.inkLight}; }
+		.year { fill: #999999; }
+	`;
+
+	// ── Section Y offsets ──
+	const yYear = 0;
+	const yMonth = r1H;
+	const yVer = r1H + r2H;
+	const yGantt = r1H + r2H + r3H;
+	const yBoxName = r1H + r2H + r3H + r4H;
+	const yBox = r1H + r2H + r3H + r4H + r5H;
+
+	// Track seen weeks for week number labels
+	const seenWeeks = new Set();
+
+	// ── Batch path collectors (P3 optimization) ──
+	let pathVerGray = '';   // vertical calendar thin gray horizontals (0.25pt cellLine)
+	let pathVerWeek = '';   // vertical calendar week separators (weekLineW ink)
+	let pathGanttGray = ''; // Gantt cell borders h+v (0.15pt cellLine)
+	let pathGanttWeek = ''; // Gantt week separator verticals (weekLineW ink)
+
+	// ── Render each month column ──
+	let xCursor = L.spacerW;
+
+	for (let mi = 0; mi < numMonths; mi++) {
+		const m = monthsData[mi];
+		const numDays = m.days.length;
+		const cellW = mW / numDays; // each day cell width within equal-width column
+		const isYear = mi > 0
+			? monthsData[mi - 1].year !== m.year
+			: (startOffset === 0 || new Date(now.getFullYear(), now.getMonth() + startOffset - 1, 1).getFullYear() !== parseInt(m.year));
+		const isQuarter = [1, 4, 7, 10].includes(m.monthNum);
+
+		// ── Month left border ──
+		let borderW = L.monthBorderW;
+		let borderColor = COLORS.cellLine; // month = gray
+		if (isYear) { borderW = F.yearBorderW; borderColor = COLORS.ink; }
+		else if (isQuarter) { borderW = L.quarterBorderW; borderColor = COLORS.ink; }
+
+		svgEl('line', {
+			x1: xCursor, y1: 0, x2: xCursor, y2: totalH,
+			'stroke-width': borderW, stroke: borderColor,
+		}, svg);
+
+		// ── R1: Year label ──
+		if (isYear) {
+			svgEl('text', {
+				x: xCursor + 10, y: yYear + r1H - 2,
+				'font-size': '20', 'font-weight': '200',
+				'letter-spacing': '-0.03em', class: 'year',
+			}, svg).textContent = m.year;
+		}
+
+		// ── R2: Month name ──
+		svgEl('text', {
+			x: xCursor + 10, y: yMonth + r2H - 10,
+			'font-size': F.verMonth, 'font-weight': '200',
+			'letter-spacing': '-0.025em',
+		}, svg).textContent = m.name;
+
+		// ── R3: Vertical calendar (31 rows) ──
+		for (let di = 0; di < 31; di++) {
+			const rowY = yVer + di * L.verRowH;
+			const dayData = m.days[di];
+
+			if (dayData) {
+				const textClass = dayData.isWeekend ? 'red' : '';
+
+				// Day number
+				svgEl('text', {
+					x: xCursor + 6, y: rowY + L.verRowH - 2,
+					'font-size': '9',
+					class: textClass,
+				}, svg).textContent = dayData.day;
+
+				// Day of week
+				svgEl('text', {
+					x: xCursor + 22, y: rowY + L.verRowH - 3,
+					'font-size': '5.5', 'letter-spacing': '0.05em',
+					class: textClass,
+				}, svg).textContent = WEEK_DAYS_BASE[dayData.rawDow];
+
+				// Bottom border → batch path
+				const by = rowY + L.verRowH;
+				pathVerGray += `M${xCursor} ${by}H${xCursor + mW}`;
+
+				// First day of month — top border → batch path
+				if (dayData.isFirstOfMonth) {
+					pathVerGray += `M${xCursor} ${rowY}H${xCursor + mW}`;
+				}
+
+				// Week separator → batch path
+				if (dayData.isWeekStart && !dayData.isFirstOfMonth) {
+					pathVerWeek += `M${xCursor} ${rowY}H${xCursor + mW}`;
+				}
+
+				// Week number
+				if (dayData.isWeekStart || dayData.isFirstOfMonth) {
+					svgEl('text', {
+						x: xCursor + mW - 8, y: rowY + L.verRowH - 3,
+						'font-size': '4.5', 'text-anchor': 'end',
+						class: 'ink-light',
+					}, svg).textContent = dayData.weekNum;
+				}
+
+				// Holiday name
+				if (dayData.holiday) {
+					svgEl('text', {
+						x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH - 3,
+						'font-size': is914s ? '3.5' : '4.5', 'text-anchor': 'start',
+					}, svg).textContent = dayData.holiday;
+				}
 			}
-			r4init.push('</table></td>');
-			r4[0] = r4init.join('');
 		}
 
-		// r1: Год
-		if (i === 0 || isYear) {
-			r1.push(`<td class="year ${blClass}"><h1>${helpers.iyear[i]}</h1></td>`);
-		} else {
-			r1.push('<td></td>');
+		// ── R4: Gantt horizontal grid ──
+		// Header: day letters + day numbers
+		for (let di = 0; di < numDays; di++) {
+			const d = m.days[di];
+			const cx = xCursor + di * cellW;
+			const textClass = d.isWeekend ? 'red' : '';
+
+			// Day letter (narrow)
+			svgEl('text', {
+				x: cx + cellW / 2, y: yGantt + L.dayLabelH + 3,
+				'font-size': F.ganttDay, 'text-anchor': 'middle',
+				'font-stretch': 'condensed', 'letter-spacing': '-0.05em',
+				class: textClass,
+			}, svg).textContent = WEEK_DAYS_NARROW[d.adjustedDow];
+
+			// Day number
+			svgEl('text', {
+				x: cx + cellW / 2, y: yGantt + ganttHeaderH - 2,
+				'font-size': F.ganttNum, 'text-anchor': 'middle',
+				'font-stretch': 'condensed', 'letter-spacing': '-0.05em',
+				class: textClass,
+			}, svg).textContent = d.day;
 		}
 
-		// r2: Название месяца
-		r2.push(`<td class="${blClass} pln mv"><h2>${helpers.iname[i]}</h2></td>`);
+		// Gantt grid — rows with cell borders → batch paths
+		for (let ri = 0; ri < emptyRows; ri++) {
+			const rowY = yGantt + ganttHeaderH + ri * ganttRowH;
 
-		// r3: Вертикальный календарь
-		r3.push(`<td class="${blClass} plr mv-b"><table width="100%">${ver[helpers.index[i]]}</table></td>`);
+			// Bottom border of each row → batch
+			const by = rowY + ganttRowH;
+			pathGanttGray += `M${xCursor} ${by}H${xCursor + mW}`;
 
-		// r4: Горизонтальный + пустые строки
-		const r4parts = [`<td class="${blClass}"><table width="100%" class="m-hor">`];
-		r4parts.push('<tr>' + hor[helpers.index[i]] + '</tr>');
-		r4parts.push('<tr>' + wkn[helpers.index[i]] + '</tr>');
-		for (let n = 1; n < emptyRows; n++) {
-			r4parts.push('<tr>' + emp[helpers.index[i]] + '</tr>');
+			// Vertical cell borders → batch
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				const cx = xCursor + di * cellW;
+
+				// Left cell border → batch
+				pathGanttGray += `M${cx} ${rowY}V${by}`;
+
+				// Week separator → batch
+				if (d.isWeekStart && !d.isFirstOfMonth) {
+					pathGanttWeek += `M${cx} ${rowY}V${by}`;
+				}
+			}
 		}
-		r4parts.push('</table></td>');
-		r4.push(r4parts.join(''));
 
-		// r5: Название месяца для box
-		r5.push(`<td class="${blClass} mb"><h3>${helpers.iname[i]}</h3></td>`);
+		// Week numbers in first Gantt row
+		for (let di = 0; di < numDays; di++) {
+			const d = m.days[di];
+			const wnKey = m.year + '-' + d.weekNum;
+			if (d.isWeekStart && !seenWeeks.has(wnKey)) {
+				seenWeeks.add(wnKey);
+				const cx = xCursor + di * cellW;
+				svgEl('text', {
+					x: cx + cellW / 2, y: yGantt + ganttHeaderH + ganttRowH - 3,
+					'font-size': F.ganttWk, 'text-anchor': 'middle',
+					class: 'ink-light',
+				}, svg).textContent = d.weekNum;
+			}
+		}
 
-		// r6: Box-календарь
-		r6.push(`<td class="${blClass} plr"><table width="100%">${box[helpers.index[i]]}</table></td>`);
+		// ── R5: Box calendar month name ──
+		svgEl('text', {
+			x: xCursor + 10, y: yBoxName + r5H - 12,
+			'font-size': F.boxMonth, 'font-weight': '300',
+			'letter-spacing': '-0.02em',
+		}, svg).textContent = m.name;
+
+		// ── R6: Box calendar grid ──
+		{
+			const boxGridW = mW * 0.85; // use 85% of month column
+			const boxCellW = boxGridW / 7;
+			const boxLeft = xCursor + 6;
+
+			// Day-of-week headers
+			for (let dow = 0; dow < 7; dow++) {
+				const hx = boxLeft + dow * boxCellW + boxCellW / 2;
+				const rawDow = (dow + wsOffset) % 7;
+				const isWE = rawDow === 0 || rawDow === 6;
+				svgEl('text', {
+					x: hx, y: yBox + L.boxHeaderH - 2,
+					'font-size': F.boxDow, 'text-anchor': 'middle',
+					'font-weight': '500',
+					class: isWE ? 'red' : '',
+				}, svg).textContent = WEEK_DAYS[dow].substring(0, 2);
+			}
+
+			// Fill days into grid
+			const firstDayDow = (m.days[0].rawDow - wsOffset + 7) % 7;
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				const gridPos = firstDayDow + di;
+				const row = Math.floor(gridPos / 7);
+				const col = gridPos % 7;
+				const dx = boxLeft + col * boxCellW + boxCellW / 2;
+				const dy = yBox + L.boxHeaderH + row * L.boxCellH + L.boxCellH - 2;
+
+				svgEl('text', {
+					x: dx, y: dy,
+					'font-size': F.boxDay, 'text-anchor': 'middle',
+					class: d.isWeekend ? 'red' : '',
+				}, svg).textContent = d.day;
+			}
+
+			// Week numbers on right side
+			const seenBoxWeeks = new Set();
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				const gridPos = firstDayDow + di;
+				const row = Math.floor(gridPos / 7);
+				if (!seenBoxWeeks.has(row)) {
+					seenBoxWeeks.add(row);
+					const wnX = boxLeft + 7 * boxCellW + 2;
+					const wnY = yBox + L.boxHeaderH + row * L.boxCellH + L.boxCellH - 3;
+					svgEl('text', {
+						x: wnX, y: wnY,
+						'font-size': F.boxWk, 'text-anchor': 'start',
+						class: 'ink-light',
+					}, svg).textContent = d.weekNum;
+				}
+			}
+		}
+
+		xCursor += mW;
 	}
 
-	const rows = [r1, r2, r3, r4, r5, r6];
-	return '<table autosize="1" class="br"><tbody>\n' +
-		rows.map(r => '<tr>' + r.join('') + '</tr>').join('\n') +
-		'\n</tbody></table>';
+	// ── Emit batched path elements (P3) ──
+	if (pathVerGray) svgEl('path', {
+		d: pathVerGray, fill: 'none', 'stroke-width': '0.25', stroke: COLORS.cellLine,
+	}, svg);
+	if (pathVerWeek) svgEl('path', {
+		d: pathVerWeek, fill: 'none', 'stroke-width': L.weekLineW, stroke: COLORS.ink,
+	}, svg);
+	if (pathGanttGray) svgEl('path', {
+		d: pathGanttGray, fill: 'none', 'stroke-width': '0.15', stroke: COLORS.cellLine,
+	}, svg);
+	if (pathGanttWeek) svgEl('path', {
+		d: pathGanttWeek, fill: 'none', 'stroke-width': L.weekLineW, stroke: COLORS.ink,
+	}, svg);
+
+	// ── Right border ──
+	svgEl('line', {
+		x1: xCursor, y1: 0, x2: xCursor, y2: totalH,
+		'stroke-width': '0.75', stroke: COLORS.ink,
+	}, svg);
+
+
+
+	// Store dimensions on SVG for viewport calculations
+	svg._calW = totalContentW;
+	svg._calH = totalH;
+
+	return svg;
 }
 
 // ─── Months / Years toggle ───
@@ -310,37 +553,45 @@ function toggleMonthsYears() {
 	updateCalendar();
 }
 
-// Shared page building logic
+// ─── Page building ───
+let _cachedPages = [];
+let _cachedRollW = 0;
 function buildPages(totalMonths, emptyRows, weekStart) {
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
-	const clampedRows = Math.max(5, Math.min(15, rows));
+	const clampedRows = Math.max(6, Math.min(12, rows));
 	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
 	const totalM = Math.max(1, Math.min(120, totalMonths));
 	const numPages = Math.max(1, Math.ceil(totalM / mpp));
 
-	const pagesParts = [];
+	const cal = document.getElementById('calendar');
+	cal.innerHTML = '';
+
 	for (let p = 0; p < numPages; p++) {
 		const offset = p * mpp;
 		const count = Math.min(mpp, totalM - offset);
-		const calHTML = generateCalendar(count, clampedRows, weekStart, offset);
-		pagesParts.push(`<div class="cal-page" data-page="${p}">${calHTML}</div>`);
-	}
-	const pagesHTML = pagesParts.join('');
+		const svg = generateCalendarSVG(count, clampedRows, weekStart, offset, mpp);
+		svg.classList.add('cal-page');
+		svg.dataset.page = p;
+		cal.appendChild(svg);
 
-	if (currentPaper.copies && currentPaper.copies > 1) {
-		const copiesParts = [];
-		for (let c = 0; c < currentPaper.copies; c++) {
-			if (c > 0) copiesParts.push('<div class="cut-line"></div>');
-			copiesParts.push('<div class="cal-copy">' + pagesHTML + '</div>');
+		// Duplicate SVG for copies (e.g. 914x2)
+		const copies = currentPaper.copies || 1;
+		for (let c = 1; c < copies; c++) {
+			const clone = svg.cloneNode(true);
+			clone.classList.add('cal-page', 'cal-copy');
+			clone.dataset.page = p;
+			clone.dataset.copy = c;
+			cal.appendChild(clone);
 		}
-		document.getElementById('calendar').innerHTML = copiesParts.join('');
-	} else {
-		document.getElementById('calendar').innerHTML = pagesHTML;
 	}
+
+	_cachedPages = Array.from(cal.querySelectorAll('.cal-page'));
+	_cachedRollW = 0; // invalidate roll width cache
+	totalPages = numPages;
 	autoFitViewport();
 }
 
-// Инициализация
+// ─── Init ───
 function init() {
 	const params = new URLSearchParams(window.location.search);
 	let months = parseInt(params.get('l')) || 12;
@@ -356,6 +607,7 @@ function init() {
 	const rowsValue = document.getElementById('rows-value');
 	const weekBtn = document.getElementById('week-start-btn');
 	const label = document.getElementById('months-label');
+
 	if (yearsMode) {
 		if (label) label.textContent = 'Years';
 		if (monthsInput) { monthsInput.value = months; monthsInput.max = 10; }
@@ -377,8 +629,6 @@ function init() {
 function updateCalendar() {
 	const inputVal = parseInt(document.getElementById('months-input').value) || 2;
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
-	// Compact cells for 914mm single format at rows >= 6
-	document.body.classList.toggle('paper-914', currentPaperKey === '914mm' && rows >= 6);
 	const weekBtn = document.getElementById('week-start-btn');
 	const weekStart = (weekBtn && weekBtn.textContent === 'Mon') ? 'mon' : 'sun';
 	const totalMonths = yearsMode ? inputVal * 12 : inputVal;
@@ -405,16 +655,15 @@ function onRowsSlider(val) {
 }
 
 // ─── Viewport state ───
-const MM_PX = 96 / 25.4; // ~3.78 px per mm
+const MM_PX = 96 / 25.4;
 const RULER_W = 20;
 
 const viewport = {
-	left: 10 * MM_PX,               // screen px from left edge to world 0
-	top: 10 * MM_PX,                // screen px from top edge to paper top
+	left: 10 * MM_PX,
+	top: 10 * MM_PX,
 	zoom: 1,
 };
 
-// Paper sizes in landscape: { width_mm, height_mm } — null = infinite
 const PAPER_SIZES = {
 	a4: { w: 297, h: 210 },
 	a3: { w: 420, h: 297 },
@@ -425,12 +674,11 @@ const PAPER_SIZES = {
 let currentPaper = PAPER_SIZES.a4;
 let currentPaperKey = 'a4';
 let totalPages = 1;
-let monthsPerPage = 7;
-let calendarScale = 1; // how much to shrink calendar to fit paper
+let calendarScale = 1;
 
-// ─── Cached DOM pools (avoid destroy/recreate on every pan) ───
-const _paperPool = [];   // paper-sheet-extra elements
-const _guidePool = [];   // guide-page-v elements
+// ─── Cached DOM pools ───
+const _paperPool = [];
+const _guidePool = [];
 
 function _getPooledDiv(pool, index, className, parent) {
 	if (index < pool.length) {
@@ -453,15 +701,14 @@ function _hidePoolFrom(pool, startIndex) {
 function updatePageInfo() {
 	const el = document.getElementById('page-info');
 	if (!el) return;
-	const label = currentPaperKey.toUpperCase().replace('914X4', '914×4').replace('914X2', '914×2').replace('914MM', '914mm');
+	const label = currentPaperKey.toUpperCase()
+		.replace('914X4', '914×4').replace('914X2', '914×2').replace('914MM', '914mm');
+
 	if (currentPaper.w === null) {
-		// Infinite-width formats: show actual width in meters
 		const firstPage = document.querySelector('#calendar .cal-page');
 		if (firstPage) {
 			const screenW = firstPage.getBoundingClientRect().width;
-			// screenW = naturalW * calendarScale * viewport.zoom
-			// Paper width = naturalW * calendarScale / MM_PX (calendarScale IS print scale)
-			const paperW_mm = screenW / (viewport.zoom * MM_PX) + 20; // +20mm margins
+			const paperW_mm = screenW / (viewport.zoom * MM_PX) + 20;
 			const meters = (paperW_mm / 1000).toFixed(1);
 			el.textContent = label + ' ' + meters + 'm';
 		} else {
@@ -477,12 +724,9 @@ function updatePageInfo() {
 function setPaperSize(key) {
 	currentPaper = PAPER_SIZES[key] || PAPER_SIZES.a4;
 	currentPaperKey = key;
-	// Highlight active menu item
 	document.querySelectorAll('.pm-item[data-size]').forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
-	// Apply compact cell mode for 914mm single format
-	// paper-914 class is managed in updateCalendar (depends on rows slider)
 	updateCalendar();
 }
 
@@ -491,7 +735,6 @@ function togglePrintMenu() {
 	const isOpen = menu.style.display !== 'none';
 	menu.style.display = isOpen ? 'none' : '';
 	if (!isOpen) {
-		// Close on click outside
 		setTimeout(() => {
 			document.addEventListener('click', function closePM(e) {
 				if (!e.target.closest('.print-group')) {
@@ -503,168 +746,79 @@ function togglePrintMenu() {
 	}
 }
 
+// ─── Viewport ───
 function autoFitViewport() {
 	const cal = document.getElementById('calendar');
-	// Use first page for measurements
-	const firstPage = cal.querySelector('.cal-page') || cal;
-	// Render at scale 1 to measure real size
-	cal.style.position = 'fixed';
-	cal.style.left = '0px';
-	cal.style.top = '0px';
-	cal.style.bottom = '';
-	cal.style.width = '';
-	cal.style.transform = 'none';
-	// Reset all pages to scale 1
-	cal.querySelectorAll('.cal-page').forEach(p => {
-		p.style.position = 'relative';
-		p.style.transform = 'scale(1)';
-		p.style.transformOrigin = 'top left';
-	});
-	void cal.offsetHeight;
-	const rect = firstPage.getBoundingClientRect();
-	const contentH = rect.height;
-	const contentW = rect.width;
+	const firstPage = cal.querySelector('.cal-page');
+	if (!firstPage) return;
 
-	// 1) calendarScale: fit content into printable area at 1:1
-	const MARGIN_MM = 10;
-	const printH = currentPaper.h - 2 * MARGIN_MM;
+	// SVG has intrinsic dimensions via viewBox
+	const svgW = firstPage._calW || parseFloat(firstPage.getAttribute('width')) || 800;
+	const svgH = firstPage._calH || parseFloat(firstPage.getAttribute('height')) || 600;
+
+	// 1) calendarScale: fit SVG content into printable area
+	const MARGIN_MM = 7;
+	const copies = currentPaper.copies || 1;
+	const copyH = currentPaper.h / copies;
+	const printH = copyH - 2 * MARGIN_MM;
 	const printW = currentPaper.w !== null ? currentPaper.w - 2 * MARGIN_MM : Infinity;
 
-	// For fixed-width paper: iteratively find stable column width so N months fit paper
-	if (currentPaper.w !== null) {
-		const rows = parseInt(document.getElementById('rows-slider').value) || 10;
-		monthsPerPage = (rows >= 12) ? 8 : 7;
-
-		// Calculate total pages from actual page divs
-		const pageElements = cal.querySelectorAll('.cal-page');
-		totalPages = pageElements.length || 1;
-
-		// 1. Measure metrics using trial width (first page only)
-		const trialW_mm = printW / monthsPerPage;
-		const blCols = cal.querySelectorAll('.bl');
-		blCols.forEach(el => el.style.width = trialW_mm + 'mm');
-		void cal.offsetHeight;
-
-		const actualW = firstPage.getBoundingClientRect().width;
-		// Spacer is the first cell of the table
-		const spacerCell = firstPage.querySelector('td:first-child');
-		const spacerW = spacerCell ? spacerCell.getBoundingClientRect().width : 0;
-
-		// Derived metrics — use first page's columns for measurement
-		const firstPageBl = firstPage.querySelectorAll('.bl');
-		const totalMonthW = Math.max(0, actualW - spacerW);
-		const unitW = totalMonthW / (firstPageBl.length || 1);
-		// Overhead = borders + padding relative to trial
-		const colOverhead = unitW - (trialW_mm * MM_PX);
-
-		// 2. Iteratively adjust column width
-		for (let i = 0; i < 3; i++) {
-			void cal.offsetHeight;
-			const h = firstPage.getBoundingClientRect().height;
-			const scale = (printH * MM_PX) / h;
-
-			const targetW = (printW * MM_PX) / scale;
-			// Safety buffer: 3mm on paper (converted to natural pixels pre-scale)
-			const safetyPx = (3 * MM_PX) / scale;
-
-			// We want: Spacer + (monthsPerPage * unitNew) <= targetW - safety
-			const targetUnitW = (targetW - spacerW - safetyPx) / monthsPerPage;
-
-			// colNew = targetUnitW - colOverhead
-			const colNew = Math.max(1, targetUnitW - colOverhead);
-			blCols.forEach(el => el.style.width = colNew + 'px');
-		}
-
-		// 3. Final scale
-		void cal.offsetHeight;
-		calendarScale = (printH * MM_PX) / firstPage.getBoundingClientRect().height;
-	} else {
-		document.querySelectorAll('.bl').forEach(el => el.style.width = '');
-		// For copies mode: scale based on copyH if defined, else use full content height
-		if (currentPaper.copies && currentPaper.copies > 1 && currentPaper.copyH) {
-			calendarScale = (currentPaper.copyH * MM_PX) / contentH;
-		} else if (currentPaper.copies && currentPaper.copies > 1) {
-			// 914x2: measure full height (all copies + cut-lines)
-			calendarScale = (printH * MM_PX) / cal.getBoundingClientRect().height;
-		} else {
-			calendarScale = (printH * MM_PX) / contentH;
-		}
-		totalPages = 1;
-
-		// For 914mm single: set cell widths based on rows slider
-		if (document.body.classList.contains('paper-914')) {
-			const rows914 = parseInt(document.getElementById('rows-slider').value) || 10;
-			// rows=6 → 4mm, rows=12 → 3mm
-			const targetMM = rows914 >= 12 ? 3 : 4;
-			const cellW_css = targetMM / calendarScale; // mm in CSS → targetMM on paper
-			const cellStyle = cellW_css + 'mm';
-			cal.querySelectorAll('td.h, td.e-h').forEach(el => {
-				el.style.width = cellStyle;
-				el.style.minWidth = cellStyle;
-				el.style.maxWidth = cellStyle;
-			});
-			// Recompute scale after width change (height may shift slightly)
-			void cal.offsetHeight;
-			calendarScale = (printH * MM_PX) / firstPage.getBoundingClientRect().height;
-		} else {
-			cal.querySelectorAll('td.h, td.e-h').forEach(el => {
-				el.style.width = '';
-				el.style.minWidth = '';
-				el.style.maxWidth = '';
-			});
-		}
-	}
+	// Scale to fit height (primary constraint)
+	const scaleH = (printH * MM_PX) / svgH;
+	const scaleW = currentPaper.w !== null ? (printW * MM_PX) / svgW : Infinity;
+	calendarScale = Math.min(scaleH, scaleW);
 
 	// 2) viewport.zoom: fit the paper on screen
+	const isMobile = window.innerWidth < 768;
 	const screenMargin = 10 * MM_PX;
-	const rulerGap = RULER_W + 3 * MM_PX; // ruler height + 3mm gap
+	const rulerGap = isMobile ? 0 : RULER_W + 3 * MM_PX;
 	const availableH = window.innerHeight - rulerGap;
 	const scaleScreen = (availableH - screenMargin) / (currentPaper.h * MM_PX);
 	viewport.zoom = Math.min(scaleScreen, 1);
+
 	const paperScreenH = currentPaper.h * viewport.zoom * MM_PX;
 	viewport.top = (availableH - paperScreenH) / 2;
+
 	if (currentPaper.w !== null) {
 		const paperScreenW = currentPaper.w * viewport.zoom * MM_PX;
-		viewport.left = RULER_W + (window.innerWidth - RULER_W - paperScreenW) / 2;
+		const leftGap = isMobile ? 10 : RULER_W;
+		viewport.left = leftGap + (window.innerWidth - leftGap - paperScreenW) / 2;
 	} else {
-		viewport.left = RULER_W + screenMargin;
+		viewport.left = (isMobile ? 10 : RULER_W) + screenMargin;
 	}
+
 	applyViewport();
 	updatePageInfo();
 }
 
 function applyViewport() {
 	const step = viewport.zoom * MM_PX;
-	const marginPx = 7 * step; // 0.7cm margin scaled
+	const marginPx = 7 * step;
 
-	// Paper origin (top-left corner of paper)
 	const originScreenX = viewport.left;
 	const paperTopY = viewport.top;
 	let paperW;
 	if (currentPaper.w !== null) {
 		paperW = currentPaper.w * step;
 	} else {
-		// Temporary: set wide, will trim after content is positioned
 		paperW = window.innerWidth * 2;
 	}
 	const paperH = currentPaper.h * step;
-	const pageGap = 20; // px gap between pages on screen
+	const pageGap = 20;
 
-	// --- Render paper sheets (1 per page) ---
+	// Paper sheet
 	const paper = document.getElementById('paper-sheet');
-
-	// Position page 1
 	paper.style.left = originScreenX + 'px';
 	paper.style.top = paperTopY + 'px';
 	paper.style.width = paperW + 'px';
 	paper.style.height = paperH + 'px';
 
-	// Reuse pooled extra paper sheets
+	// Extra paper sheets for multi-page
 	for (let p = 1; p < totalPages; p++) {
 		const extra = _getPooledDiv(_paperPool, p - 1, 'paper-sheet-extra', document.body);
 		extra.style.position = 'fixed';
 		extra.style.zIndex = '1';
-		extra.style.background = 'var(--mol-cream)';
+		extra.style.background = '#FDF6E3';
 		extra.style.borderRadius = '8px';
 		extra.style.boxShadow = '1px 1px 4px rgba(60,40,20,.15), 3px 3px 12px rgba(60,40,20,.1)';
 		extra.style.pointerEvents = 'none';
@@ -676,79 +830,56 @@ function applyViewport() {
 	_hidePoolFrom(_paperPool, Math.max(0, totalPages - 1));
 
 	const paperBottomY = paperTopY + paperH;
-
-	// Calendar pages: position each .cal-page on its paper sheet
 	const totalScale = calendarScale * viewport.zoom;
+
+	// Position SVG pages
 	const cal = document.getElementById('calendar');
 	cal.style.position = 'fixed';
-	cal.style.bottom = '';
 
-	if (currentPaper.copies && currentPaper.copies > 1) {
-		// Copies mode (914x2/x4): position entire calendar as one block, centered vertically
-		cal.style.left = (originScreenX + marginPx) + 'px';
-		cal.style.transformOrigin = 'top left';
-		cal.style.transform = `scale(${totalScale})`;
-		// Measure content height after scale to center vertically
-		void cal.offsetHeight;
-		const scaledH = cal.getBoundingClientRect().height;
-		const offsetY = currentPaper.copyH
-			? Math.max(0, paperH - scaledH)  // bottom-align for copyH formats (914x4)
-			: marginPx;                       // top margin for others (914x2)
-		cal.style.top = (paperTopY + offsetY) + 'px';
-		// Reset any page-level positioning
-		cal.querySelectorAll('.cal-page').forEach(p => {
-			p.style.position = '';
-			p.style.left = '';
-			p.style.top = '';
-			p.style.transform = '';
-		});
-	} else {
-		// Multi-page mode: position each page on its paper sheet
-		cal.style.left = '0px';
-		cal.style.top = '0px';
-		cal.style.transform = 'none';
+	const pages = _cachedPages;
+	const copies = currentPaper.copies || 1;
+	const copyH_px = (currentPaper.h / copies) * step;
+	pages.forEach((page) => {
+		const pageIdx = parseInt(page.dataset.page) || 0;
+		const copyIdx = parseInt(page.dataset.copy) || 0;
+		page.style.position = 'fixed';
+		page.style.left = (originScreenX + marginPx + pageIdx * (paperW + pageGap)) + 'px';
+		page.style.top = (paperTopY + marginPx + copyIdx * copyH_px) + 'px';
+		page.style.transformOrigin = 'top left';
+		page.style.transform = `scale(${totalScale})`;
+	});
 
-		const pages = cal.querySelectorAll('.cal-page');
-		pages.forEach((page, i) => {
-			page.style.position = 'fixed';
-			page.style.left = (originScreenX + marginPx + i * (paperW + pageGap)) + 'px';
-			page.style.top = (paperTopY + marginPx) + 'px';
-			page.style.transformOrigin = 'top left';
-			page.style.transform = `scale(${totalScale})`;
-		});
-	}
-
-	// Trim roll paper after content is positioned and scaled
+	// Trim roll paper (cached to avoid layout thrashing on pan/zoom)
 	if (currentPaper.w === null) {
-		void cal.offsetHeight;
-		const firstPage = cal.querySelector('.cal-page');
-		if (firstPage) {
-			const renderedW = firstPage.getBoundingClientRect().width;
-			const trimMargin = 20 * step; // 20mm after content
-			paperW = renderedW + 2 * marginPx + trimMargin;
+		if (!_cachedRollW) {
+			const firstPage = _cachedPages[0];
+			if (firstPage) {
+				void firstPage.offsetHeight;
+				_cachedRollW = firstPage.getBoundingClientRect().width / (calendarScale * viewport.zoom);
+			}
+		}
+		if (_cachedRollW) {
+			const trimMargin = 20 * step;
+			paperW = _cachedRollW * calendarScale * viewport.zoom + 2 * marginPx + trimMargin;
 			paper.style.width = paperW + 'px';
 		}
 	}
 
-	// Guides at paper edges
+	// Guides
 	document.getElementById('guide-h').style.top = (paperBottomY - marginPx) + 'px';
 	document.getElementById('guide-v').style.left = originScreenX + 'px';
 	const guideH = document.getElementById('guide-h-a4');
 	guideH.style.top = (paperTopY + marginPx) + 'px';
 
-	// Reuse pooled dynamic guides
 	const guideVA4 = document.getElementById('guide-v-a4');
-	guideVA4.style.display = 'none'; // replaced by dynamic guides
+	guideVA4.style.display = 'none';
 
 	let guideIdx = 0;
 	for (let p = 0; p < totalPages; p++) {
 		const pageLeft = originScreenX + p * (paperW + pageGap);
-
-		// Left guide (printable area left edge)
 		const gL = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-v', document.body);
 		gL.style.left = (pageLeft + marginPx) + 'px';
 
-		// Right guide (printable area right edge)
 		if (currentPaper.w !== null) {
 			const gR = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-v', document.body);
 			gR.style.left = (pageLeft + paperW - marginPx) + 'px';
@@ -756,21 +887,21 @@ function applyViewport() {
 	}
 	_hidePoolFrom(_guidePool, guideIdx);
 
-	// Hide old margin guides
+	// Hide margin guides
 	document.getElementById('guide-margin-bottom').style.display = 'none';
 	document.getElementById('guide-margin-top').style.display = 'none';
 	document.getElementById('guide-margin-left').style.display = 'none';
 	document.getElementById('guide-margin-right').style.display = 'none';
 
-	// ── Gantt panel: anchor bottom-left of calendar grid ──
+	// Gantt panel position
 	const designPanel = document.getElementById('gantt-panel');
 	if (designPanel && !designPanel._dragged) {
-		const firstBl2 = document.querySelector('#calendar .bl');
-		if (firstBl2) {
-			const blLeft = firstBl2.getBoundingClientRect().left;
+		const firstPage = document.querySelector('#calendar .cal-page');
+		if (firstPage) {
+			const pageRect = firstPage.getBoundingClientRect();
 			const panelW = designPanel.offsetWidth;
 			const panelH = designPanel.offsetHeight;
-			designPanel.style.left = (blLeft - panelW - 6) + 'px';
+			designPanel.style.left = (pageRect.left - panelW - 6) + 'px';
 			const midY = paperTopY + (paperBottomY - paperTopY) * 0.75 - panelH / 2;
 			designPanel.style.top = midY + 'px';
 		}
@@ -780,25 +911,26 @@ function applyViewport() {
 }
 
 // ─── Rulers ───
+let _rulerLeft, _rulerBottom;
 function drawRulers() {
-	const isDark = document.body.classList.contains('dark');
-	const tickColor = isDark ? '#6B5D4B' : '#8B7D6B';
-	const textColor = isDark ? '#9A8C7A' : '#6B5D4B';
-	const bgColor = isDark ? '#252015' : '#F5ECD7';
-	const step = viewport.zoom * MM_PX; // screen px per world mm
+	const tickColor = '#8B7D6B';
+	const textColor = '#6B5D4B';
+	const bgColor = '#F5ECD7';
+	const step = viewport.zoom * MM_PX;
 
-	// Adaptive scale: if 1 cm < 8 px on screen, switch to meter mode
+	if (!_rulerLeft) _rulerLeft = document.getElementById('ruler-left');
+	if (!_rulerBottom) _rulerBottom = document.getElementById('ruler-bottom');
+
 	const cmPx = step * 10;
-	const largeMode = cmPx < 8; // meter + 10 cm ticks
-	// In large mode: iterate by 100mm (10cm), label every 1000mm (1m)
-	const tickStep = largeMode ? 100 : 1;        // mm per tick iteration
-	const majorEvery = largeMode ? 1000 : 10;     // mm for major tick + label
-	const midEvery = largeMode ? 100 : 5;         // mm for medium tick
+	const largeMode = cmPx < 8;
+	const tickStep = largeMode ? 100 : 1;
+	const majorEvery = largeMode ? 1000 : 10;
+	const midEvery = largeMode ? 100 : 5;
 
 	const dpr = window.devicePixelRatio || 1;
 
-	// ── Left ruler (vertical, 0 at bottom margin, positive up) ──
-	const lCanvas = document.getElementById('ruler-left');
+	// Left ruler (vertical)
+	const lCanvas = _rulerLeft;
 	const lh = window.innerHeight;
 	lCanvas.width = RULER_W * dpr;
 	lCanvas.height = lh * dpr;
@@ -809,17 +941,15 @@ function drawRulers() {
 	lctx.fillStyle = bgColor;
 	lctx.fillRect(0, 0, RULER_W, lh);
 
-	// 0mm is at the bottom margin (guide-h position)
-	const marginStep = 7 * step; // 7mm margin in screen px
+	const marginStep = 7 * step;
 	const paperH = currentPaper.h * step;
-	const zeroY = viewport.top + paperH - marginStep; // screen Y where 0mm is
-	// Positive mm goes UP (screen Y decreases), negative goes DOWN
+	const zeroY = viewport.top + paperH - marginStep;
 	const mmTopV = Math.ceil((zeroY) / step);
 	const mmBotV = Math.floor((zeroY - lh) / step);
 	const mmStartV = Math.floor(mmBotV / tickStep) * tickStep;
 	const mmEndV = Math.ceil(mmTopV / tickStep) * tickStep;
 	for (let mm = mmStartV; mm <= mmEndV; mm += tickStep) {
-		const y = zeroY - mm * step; // positive mm goes upward
+		const y = zeroY - mm * step;
 		if (y < 0 || y > lh) continue;
 		let tickLen;
 		if (mm % majorEvery === 0) tickLen = RULER_W;
@@ -838,7 +968,6 @@ function drawRulers() {
 			const label = largeMode ? (mm / 1000) + 'm' : (mm / 10);
 			lctx.fillText(label, 8, y - 2);
 		} else if (largeMode && mm % 100 === 0) {
-			// Label every 10cm in large mode
 			lctx.fillStyle = textColor;
 			lctx.font = '7px IBM Plex Sans, sans-serif';
 			lctx.textAlign = 'center';
@@ -848,8 +977,8 @@ function drawRulers() {
 		}
 	}
 
-	// ── Bottom ruler (horizontal, left-to-right) ──
-	const bCanvas = document.getElementById('ruler-bottom');
+	// Bottom ruler (horizontal)
+	const bCanvas = _rulerBottom;
 	const bw = window.innerWidth;
 	bCanvas.width = bw * dpr;
 	bCanvas.height = RULER_W * dpr;
@@ -860,9 +989,8 @@ function drawRulers() {
 	bctx.fillStyle = bgColor;
 	bctx.fillRect(0, 0, bw, RULER_W);
 
-	// 0mm on bottom ruler = first .bl line position
-	const firstBlEl = document.querySelector('#calendar .bl');
-	const zeroX = firstBlEl ? firstBlEl.getBoundingClientRect().left : viewport.left;
+	const firstPage = _cachedPages[0];
+	const zeroX = firstPage ? firstPage.getBoundingClientRect().left : viewport.left;
 	const mmLeft = Math.floor(-zeroX / step);
 	const mmRight = Math.ceil((bw - zeroX) / step);
 	const mmStartH = Math.floor(mmLeft / tickStep) * tickStep;
@@ -887,7 +1015,6 @@ function drawRulers() {
 			const label = largeMode ? (mm / 1000) + 'm' : (mm / 10);
 			bctx.fillText(label, x, RULER_W - 4);
 		} else if (largeMode && mm % 100 === 0) {
-			// Label every 10cm in large mode
 			bctx.fillStyle = textColor;
 			bctx.font = '7px IBM Plex Sans, sans-serif';
 			bctx.textAlign = 'center';
@@ -907,50 +1034,238 @@ function toggleWeekStart() {
 	updateCalendar();
 }
 
-function printPDF() {
-	window.print();
+// Helper: DD-MM-YYYY date string
+function _exportDate() {
+	const d = new Date();
+	return pad2(d.getDate()) + '-' + pad2(d.getMonth() + 1) + '-' + d.getFullYear();
 }
 
-const SUN_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-const MOON_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+// Font cache for PDF — fetch once, register on every new doc
+const _fontCache = []; // [{id, b64, name, style, weight}]
+let _fontsFetched = false;
 
-function toggleTheme() {
-	const isDark = document.body.classList.toggle('dark');
-	document.getElementById('theme-btn').innerHTML = isDark ? MOON_ICON : SUN_ICON;
-	localStorage.setItem('theme', isDark ? 'dark' : 'light');
-	drawRulers();
+async function _loadPDFFonts(doc) {
+	const fontName = 'IBM Plex Sans'; // must match SVG font-family
+
+	// Fetch font files only once
+	if (!_fontsFetched) {
+		const weights = [
+			{ file: 'IBMPlexSans-Light.ttf', style: 'normal', weight: 200 },
+			{ file: 'IBMPlexSans-Regular.ttf', style: 'normal', weight: 400 },
+			{ file: 'IBMPlexSans-Medium.ttf', style: 'normal', weight: 500 },
+		];
+		for (const w of weights) {
+			try {
+				const resp = await fetch('fonts/' + w.file);
+				const buf = await resp.arrayBuffer();
+				const bytes = new Uint8Array(buf);
+				let binary = '';
+				for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+				_fontCache.push({
+					id: 'IBMPlexSans-' + w.weight + '.ttf',
+					b64: btoa(binary),
+					name: fontName,
+					style: w.style,
+					weight: w.weight,
+				});
+			} catch (e) {
+				console.warn('Font load failed:', w.file, e);
+			}
+		}
+		_fontsFetched = true;
+	}
+
+	// Register cached fonts on this doc
+	for (const f of _fontCache) {
+		doc.addFileToVFS(f.id, f.b64);
+		doc.addFont(f.id, f.name, f.style, f.weight);
+	}
+	if (_fontCache.length) doc.setFont(fontName);
 }
 
-function restoreTheme() {
-	const saved = localStorage.getItem('theme');
-	if (saved === 'dark') {
-		document.body.classList.add('dark');
-		document.getElementById('theme-btn').innerHTML = MOON_ICON;
+async function printPDF() {
+	if (typeof jspdf === 'undefined' || typeof svg2pdf === 'undefined') {
+		window.print(); // fallback
+		return;
+	}
+
+	const copies = currentPaper.copies || 1;
+	const months = parseInt(document.getElementById('months-input').value) || 12;
+	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
+	const fileName = `wallplan_${currentPaperKey}_${months}mo_${rows}rows_${_exportDate()}.pdf`;
+
+	// Group pages by index
+	const pageMap = {};
+	_cachedPages.forEach(page => {
+		const idx = parseInt(page.dataset.page) || 0;
+		if (!pageMap[idx]) pageMap[idx] = [];
+		pageMap[idx].push(page);
+	});
+	const pageIndices = Object.keys(pageMap).map(Number).sort((a, b) => a - b);
+
+	// Determine PDF page size
+	const first = _cachedPages[0];
+	if (!first) return;
+	const calW = first._calW || parseFloat(first.getAttribute('width'));
+	const calH = first._calH || parseFloat(first.getAttribute('height'));
+
+	let pdfW, pdfH;
+	if (currentPaper.w !== null) {
+		pdfW = currentPaper.w;
+		pdfH = currentPaper.h;
+	} else {
+		const MARGIN_MM = 7;
+		const copyH = currentPaper.h / copies;
+		const printH = copyH - 2 * MARGIN_MM;
+		const scale = printH / calH;
+		const printW = calW * scale;
+		pdfW = printW + 2 * MARGIN_MM;
+		pdfH = currentPaper.h;
+	}
+
+	const orientation = pdfW > pdfH ? 'landscape' : 'portrait';
+	const { jsPDF } = jspdf;
+	const doc = new jsPDF({
+		orientation,
+		unit: 'mm',
+		format: [Math.min(pdfW, pdfH), Math.max(pdfW, pdfH)],
+	});
+
+	// Load IBM Plex Sans into jsPDF
+	await _loadPDFFonts(doc);
+
+	for (let i = 0; i < pageIndices.length; i++) {
+		const pi = pageIndices[i];
+		const group = pageMap[pi];
+		if (i > 0) doc.addPage([Math.min(pdfW, pdfH), Math.max(pdfW, pdfH)], orientation);
+
+		const MARGIN = 7;
+		const availW = pdfW - 2 * MARGIN;
+		const availH = (pdfH / copies) - 2 * MARGIN;
+
+		for (let c = 0; c < copies; c++) {
+			const src = group[c] || group[0];
+			const clone = src.cloneNode(true);
+			clone.removeAttribute('style');
+			clone.removeAttribute('class');
+			clone.setAttribute('xmlns', SVG_NS);
+			// Temporarily add to DOM for svg2pdf
+			clone.style.position = 'absolute';
+			clone.style.left = '-9999px';
+			document.body.appendChild(clone);
+
+			const yOffset = MARGIN + c * (pdfH / copies);
+			await doc.svg(clone, {
+				x: MARGIN,
+				y: yOffset,
+				width: availW,
+				height: availH,
+			});
+			document.body.removeChild(clone);
+		}
+	}
+
+	doc.save(fileName);
+}
+
+// ─── SVG Download ───
+function _preparePageSVG(page) {
+	const clone = page.cloneNode(true);
+	clone.removeAttribute('style');
+	clone.removeAttribute('class');
+	clone.setAttribute('xmlns', SVG_NS);
+	return clone;
+}
+
+function _downloadBlob(svgNode, filename) {
+	const serializer = new XMLSerializer();
+	const svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + serializer.serializeToString(svgNode);
+	const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+}
+
+function downloadSVG() {
+	const copies = currentPaper.copies || 1;
+	const months = parseInt(document.getElementById('months-input').value) || 12;
+	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
+	const baseName = `wallplan_${currentPaperKey}_${months}mo_${rows}rows_${_exportDate()}`;
+
+	// Group pages by page index
+	const pageMap = {};
+	_cachedPages.forEach(page => {
+		const idx = parseInt(page.dataset.page) || 0;
+		if (!pageMap[idx]) pageMap[idx] = [];
+		pageMap[idx].push(page);
+	});
+
+	const pageIndices = Object.keys(pageMap).map(Number).sort((a, b) => a - b);
+
+	for (const pi of pageIndices) {
+		const group = pageMap[pi];
+		const first = group[0];
+		if (!first) continue;
+
+		if (copies <= 1) {
+			// Single copy — export page as-is
+			const clone = _preparePageSVG(first);
+			const suffix = pageIndices.length > 1 ? `_page${pi + 1}` : '';
+			_downloadBlob(clone, `${baseName}${suffix}.svg`);
+		} else {
+			// Multi-copy — combine into one tall SVG
+			const calW = first._calW || parseFloat(first.getAttribute('width'));
+			const calH = first._calH || parseFloat(first.getAttribute('height'));
+			const totalCopyH = calH * copies;
+
+			const wrapper = document.createElementNS(SVG_NS, 'svg');
+			wrapper.setAttribute('xmlns', SVG_NS);
+			wrapper.setAttribute('viewBox', `0 0 ${calW} ${totalCopyH}`);
+			wrapper.setAttribute('width', calW);
+			wrapper.setAttribute('height', totalCopyH);
+
+			for (let c = 0; c < copies; c++) {
+				const src = group[c] || first; // fallback to first if clone missing
+				const clone = _preparePageSVG(src);
+				const g = document.createElementNS(SVG_NS, 'g');
+				g.setAttribute('transform', `translate(0,${c * calH})`);
+				// Move all children into the group
+				while (clone.firstChild) g.appendChild(clone.firstChild);
+				wrapper.appendChild(g);
+			}
+
+			const suffix = pageIndices.length > 1 ? `_page${pi + 1}` : '';
+			_downloadBlob(wrapper, `${baseName}${suffix}.svg`);
+		}
 	}
 }
 
 // ─── Init & event handlers ───
 document.addEventListener('DOMContentLoaded', () => {
 	init();
-	restoreTheme();
 
 	// Enter key on inputs triggers update
 	document.getElementById('months-input').addEventListener('keydown', (e) => {
 		if (e.key === 'Enter') updateCalendar();
 	});
 
-	// ── Click corner to reset viewport ──
+	// Click corner to reset viewport
 	document.querySelector('.ruler-corner').addEventListener('click', () => {
 		const dp = document.getElementById('gantt-panel');
 		if (dp) dp._dragged = false;
 		autoFitViewport();
 	});
 
-	// ── Drag to pan the calendar ──
+	// Drag to pan
 	let isPanning = false, panStartX, panStartY, panStartL, panStartT;
+	let _rafId = 0;
 
 	document.addEventListener('mousedown', (e) => {
-		// Don't pan when clicking controls, rulers, or interactive elements
 		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner')) return;
 		isPanning = true;
 		panStartX = e.clientX;
@@ -965,49 +1280,125 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!isPanning) return;
 		viewport.left = panStartL + (e.clientX - panStartX);
 		viewport.top = panStartT + (e.clientY - panStartY);
-		applyViewport();
+		if (!_rafId) _rafId = requestAnimationFrame(() => { applyViewport(); _rafId = 0; });
 	});
 
 	document.addEventListener('mouseup', () => {
 		if (isPanning) {
 			isPanning = false;
 			document.body.style.cursor = '';
+			if (_rafId) { cancelAnimationFrame(_rafId); _rafId = 0; }
+			applyViewport();
 		}
 	});
 
-	// ── Ctrl + wheel to zoom ──
+	// Ctrl + wheel to zoom
 	document.addEventListener('wheel', (e) => {
 		if (!e.ctrlKey) return;
 		e.preventDefault();
-
 		const factor = e.deltaY < 0 ? 1.08 : 1 / 1.08;
 		const newZoom = Math.max(0.05, Math.min(10, viewport.zoom * factor));
-
-		// Zoom toward cursor position
 		const mouseX = e.clientX;
 		const mouseY = e.clientY;
-
-		// World-space px under cursor (before zoom)
 		const worldPxX = (mouseX - viewport.left) / viewport.zoom;
 		const worldPxY = (mouseY - viewport.top) / viewport.zoom;
-
 		viewport.zoom = newZoom;
-
-		// Adjust origin so cursor stays over same world point
 		viewport.left = mouseX - worldPxX * newZoom;
 		viewport.top = mouseY - worldPxY * newZoom;
-
-		applyViewport();
+		if (!_rafId) _rafId = requestAnimationFrame(() => { applyViewport(); _rafId = 0; });
 	}, { passive: false });
 
-	// ── Window resize ──
+	// ─── Pointer Events: pan + pinch-to-zoom ───
+	const overlay = document.getElementById('touch-overlay');
+	const activePointers = new Map(); // pointerId → {x, y}
+	let panStartX2, panStartY2;
+	let pinchStartDist = 0, pinchStartZoom2 = 1, pinchCX = 0, pinchCY = 0;
+
+	// DEBUG
+	const _dbg = document.createElement('div');
+	_dbg.style.cssText = 'position:fixed;top:0;left:0;z-index:9999;background:rgba(0,0,0,.7);color:#0f0;font:12px monospace;padding:4px 8px;pointer-events:none';
+	_dbg.textContent = 'ptr: waiting';
+	document.body.appendChild(_dbg);
+
+	function _ptrDist() {
+		const pts = [...activePointers.values()];
+		if (pts.length < 2) return 0;
+		return Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+	}
+
+	overlay.addEventListener('pointerdown', (e) => {
+		overlay.setPointerCapture(e.pointerId);
+		activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		_dbg.textContent = 'down: ' + activePointers.size + 'ptr x=' + Math.round(e.clientX);
+		_dbg.style.background = 'rgba(200,0,0,.8)';
+
+		if (activePointers.size === 1) {
+			panStartX2 = e.clientX;
+			panStartY2 = e.clientY;
+			panStartL = viewport.left;
+			panStartT = viewport.top;
+		} else if (activePointers.size === 2) {
+			pinchStartDist = _ptrDist();
+			pinchStartZoom2 = viewport.zoom;
+			const pts = [...activePointers.values()];
+			pinchCX = (pts[0].x + pts[1].x) / 2;
+			pinchCY = (pts[0].y + pts[1].y) / 2;
+		}
+		e.preventDefault();
+	});
+
+	overlay.addEventListener('pointermove', (e) => {
+		if (!activePointers.has(e.pointerId)) return;
+		activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+		if (activePointers.size === 1) {
+			const dx = e.clientX - panStartX2;
+			const dy = e.clientY - panStartY2;
+			viewport.left = panStartL + dx;
+			viewport.top = panStartT + dy;
+			_dbg.textContent = 'pan dx=' + Math.round(dx) + ' dy=' + Math.round(dy);
+			_dbg.style.background = 'rgba(0,150,0,.8)';
+			if (!_rafId) _rafId = requestAnimationFrame(function () { applyViewport(); _rafId = 0; });
+		} else if (activePointers.size === 2) {
+			const dist = _ptrDist();
+			if (pinchStartDist > 0) {
+				const newZoom = Math.max(0.05, Math.min(10, pinchStartZoom2 * (dist / pinchStartDist)));
+				const worldPxX = (pinchCX - viewport.left) / viewport.zoom;
+				const worldPxY = (pinchCY - viewport.top) / viewport.zoom;
+				viewport.zoom = newZoom;
+				viewport.left = pinchCX - worldPxX * newZoom;
+				viewport.top = pinchCY - worldPxY * newZoom;
+				_dbg.textContent = 'zoom=' + newZoom.toFixed(2);
+				if (!_rafId) _rafId = requestAnimationFrame(function () { applyViewport(); _rafId = 0; });
+			}
+		}
+		e.preventDefault();
+	});
+
+	function _ptrUp(e) {
+		activePointers.delete(e.pointerId);
+		if (activePointers.size === 0) {
+			if (_rafId) { cancelAnimationFrame(_rafId); _rafId = 0; }
+			applyViewport();
+		} else if (activePointers.size === 1) {
+			var pt = [...activePointers.values()][0];
+			panStartX2 = pt.x;
+			panStartY2 = pt.y;
+			panStartL = viewport.left;
+			panStartT = viewport.top;
+		}
+	}
+	overlay.addEventListener('pointerup', _ptrUp);
+	overlay.addEventListener('pointercancel', _ptrUp);
+
+	// Window resize
 	let _resizeTimer;
 	window.addEventListener('resize', () => {
 		clearTimeout(_resizeTimer);
 		_resizeTimer = setTimeout(applyViewport, 150);
 	});
 
-	// ── Draggable controls panels ──
+	// Draggable panels
 	document.querySelectorAll('.controls').forEach(panel => {
 		let isDraggingPanel = false, pStartX, pStartY, pStartL, pStartT;
 
@@ -1025,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			pStartY = e.clientY;
 			pStartL = panel.offsetLeft;
 			pStartT = panel.offsetTop;
-			e.stopPropagation(); // Don't start panning
+			e.stopPropagation();
 		});
 
 		document.addEventListener('mousemove', (e) => {

@@ -10,10 +10,11 @@ Twelve years ago, in October 2014 I [released](https://app.box.com/s/7yqyh8vfphq
 
 ## 🌟 Features
 
-- **Precision Layout**: Automatically fits 7 or 8 months per page perfectly on any paper width (A4/A3). Multi-page output shown side-by-side.
-- **Flexible Modes**: Vertical (classic), Gantt (horizontal timeline), Years (multi-year).
-- **Paper Sizes**: A4, A3, 914mm (single roll), 914mm ×2, 914mm ×4.
-- **Customizable**: Week start (Mon/Sun), US Federal Holidays, adjustable rows (5–15).
+- **SVG Renderer**: Pure SVG output with three calendar types — Vertical (classic days list), Gantt (horizontal planning grid), and Box (traditional mini month grid).
+- **Precision Layout**: Automatically fits 7–8 months per page on A4/A3. Roll paper uses cell-width-driven calculation for exact physical dimensions.
+- **Paper Sizes**: A4, A3, 914mm (single), 914mm ×2 (dual copies), 914mm ×4 (quad copies).
+- **Format-Specific Tuning**: Each roll format has optimized cell widths — 4mm (single), 2.7mm (×2), 1.7mm (×4) — and font scaling for readability at each physical size.
+- **Customizable**: Week start (Mon/Sun), US Federal Holidays, adjustable Gantt rows (6/8/10/12).
 - **Print Optimized**: Custom print CSS — what you see is what you get.
 - **Rulers & Guides**: Measurement rulers with cm/m labels, vertical guides marking printable area.
 
@@ -25,7 +26,7 @@ Twelve years ago, in October 2014 I [released](https://app.box.com/s/7yqyh8vfphq
 
 ## 📐 Architecture
 
-See [architecture.md](./architecture.md) for detailed technical documentation on the layout engine and codebase structure.
+See [architecture.md](./architecture.md) for detailed technical documentation on the SVG layout engine and codebase structure.
 
 ## 🙏🏻 Credits
 
