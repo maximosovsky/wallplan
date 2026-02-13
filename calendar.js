@@ -1131,20 +1131,18 @@ function _scrollWheelTo(el, val, smooth = true) {
 	const items = el.querySelectorAll('.mob-wheel-item');
 	const target = Array.from(items).find(d => parseInt(d.dataset.v) === val);
 	if (!target) return;
-	// Center the target: its top should be 1 item-height from viewport top
-	// pad=40px, each item=40px, viewport center = 40px from top
-	const scrollPos = target.offsetTop - el.offsetTop - 40;
-	el.scrollTo({ top: scrollPos, behavior: smooth ? 'smooth' : 'auto' });
+	// Item offsetTop is relative to el (position: relative), center in 120px viewport = 40px from top
+	el.scrollTo({ top: target.offsetTop - 40, behavior: smooth ? 'smooth' : 'auto' });
 }
 
 function _onWheelScroll(el, type) {
 	const items = el.querySelectorAll('.mob-wheel-item');
-	// Center of the 120px viewport is at scrollTop + 60
+	// Center of 120px viewport
 	const viewCenter = el.scrollTop + 60;
 	let closest = null, closestDist = Infinity;
 	items.forEach(d => {
-		// Item center = offsetTop - container.offsetTop + 20  (half of 40px item)
-		const itemCenter = (d.offsetTop - el.offsetTop) + 20;
+		// Item center = offsetTop + 20 (half of 40px), already relative to el
+		const itemCenter = d.offsetTop + 20;
 		const dist = Math.abs(itemCenter - viewCenter);
 		if (dist < closestDist) { closestDist = dist; closest = d; }
 	});
