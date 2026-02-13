@@ -1308,88 +1308,72 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!_rafId) _rafId = requestAnimationFrame(() => { applyViewport(); _rafId = 0; });
 	}, { passive: false });
 
-	// ─── Pointer Events: pan + pinch-to-zoom ───
-	const overlay = document.getElementById('touch-overlay');
-	const activePointers = new Map(); // pointerId → {x, y}
-	let panStartX2, panStartY2;
-	let pinchStartDist = 0, pinchStartZoom2 = 1, pinchCX = 0, pinchCY = 0;
+	// ─── Touch: pan + pinch-to-zoom ───
+	let touchPanning = false, touchStartX, touchStartY, touchStartL, touchStartT;
+	let pinching = false, pinchStartDist, pinchStartZoom, pinchCenterX, pinchCenterY;
 
-	// DEBUG
-	const _dbg = document.createElement('div');
-	_dbg.style.cssText = 'position:fixed;top:0;left:0;z-index:9999;background:rgba(0,0,0,.7);color:#0f0;font:12px monospace;padding:4px 8px;pointer-events:none';
-	_dbg.textContent = 'ptr: waiting';
-	document.body.appendChild(_dbg);
-
-	function _ptrDist() {
-		const pts = [...activePointers.values()];
-		if (pts.length < 2) return 0;
-		return Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+	function _touchDist(t1, t2) {
+		return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 	}
 
-	overlay.addEventListener('pointerdown', (e) => {
-		overlay.setPointerCapture(e.pointerId);
-		activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-		_dbg.textContent = 'down: ' + activePointers.size + 'ptr x=' + Math.round(e.clientX);
-		_dbg.style.background = 'rgba(200,0,0,.8)';
-
-		if (activePointers.size === 1) {
-			panStartX2 = e.clientX;
-			panStartY2 = e.clientY;
-			panStartL = viewport.left;
-			panStartT = viewport.top;
-		} else if (activePointers.size === 2) {
-			pinchStartDist = _ptrDist();
-			pinchStartZoom2 = viewport.zoom;
-			const pts = [...activePointers.values()];
-			pinchCX = (pts[0].x + pts[1].x) / 2;
-			pinchCY = (pts[0].y + pts[1].y) / 2;
+	window.addEventListener('touchstart', (e) => {
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu')) return;
+		if (e.touches.length === 1) {
+			touchPanning = true;
+			pinching = false;
+			touchStartX = e.touches[0].clientX;
+			touchStartY = e.touches[0].clientY;
+			touchStartL = viewport.left;
+			touchStartT = viewport.top;
+			e.preventDefault();
+		} else if (e.touches.length === 2) {
+			touchPanning = false;
+			pinching = true;
+			pinchStartDist = _touchDist(e.touches[0], e.touches[1]);
+			pinchStartZoom = viewport.zoom;
+			pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+			pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+			e.preventDefault();
 		}
-		e.preventDefault();
-	});
+	}, { passive: false, capture: true });
 
-	overlay.addEventListener('pointermove', (e) => {
-		if (!activePointers.has(e.pointerId)) return;
-		activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+	window.addEventListener('touchmove', (e) => {
+		if (touchPanning && e.touches.length === 1) {
+			viewport.left = touchStartL + (e.touches[0].clientX - touchStartX);
+			viewport.top = touchStartT + (e.touches[0].clientY - touchStartY);
+			if (!_rafId) _rafId = requestAnimationFrame(() => { applyViewport(); _rafId = 0; });
+			e.preventDefault();
+		} else if (pinching && e.touches.length === 2) {
+			const dist = _touchDist(e.touches[0], e.touches[1]);
+			const newZoom = Math.max(0.05, Math.min(10, pinchStartZoom * (dist / pinchStartDist)));
+			const worldPxX = (pinchCenterX - viewport.left) / viewport.zoom;
+			const worldPxY = (pinchCenterY - viewport.top) / viewport.zoom;
+			viewport.zoom = newZoom;
+			viewport.left = pinchCenterX - worldPxX * newZoom;
+			viewport.top = pinchCenterY - worldPxY * newZoom;
+			if (!_rafId) _rafId = requestAnimationFrame(() => { applyViewport(); _rafId = 0; });
+			e.preventDefault();
+		}
+	}, { passive: false, capture: true });
 
-		if (activePointers.size === 1) {
-			const dx = e.clientX - panStartX2;
-			const dy = e.clientY - panStartY2;
-			viewport.left = panStartL + dx;
-			viewport.top = panStartT + dy;
-			_dbg.textContent = 'pan dx=' + Math.round(dx) + ' dy=' + Math.round(dy);
-			_dbg.style.background = 'rgba(0,150,0,.8)';
-			if (!_rafId) _rafId = requestAnimationFrame(function () { applyViewport(); _rafId = 0; });
-		} else if (activePointers.size === 2) {
-			const dist = _ptrDist();
-			if (pinchStartDist > 0) {
-				const newZoom = Math.max(0.05, Math.min(10, pinchStartZoom2 * (dist / pinchStartDist)));
-				const worldPxX = (pinchCX - viewport.left) / viewport.zoom;
-				const worldPxY = (pinchCY - viewport.top) / viewport.zoom;
-				viewport.zoom = newZoom;
-				viewport.left = pinchCX - worldPxX * newZoom;
-				viewport.top = pinchCY - worldPxY * newZoom;
-				_dbg.textContent = 'zoom=' + newZoom.toFixed(2);
-				if (!_rafId) _rafId = requestAnimationFrame(function () { applyViewport(); _rafId = 0; });
+	window.addEventListener('touchend', (e) => {
+		if (e.touches.length === 0) {
+			if (touchPanning || pinching) {
+				if (_rafId) { cancelAnimationFrame(_rafId); _rafId = 0; }
+				applyViewport();
 			}
+			touchPanning = false;
+			pinching = false;
+		} else if (e.touches.length === 1 && pinching) {
+			// Transitioned from pinch to single finger — start pan
+			pinching = false;
+			touchPanning = true;
+			touchStartX = e.touches[0].clientX;
+			touchStartY = e.touches[0].clientY;
+			touchStartL = viewport.left;
+			touchStartT = viewport.top;
 		}
-		e.preventDefault();
 	});
-
-	function _ptrUp(e) {
-		activePointers.delete(e.pointerId);
-		if (activePointers.size === 0) {
-			if (_rafId) { cancelAnimationFrame(_rafId); _rafId = 0; }
-			applyViewport();
-		} else if (activePointers.size === 1) {
-			var pt = [...activePointers.values()][0];
-			panStartX2 = pt.x;
-			panStartY2 = pt.y;
-			panStartL = viewport.left;
-			panStartT = viewport.top;
-		}
-	}
-	overlay.addEventListener('pointerup', _ptrUp);
-	overlay.addEventListener('pointercancel', _ptrUp);
 
 	// Window resize
 	let _resizeTimer;
