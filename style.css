@@ -397,6 +397,12 @@ body {
 	/* touches pass through to window handler */
 }
 
+.controls,
+.controls * {
+	touch-action: auto;
+	/* restore native touch for sliders/buttons */
+}
+
 @media (max-width: 768px) {
 
 	.ruler,
