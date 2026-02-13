@@ -610,10 +610,10 @@ function init() {
 
 	if (yearsMode) {
 		if (label) label.textContent = 'Years';
-		if (monthsInput) { monthsInput.value = months; monthsInput.max = 10; }
+		if (monthsInput) { monthsInput.value = months; monthsInput.max = 20; }
 	} else {
 		if (label) label.textContent = 'Months';
-		if (monthsInput) { monthsInput.value = months; monthsInput.max = 49; }
+		if (monthsInput) { monthsInput.value = months; monthsInput.max = 240; }
 	}
 	if (rowsSlider) rowsSlider.value = emptyRows;
 	if (rowsValue) rowsValue.textContent = emptyRows;
@@ -1066,10 +1066,42 @@ function toggleMobSheet() {
 	const isOpen = sheet.classList.contains('open');
 	sheet.classList.toggle('open', !isOpen);
 	overlay.classList.toggle('open', !isOpen);
+	// Close download popup if open
+	const dlPopup = document.getElementById('mob-dl-popup');
+	if (dlPopup) dlPopup.style.display = 'none';
+}
+
+function toggleMobDL() {
+	const popup = document.getElementById('mob-dl-popup');
+	if (!popup) return;
+	popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
 }
 
 function mobSetPaper(key) {
 	setPaperSize(key);
+}
+
+function mobSetDuration(months) {
+	document.getElementById('months-input').value = months;
+	// Highlight active duration chip
+	document.querySelectorAll('#mob-duration-chips .mob-chip-opt').forEach(b => {
+		b.classList.toggle('active', parseInt(b.dataset.mo) === months);
+	});
+	_updateMobMonthsLabel(months);
+	updateCalendar();
+}
+
+function _updateMobMonthsLabel(months) {
+	const mobMonths = document.getElementById('mob-months');
+	const mobLabel = document.getElementById('mob-months-label');
+	if (!mobMonths || !mobLabel) return;
+	if (months >= 12 && months % 12 === 0) {
+		mobMonths.textContent = months / 12;
+		mobLabel.textContent = 'yr';
+	} else {
+		mobMonths.textContent = months;
+		mobLabel.textContent = 'mo';
+	}
 }
 
 function mobRowsChange(val) {
@@ -1096,23 +1128,15 @@ function mobSetWeek(day) {
 	updateCalendar();
 }
 
-function mobileMonthsTap() {
-	const current = parseInt(document.getElementById('months-input').value) || 12;
-	const next = current >= 24 ? 6 : current + 6;
-	document.getElementById('months-input').value = next;
-	document.getElementById('mob-months').textContent = next;
-	updateCalendar();
-}
-
-function mobileRowsTap() {
-	toggleMobSheet();
-}
-
 function _syncMobileUI() {
-	const mobMonths = document.getElementById('mob-months');
+	const months = parseInt(document.getElementById('months-input').value) || 12;
+	_updateMobMonthsLabel(months);
 	const mobRows = document.getElementById('mob-rows');
-	if (mobMonths) mobMonths.textContent = document.getElementById('months-input').value;
 	if (mobRows) mobRows.textContent = document.getElementById('rows-slider').value;
+	// Highlight active duration chip
+	document.querySelectorAll('#mob-duration-chips .mob-chip-opt').forEach(b => {
+		b.classList.toggle('active', parseInt(b.dataset.mo) === months);
+	});
 }
 
 // Helper: DD-MM-YYYY date string
@@ -1398,7 +1422,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.addEventListener('touchstart', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay') || e.target.closest('.mob-dl-popup')) return;
 		if (e.touches.length === 1) {
 			touchPanning = true;
 			pinching = false;

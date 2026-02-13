@@ -60,26 +60,32 @@
 	<!-- Mobile bottom toolbar -->
 	<div id="mob-bar" class="mob-bar">
 		<div class="mob-bar-left">
-			<button class="mob-val" onclick="mobileMonthsTap()">
+			<button class="mob-val" onclick="toggleMobSheet()">
 				<span id="mob-months">12</span>
-				<span class="mob-label">mo</span>
+				<span class="mob-label" id="mob-months-label">mo</span>
 			</button>
 			<div class="mob-sep"></div>
-			<button class="mob-val" onclick="mobileRowsTap()">
+			<button class="mob-val" onclick="toggleMobSheet()">
 				<span id="mob-rows">10</span>
 				<span class="mob-label">rows</span>
 			</button>
 		</div>
 		<button class="mob-chip" id="mob-format" onclick="toggleMobSheet()">A4</button>
 		<div class="mob-bar-right">
-			<button class="mob-icon" onclick="downloadSVG()" title="Download SVG">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-					stroke-linecap="round" stroke-linejoin="round">
-					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-					<polyline points="7 10 12 15 17 10" />
-					<line x1="12" y1="15" x2="12" y2="3" />
-				</svg>
-			</button>
+			<div class="mob-dl-group">
+				<button class="mob-icon" onclick="toggleMobDL()" title="Download">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+						<polyline points="7 10 12 15 17 10" />
+						<line x1="12" y1="15" x2="12" y2="3" />
+					</svg>
+				</button>
+				<div id="mob-dl-popup" class="mob-dl-popup" style="display:none">
+					<button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
+					<button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
+				</div>
+			</div>
 			<button class="mob-icon" onclick="toggleMobSheet()" title="Settings">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					stroke-linecap="round" stroke-linejoin="round">
@@ -95,6 +101,18 @@
 	<div id="mob-overlay" class="mob-overlay" onclick="toggleMobSheet()"></div>
 	<div id="mob-sheet" class="mob-sheet">
 		<div class="mob-sheet-handle"></div>
+		<div class="mob-sheet-section">
+			<div class="mob-sheet-label">Duration</div>
+			<div class="mob-chips mob-chips-wrap" id="mob-duration-chips">
+				<button class="mob-chip-opt" data-mo="6" onclick="mobSetDuration(6)">6 mo</button>
+				<button class="mob-chip-opt active" data-mo="12" onclick="mobSetDuration(12)">1 yr</button>
+				<button class="mob-chip-opt" data-mo="24" onclick="mobSetDuration(24)">2 yr</button>
+				<button class="mob-chip-opt" data-mo="60" onclick="mobSetDuration(60)">5 yr</button>
+				<button class="mob-chip-opt" data-mo="84" onclick="mobSetDuration(84)">7 yr</button>
+				<button class="mob-chip-opt" data-mo="120" onclick="mobSetDuration(120)">10 yr</button>
+				<button class="mob-chip-opt" data-mo="240" onclick="mobSetDuration(240)">20 yr</button>
+			</div>
+		</div>
 		<div class="mob-sheet-section">
 			<div class="mob-sheet-label">Paper format</div>
 			<div class="mob-chips" id="mob-paper-chips">
@@ -119,10 +137,6 @@
 				<button class="mob-toggle active" id="mob-week-mon" onclick="mobSetWeek('mon')">Mon</button>
 				<button class="mob-toggle" id="mob-week-sun" onclick="mobSetWeek('sun')">Sun</button>
 			</div>
-		</div>
-		<div class="mob-sheet-actions">
-			<button class="mob-action" onclick="downloadSVG(); toggleMobSheet()">Download SVG</button>
-			<button class="mob-action mob-action-primary" onclick="printPDF(); toggleMobSheet()">Download PDF</button>
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>

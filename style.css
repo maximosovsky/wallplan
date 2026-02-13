@@ -645,29 +645,52 @@ body {
 		font-weight: 500;
 	}
 
-	.mob-sheet-actions {
-		display: flex;
-		gap: 10px;
-		margin-top: 4px;
+	/* Download popup */
+	.mob-dl-group {
+		position: relative;
 	}
 
-	.mob-action {
-		flex: 1;
-		padding: 14px 0;
+	.mob-dl-popup {
+		position: absolute;
+		bottom: calc(100% + 8px);
+		right: 0;
+		background: var(--mol-ctrl-bg);
 		border: 1px solid var(--mol-border);
-		border-radius: 12px;
-		background: var(--mol-cream);
+		border-radius: 10px;
+		box-shadow: 0 4px 16px rgba(60, 40, 20, .2);
+		overflow: hidden;
+		z-index: 2003;
+	}
+
+	.mob-dl-opt {
+		display: block;
+		width: 100%;
+		padding: 12px 24px;
+		border: none;
+		background: none;
 		font-family: inherit;
 		font-size: .85rem;
+		font-weight: 500;
 		color: var(--mol-ink);
 		cursor: pointer;
-		font-weight: 400;
+		text-align: center;
 	}
 
-	.mob-action-primary {
-		background: var(--mol-ink);
-		color: var(--mol-cream);
-		border-color: var(--mol-ink);
-		font-weight: 500;
+	.mob-dl-opt:first-child {
+		border-bottom: 1px solid var(--mol-border-light);
+	}
+
+	.mob-dl-opt:active {
+		background: var(--mol-border-light);
+	}
+
+	/* Duration chips wrap */
+	.mob-chips-wrap {
+		flex-wrap: wrap;
+	}
+
+	.mob-chips-wrap .mob-chip-opt {
+		flex: 0 0 auto;
+		padding: 10px 14px;
 	}
 }
