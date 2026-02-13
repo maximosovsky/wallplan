@@ -624,6 +624,7 @@ function init() {
 
 	const totalMonths = yearsMode ? months * 12 : months;
 	buildPages(totalMonths, emptyRows, weekStart);
+	_syncMobileUI();
 }
 
 function updateCalendar() {
@@ -650,6 +651,13 @@ function toggleRowsSlider() {
 let _rowsTimer;
 function onRowsSlider(val) {
 	document.getElementById('rows-value').textContent = val;
+	// Sync mobile
+	const mobRows = document.getElementById('mob-rows');
+	const mobSlider = document.getElementById('mob-rows-slider');
+	const mobVal = document.getElementById('mob-rows-val');
+	if (mobRows) mobRows.textContent = val;
+	if (mobSlider) mobSlider.value = val;
+	if (mobVal) mobVal.textContent = val;
 	clearTimeout(_rowsTimer);
 	_rowsTimer = setTimeout(updateCalendar, 80);
 }
@@ -725,6 +733,15 @@ function setPaperSize(key) {
 	currentPaper = PAPER_SIZES[key] || PAPER_SIZES.a4;
 	currentPaperKey = key;
 	document.querySelectorAll('.pm-item[data-size]').forEach(b => {
+		b.classList.toggle('active', b.dataset.size === key);
+	});
+	// Sync mobile UI
+	const mobFmt = document.getElementById('mob-format');
+	if (mobFmt) {
+		const labels = { a4: 'A4', a3: 'A3', '914mm': '914', '914x2': '914×2', '914x4': '914×4' };
+		mobFmt.textContent = labels[key] || key;
+	}
+	document.querySelectorAll('.mob-chip-opt[data-size]').forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
 	updateCalendar();
@@ -1031,7 +1048,71 @@ function toggleWeekStart() {
 	const isSun = btn.textContent === 'Sun';
 	btn.textContent = isSun ? 'Mon' : 'Sun';
 	btn.style.color = isSun ? '' : '#C41E3A';
+	// Sync mobile
+	const monBtn = document.getElementById('mob-week-mon');
+	const sunBtn = document.getElementById('mob-week-sun');
+	if (monBtn && sunBtn) {
+		monBtn.classList.toggle('active', isSun);
+		sunBtn.classList.toggle('active', !isSun);
+	}
 	updateCalendar();
+}
+
+// ─── Mobile toolbar functions ───
+function toggleMobSheet() {
+	const sheet = document.getElementById('mob-sheet');
+	const overlay = document.getElementById('mob-overlay');
+	if (!sheet) return;
+	const isOpen = sheet.classList.contains('open');
+	sheet.classList.toggle('open', !isOpen);
+	overlay.classList.toggle('open', !isOpen);
+}
+
+function mobSetPaper(key) {
+	setPaperSize(key);
+}
+
+function mobRowsChange(val) {
+	document.getElementById('mob-rows-val').textContent = val;
+	document.getElementById('mob-rows').textContent = val;
+	// Sync desktop slider
+	document.getElementById('rows-slider').value = val;
+	document.getElementById('rows-value').textContent = val;
+	clearTimeout(_rowsTimer);
+	_rowsTimer = setTimeout(updateCalendar, 80);
+}
+
+function mobSetWeek(day) {
+	const btn = document.getElementById('week-start-btn');
+	if (day === 'mon') {
+		btn.textContent = 'Mon';
+		btn.style.color = '';
+	} else {
+		btn.textContent = 'Sun';
+		btn.style.color = '#C41E3A';
+	}
+	document.getElementById('mob-week-mon').classList.toggle('active', day === 'mon');
+	document.getElementById('mob-week-sun').classList.toggle('active', day === 'sun');
+	updateCalendar();
+}
+
+function mobileMonthsTap() {
+	const current = parseInt(document.getElementById('months-input').value) || 12;
+	const next = current >= 24 ? 6 : current + 6;
+	document.getElementById('months-input').value = next;
+	document.getElementById('mob-months').textContent = next;
+	updateCalendar();
+}
+
+function mobileRowsTap() {
+	toggleMobSheet();
+}
+
+function _syncMobileUI() {
+	const mobMonths = document.getElementById('mob-months');
+	const mobRows = document.getElementById('mob-rows');
+	if (mobMonths) mobMonths.textContent = document.getElementById('months-input').value;
+	if (mobRows) mobRows.textContent = document.getElementById('rows-slider').value;
 }
 
 // Helper: DD-MM-YYYY date string
@@ -1317,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.addEventListener('touchstart', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay')) return;
 		if (e.touches.length === 1) {
 			touchPanning = true;
 			pinching = false;

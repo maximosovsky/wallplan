@@ -56,6 +56,75 @@
 	<div id="guide-margin-left" class="guide guide-v guide-margin"></div>
 	<div id="guide-margin-right" class="guide guide-v guide-margin"></div>
 	<div id="calendar"></div>
+
+	<!-- Mobile bottom toolbar -->
+	<div id="mob-bar" class="mob-bar">
+		<div class="mob-bar-left">
+			<button class="mob-val" onclick="mobileMonthsTap()">
+				<span id="mob-months">12</span>
+				<span class="mob-label">mo</span>
+			</button>
+			<div class="mob-sep"></div>
+			<button class="mob-val" onclick="mobileRowsTap()">
+				<span id="mob-rows">10</span>
+				<span class="mob-label">rows</span>
+			</button>
+		</div>
+		<button class="mob-chip" id="mob-format" onclick="toggleMobSheet()">A4</button>
+		<div class="mob-bar-right">
+			<button class="mob-icon" onclick="downloadSVG()" title="Download SVG">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+					<polyline points="7 10 12 15 17 10" />
+					<line x1="12" y1="15" x2="12" y2="3" />
+				</svg>
+			</button>
+			<button class="mob-icon" onclick="toggleMobSheet()" title="Settings">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+					stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="3" />
+					<path
+						d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<!-- Mobile bottom sheet -->
+	<div id="mob-overlay" class="mob-overlay" onclick="toggleMobSheet()"></div>
+	<div id="mob-sheet" class="mob-sheet">
+		<div class="mob-sheet-handle"></div>
+		<div class="mob-sheet-section">
+			<div class="mob-sheet-label">Paper format</div>
+			<div class="mob-chips" id="mob-paper-chips">
+				<button class="mob-chip-opt active" data-size="a4" onclick="mobSetPaper('a4')">A4</button>
+				<button class="mob-chip-opt" data-size="a3" onclick="mobSetPaper('a3')">A3</button>
+				<button class="mob-chip-opt" data-size="914mm" onclick="mobSetPaper('914mm')">914</button>
+				<button class="mob-chip-opt" data-size="914x2" onclick="mobSetPaper('914x2')">914×2</button>
+				<button class="mob-chip-opt" data-size="914x4" onclick="mobSetPaper('914x4')">914×4</button>
+			</div>
+		</div>
+		<div class="mob-sheet-section">
+			<div class="mob-sheet-label">Gantt rows</div>
+			<div class="mob-rows-control">
+				<input type="range" id="mob-rows-slider" class="mob-slider" min="6" max="12" step="2" value="10"
+					oninput="mobRowsChange(this.value)">
+				<span id="mob-rows-val">10</span>
+			</div>
+		</div>
+		<div class="mob-sheet-section">
+			<div class="mob-sheet-label">Week start</div>
+			<div class="mob-toggle-group">
+				<button class="mob-toggle active" id="mob-week-mon" onclick="mobSetWeek('mon')">Mon</button>
+				<button class="mob-toggle" id="mob-week-sun" onclick="mobSetWeek('sun')">Sun</button>
+			</div>
+		</div>
+		<div class="mob-sheet-actions">
+			<button class="mob-action" onclick="downloadSVG(); toggleMobSheet()">Download SVG</button>
+			<button class="mob-action mob-action-primary" onclick="printPDF(); toggleMobSheet()">Download PDF</button>
+		</div>
+	</div>
 	<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.4/dist/svg2pdf.umd.min.js"></script>
 	<script src="calendar.js"></script>
