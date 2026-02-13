@@ -1091,55 +1091,61 @@ function _initMobWheels() {
 	const moEl = document.getElementById('mob-wheel-mo');
 	if (!yrEl || !moEl) return;
 
-	// Build year items (0-20)
-	yrEl.innerHTML = '<div class="mob-wheel-pad"></div>';
-	for (let i = 0; i <= 20; i++) {
-		const d = document.createElement('div');
-		d.className = 'mob-wheel-item' + (i === _wheelYr ? ' active' : '');
-		d.textContent = i;
-		d.dataset.v = i;
-		d.onclick = () => _scrollWheelTo(yrEl, i);
-		yrEl.appendChild(d);
-	}
-	yrEl.innerHTML += '<div class="mob-wheel-pad"></div>';
+	_buildWheel(yrEl, 0, 20, _wheelYr);
+	_buildWheel(moEl, 0, 11, _wheelMo);
 
-	// Build month items (0-11)
-	moEl.innerHTML = '<div class="mob-wheel-pad"></div>';
-	for (let i = 0; i <= 11; i++) {
-		const d = document.createElement('div');
-		d.className = 'mob-wheel-item' + (i === _wheelMo ? ' active' : '');
-		d.textContent = i;
-		d.dataset.v = i;
-		d.onclick = () => _scrollWheelTo(moEl, i);
-		moEl.appendChild(d);
-	}
-	moEl.innerHTML += '<div class="mob-wheel-pad"></div>';
-
-	// Scroll to initial values
+	// Scroll to initial values after layout
 	requestAnimationFrame(() => {
 		_scrollWheelTo(yrEl, _wheelYr, false);
 		_scrollWheelTo(moEl, _wheelMo, false);
 	});
 
-	// Scroll listeners
-	yrEl.addEventListener('scroll', () => _onWheelScroll(yrEl, 'yr'), { passive: true });
-	moEl.addEventListener('scroll', () => _onWheelScroll(moEl, 'mo'), { passive: true });
+	// Scroll listeners (remove old first)
+	yrEl.onscroll = () => _onWheelScroll(yrEl, 'yr');
+	moEl.onscroll = () => _onWheelScroll(moEl, 'mo');
+}
+
+function _buildWheel(el, min, max, activeVal) {
+	el.innerHTML = '';
+	// Top pad — so first item can reach center
+	const padTop = document.createElement('div');
+	padTop.className = 'mob-wheel-pad';
+	el.appendChild(padTop);
+
+	for (let i = min; i <= max; i++) {
+		const d = document.createElement('div');
+		d.className = 'mob-wheel-item' + (i === activeVal ? ' active' : '');
+		d.textContent = i;
+		d.dataset.v = i;
+		d.addEventListener('click', () => _scrollWheelTo(el, i));
+		el.appendChild(d);
+	}
+
+	// Bottom pad — so last item can reach center
+	const padBot = document.createElement('div');
+	padBot.className = 'mob-wheel-pad';
+	el.appendChild(padBot);
 }
 
 function _scrollWheelTo(el, val, smooth = true) {
 	const items = el.querySelectorAll('.mob-wheel-item');
 	const target = Array.from(items).find(d => parseInt(d.dataset.v) === val);
 	if (!target) return;
-	const offsetTop = target.offsetTop - el.offsetTop - 40; // center item
-	el.scrollTo({ top: offsetTop, behavior: smooth ? 'smooth' : 'auto' });
+	// Center the target: its top should be 1 item-height from viewport top
+	// pad=40px, each item=40px, viewport center = 40px from top
+	const scrollPos = target.offsetTop - el.offsetTop - 40;
+	el.scrollTo({ top: scrollPos, behavior: smooth ? 'smooth' : 'auto' });
 }
 
 function _onWheelScroll(el, type) {
 	const items = el.querySelectorAll('.mob-wheel-item');
-	const center = el.scrollTop + 60; // ~center of visible area
+	// Center of the 120px viewport is at scrollTop + 60
+	const viewCenter = el.scrollTop + 60;
 	let closest = null, closestDist = Infinity;
 	items.forEach(d => {
-		const dist = Math.abs((d.offsetTop - el.offsetTop) - center + 20);
+		// Item center = offsetTop - container.offsetTop + 20  (half of 40px item)
+		const itemCenter = (d.offsetTop - el.offsetTop) + 20;
+		const dist = Math.abs(itemCenter - viewCenter);
 		if (dist < closestDist) { closestDist = dist; closest = d; }
 	});
 	if (!closest) return;
