@@ -544,11 +544,11 @@ function toggleMonthsYears() {
 	if (yearsMode) {
 		label.textContent = 'Years';
 		input.value = Math.max(1, Math.round(cur / 12));
-		input.max = 10;
+		input.max = 20;
 	} else {
 		label.textContent = 'Months';
-		input.value = Math.min(49, cur * 12);
-		input.max = 49;
+		input.value = Math.min(240, cur * 12);
+		input.max = 240;
 	}
 	updateCalendar();
 }
@@ -560,7 +560,7 @@ function buildPages(totalMonths, emptyRows, weekStart) {
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const clampedRows = Math.max(6, Math.min(12, rows));
 	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
-	const totalM = Math.max(1, Math.min(120, totalMonths));
+	const totalM = Math.max(1, Math.min(240, totalMonths));
 	const numPages = Math.max(1, Math.ceil(totalM / mpp));
 
 	const cal = document.getElementById('calendar');
@@ -1229,6 +1229,7 @@ function _updateMobMonthsLabel(months) {
 	}
 }
 
+let _wheelsInit = false;
 function _syncMobileUI() {
 	const months = parseInt(document.getElementById('months-input').value) || 12;
 	_updateMobMonthsLabel(months);
@@ -1242,7 +1243,16 @@ function _syncMobileUI() {
 	// Set wheel values
 	_wheelYr = Math.floor(months / 12);
 	_wheelMo = months % 12;
-	_initMobWheels();
+	if (!_wheelsInit) {
+		_initMobWheels();
+		_wheelsInit = true;
+	} else {
+		// Just scroll to correct position
+		const yrEl = document.getElementById('mob-wheel-yr');
+		const moEl = document.getElementById('mob-wheel-mo');
+		if (yrEl) _scrollWheelTo(yrEl, _wheelYr, false);
+		if (moEl) _scrollWheelTo(moEl, _wheelMo, false);
+	}
 	setTimeout(_updateMobRollLen, 300);
 }
 
