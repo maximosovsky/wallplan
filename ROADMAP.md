@@ -42,17 +42,48 @@ Sign in with Google to save and load calendar configurations (duration, rows, pa
 
 ## 🔴 Hard (1–3 weeks)
 
-### 5. Google Calendar Import
+### 6. GA4 → Telegram Alerts 📲
+Real-time notifications about important analytics events sent to Telegram.
+
+**Event tracking (client-side, `calendar.js`):**
+- `entry_added` — user added a custom entry (T button)
+- `hide_days_toggled` — user toggled Hide Days mode
+- `svg_downloaded` / `pdf_downloaded` — export actions
+- `paper_changed` — paper format switch (A4/A3/914mm)
+- `rows_changed` — Gantt rows adjustment
+- `mob_sheet_opened` — mobile settings sheet engagement
+
+**Alert types:**
+| Alert | Trigger | Priority |
+|-------|---------|----------|
+| 🔴 Site down | Traffic drops to 0 for 1h | Critical |
+| 🟡 Traffic spike | >3× daily average | High |
+| 🟢 New country | First visit from new country | Medium |
+| 📥 Export milestone | 100th / 1000th SVG/PDF download | Medium |
+| 📊 Daily digest | Key metrics summary at 09:00 | Low |
+
+**Architecture:**
+1. GA4 events → GA4 Data API (reporting)
+2. Google Cloud Function (Python, runs on cron via Cloud Scheduler)
+3. Function queries GA4 Data API → compares with thresholds
+4. If alert triggers → sends message via Telegram Bot API
+5. Free tier: Cloud Functions (2M invocations/mo) + Cloud Scheduler (3 jobs free)
+
+**Alternative (simpler):** GA4 Custom Insights → email alerts → Zapier/n8n → Telegram Bot.
+
+**Why:** Instant awareness of user engagement without checking dashboards. Critical for catching site outages (traffic = 0) and tracking growth (new countries, traffic spikes). Telegram = always in pocket, zero friction.
+
+### 7. Google Calendar Import
 Import birthdays and events from Google Calendar. Display as markers or labels on corresponding dates. Requires Google Auth + Calendar API + OAuth scopes + event parsing.
 
 **Why:** Instead of manually placing stickers for every birthday and meeting — pull them automatically. Print a 3-year calendar with all family birthdays already marked. This is the killer feature for personal users.
 
-### 6. Custom Sticker Packs 💬
+### 8. Custom Sticker Packs 💬
 Custom SVG sticker sets — like Telegram sticker packs. Users can create, import, and share themed collections. Needs UI for pack management, import/export format, potential community marketplace.
 
 **Why:** Virality and monetization. Users create and share packs → attract new users. Potential for paid premium packs (project management, education, fitness tracking). Turns WallPlan into a platform.
 
-### 7. Miro App
+### 9. Miro App
 Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards — "Universe" template style. Submit to [Miro Marketplace](https://miro.com/marketplace/). Requires Miro SDK, separate codebase, review process.
 
 **Why:** 60M+ Miro users = built-in distribution channel. WallPlan as a native Miro template for roadmapping and project planning. Different audience (product managers, agile teams), different revenue model (Miro ecosystem).
@@ -62,5 +93,6 @@ Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards �
 ## 📌 Notes
 - Stickers and images use the same SVG-based architecture
 - All creative tools work offline (localStorage), cloud sync requires Google Auth
+- GA4 alerts require a separate backend (Cloud Function or Zapier)
 - Miro App requires separate Miro SDK integration
-- Recommended build order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+- Recommended build order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
