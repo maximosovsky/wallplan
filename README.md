@@ -1,5 +1,7 @@
 # WallPlan — Calendar Generator for Long-Term Planning
 
+🌐 **[osovsky.com/wallplan](https://osovsky.com/wallplan/)** — Live App
+
 ![WallPlan](wallplan.webp)
 
 📅 Every year I publish a new version of a multi-year calendar. The publishing industry mostly makes calendars for just the next year, limiting our ability to plan in detail many years ahead.
