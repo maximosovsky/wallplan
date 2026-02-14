@@ -1,4 +1,59 @@
-/* Font loaded via <link> in index.html for non-blocking render */
+/* ─── Local IBM Plex Sans ─── */
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Thin.ttf') format('truetype');
+	font-weight: 100;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-ExtraLight.ttf') format('truetype');
+	font-weight: 200;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Light.ttf') format('truetype');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Regular.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Medium.ttf') format('truetype');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-SemiBold.ttf') format('truetype');
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'IBM Plex Sans';
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Bold.ttf') format('truetype');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
 
 /* ─── Moleskine-inspired palette ─── */
 :root {
@@ -33,35 +88,289 @@ body {
 		linear-gradient(180deg, #7A6C5A 0%, #8B7D6B 40%, #9A8C7A 100%);
 }
 
-/* Controls — Moleskine floating panel */
+/* Controls — Miro-style floating panel */
 .controls {
 	position: fixed;
-	top: 120px;
-	right: 60px;
 	z-index: 1000;
 	display: flex;
 	align-items: center;
-	gap: 1.2rem;
-	padding: .45rem .8rem .45rem .5rem;
+	gap: 4px;
+	padding: 6px;
 	background: var(--mol-ctrl-bg);
 	border: 1px solid var(--mol-ctrl-border);
-	border-radius: 4px;
+	border-radius: 8px;
 	box-shadow: 0 1px 6px rgba(60, 40, 20, .2);
-	font-size: .8rem;
 	color: var(--mol-ink);
 	cursor: grab;
 	user-select: none;
+}
+
+.controls:active {
+	cursor: grabbing;
+}
+
+/* Top toolbar — horizontal */
+.top-bar {
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	right: auto;
+}
+
+.tb-btn {
+	width: 35px;
+	height: 35px;
+	border: 0 !important;
+	outline: 0 !important;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	box-shadow: none;
+	border-radius: 8px;
+	background: none;
+	font-family: inherit;
+	font-size: 18px;
+	font-weight: 400;
+	line-height: 1;
+	color: var(--mol-ink-light);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: background .15s, color .15s;
+}
+
+.tb-btn:hover {
+	background: var(--mol-border-light);
+}
+
+.tb-btn.active,
+.tb-btn[data-size].active {
+	background: var(--mol-ink);
+	color: var(--mol-cream);
+	font-weight: 500;
+}
+
+.tb-btn-sm {
+	font-size: 14px;
+}
+
+.tb-dial {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	height: 35px;
+	padding: 0 6px;
+	border-radius: 8px;
+	cursor: ns-resize;
+	transition: background .15s;
+	user-select: none;
+}
+
+.tb-dial:hover {
+	background: var(--mol-border-light);
+}
+
+.tb-dial-value {
+	font-size: 22px;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--mol-ink);
+	min-width: 20px;
+	text-align: center;
+}
+
+.tb-dial-label {
+	font-size: 10px;
+	font-weight: 400;
+	color: var(--mol-ink-light);
+	text-transform: lowercase;
+	line-height: 1;
+	align-self: flex-end;
+	padding-bottom: 4px;
+}
+
+.tb-sep {
+	width: 1px;
+	height: 24px;
+	background: var(--mol-border);
+	margin: 0 2px;
+}
+
+/* Confirm modal */
+.confirm-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	background: rgba(0, 0, 0, .25);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.confirm-box {
+	background: var(--mol-ctrl-bg);
+	border: 1px solid var(--mol-ctrl-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 20px rgba(60, 40, 20, .25);
+	padding: 20px 24px;
+	min-width: 200px;
+	text-align: center;
+}
+
+.confirm-msg {
+	font-family: inherit;
+	font-size: 16px;
+	font-weight: 500;
+	color: var(--mol-ink);
+	margin-bottom: 16px;
+}
+
+.confirm-btns {
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+}
+
+.confirm-btn {
+	height: 35px;
+	padding: 0 20px;
+	border: none;
+	border-radius: 8px;
+	font-family: inherit;
+	font-size: 15px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background .15s, color .15s;
+}
+
+.confirm-yes {
+	background: var(--mol-ink);
+	color: var(--mol-cream);
+}
+
+.confirm-yes:hover {
+	background: #1a1a1a;
+}
+
+.confirm-cancel {
+	background: transparent;
+	color: var(--mol-ink-light);
+}
+
+.confirm-cancel:hover {
+	background: var(--mol-border-light);
+}
+
+.tb-info {
+	font-size: 11px;
+	color: var(--mol-ink-light);
+	white-space: nowrap;
+	padding: 0 4px;
+}
+
+.paper-chips {
+	display: flex;
+	gap: 0;
+}
+
+/* Tooltips for top-bar */
+.top-bar [data-tooltip] {
+	position: relative;
+}
+
+.top-bar [data-tooltip]::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+	background: #1a1a1a;
+	color: #fff;
+	font-size: .72rem;
+	font-weight: 400;
+	padding: .3rem .55rem;
+	border-radius: 4px;
+	white-space: nowrap;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .15s;
+	z-index: 1002;
+}
+
+.top-bar [data-tooltip]:hover::after {
+	opacity: 1;
 }
 
 .gantt-panel {
 	top: auto;
 	right: auto;
 	flex-direction: column;
-	gap: .4rem;
-	padding: .4rem;
-	border-radius: 4px;
-	width: 2rem;
+	gap: 4px;
+	padding: 6px;
+	border-radius: 8px;
+	width: auto;
 	align-items: stretch;
+}
+
+.rows-chips {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.rows-chip {
+	width: 35px;
+	height: 35px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	font-family: inherit;
+	font-size: 22px;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--mol-ink-light);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: background .15s, color .15s;
+}
+
+.rows-chip:hover {
+	background: var(--mol-border-light);
+}
+
+.rows-chip.active {
+	background: var(--mol-ink);
+	color: var(--mol-cream);
+	font-weight: 500;
+}
+
+#week-start-btn {
+	width: 35px;
+	height: 35px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	font-family: inherit;
+	font-size: 22px;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--mol-ink-light);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: background .15s, color .15s;
+}
+
+#week-start-btn:hover {
+	background: var(--mol-border-light);
 }
 
 /* Miro-style black tooltips */
@@ -99,96 +408,9 @@ body {
 	box-sizing: border-box;
 }
 
-.gantt-panel button {
-	min-width: auto;
-	padding: .1rem 0;
-	font-size: .85rem;
-	font-weight: 500;
-	border: none;
-	background: none;
-	border-radius: 3px;
-	transition: background .15s;
-	cursor: pointer;
-}
+/* Old .gantt-panel button styles removed — see .rows-chip, #week-start-btn */
 
-.gantt-panel button:hover {
-	background: var(--mol-border-light);
-}
-
-.rows-value {
-	display: block;
-	text-align: center;
-	font-size: .85rem;
-	font-weight: 500;
-	cursor: grab;
-	padding: .1rem 0;
-	border-radius: 3px;
-	transition: background .15s;
-}
-
-.rows-value:hover {
-	background: var(--mol-border-light);
-}
-
-.rows-slider {
-	writing-mode: vertical-lr;
-	direction: rtl;
-	width: 100%;
-	height: 80px;
-	margin: 0;
-	padding: 0;
-	cursor: pointer;
-	accent-color: var(--mol-ink-light);
-}
-
-.rows-slider::-webkit-slider-thumb {
-	cursor: grab;
-}
-
-.rows-slider::-moz-range-thumb {
-	cursor: grab;
-}
-
-.rows-slider:active::-webkit-slider-thumb {
-	cursor: grabbing;
-}
-
-.rows-slider:active::-moz-range-thumb {
-	cursor: grabbing;
-}
-
-.controls:active {
-	cursor: grabbing;
-}
-
-.controls label {
-	display: flex;
-	align-items: center;
-	gap: .35rem;
-	cursor: default;
-}
-
-.controls input[type="number"] {
-	width: 3.2rem;
-	padding: .2rem .35rem;
-	border: 1px solid var(--mol-border);
-	border-radius: 3px;
-	background: var(--mol-cream);
-	font-family: inherit;
-	font-size: inherit;
-	color: var(--mol-ink);
-}
-
-.controls select {
-	padding: .25rem .4rem;
-	border: 1px solid var(--mol-border);
-	border-radius: 3px;
-	background: var(--mol-cream);
-	font-family: inherit;
-	font-size: inherit;
-	color: var(--mol-ink);
-	cursor: pointer;
-}
+/* Old slider/label/select styles removed — see .tb-btn, .tb-input, .rows-chip */
 
 /* Print dropdown */
 .print-group {

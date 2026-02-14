@@ -533,24 +533,27 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	return svg;
 }
 
-// ─── Months / Years toggle ───
-let yearsMode = false;
+// ─── Duration helpers ───
+let yearsMode = false; // legacy, kept for URL compat
+
+function _syncDialsFromTotal(totalMonths) {
+	const yr = Math.floor(totalMonths / 12);
+	const mo = totalMonths % 12;
+	const yrEl = document.getElementById('tb-val-yr');
+	const moEl = document.getElementById('tb-val-mo');
+	if (yrEl) yrEl.textContent = yr;
+	if (moEl) moEl.textContent = mo;
+	document.getElementById('months-input').value = totalMonths;
+}
+
+function _totalFromDials() {
+	const yr = parseInt(document.getElementById('tb-val-yr').textContent) || 0;
+	const mo = parseInt(document.getElementById('tb-val-mo').textContent) || 0;
+	return yr * 12 + mo;
+}
 
 function toggleMonthsYears() {
-	const label = document.getElementById('months-label');
-	const input = document.getElementById('months-input');
-	const cur = parseInt(input.value) || 2;
-	yearsMode = !yearsMode;
-	if (yearsMode) {
-		label.textContent = 'Years';
-		input.value = Math.max(1, Math.round(cur / 12));
-		input.max = 20;
-	} else {
-		label.textContent = 'Months';
-		input.value = Math.min(240, cur * 12);
-		input.max = 240;
-	}
-	updateCalendar();
+	// No-op now — dual dials handle everything
 }
 
 // ─── Page building ───
@@ -606,38 +609,36 @@ function init() {
 	const rowsSlider = document.getElementById('rows-slider');
 	const rowsValue = document.getElementById('rows-value');
 	const weekBtn = document.getElementById('week-start-btn');
-	const label = document.getElementById('months-label');
 
-	if (yearsMode) {
-		if (label) label.textContent = 'Years';
-		if (monthsInput) { monthsInput.value = months; monthsInput.max = 20; }
-	} else {
-		if (label) label.textContent = 'Months';
-		if (monthsInput) { monthsInput.value = months; monthsInput.max = 240; }
-	}
+	const totalMonths = yearsMode ? months * 12 : months;
+	if (monthsInput) monthsInput.value = totalMonths;
+	_syncDialsFromTotal(totalMonths);
+
 	if (rowsSlider) rowsSlider.value = emptyRows;
 	if (rowsValue) rowsValue.textContent = emptyRows;
 	if (weekBtn) {
-		weekBtn.textContent = weekStart === 'mon' ? 'Mon' : 'Sun';
+		weekBtn.textContent = weekStart === 'mon' ? 'MO' : 'SU';
 		weekBtn.style.color = weekStart === 'mon' ? '' : '#C41E3A';
 	}
 
-	const totalMonths = yearsMode ? months * 12 : months;
 	buildPages(totalMonths, emptyRows, weekStart);
+	// Highlight default paper chip
+	document.querySelectorAll('.tb-btn[data-size]').forEach(b => {
+		b.classList.toggle('active', b.dataset.size === currentPaperKey);
+	});
 	_syncMobileUI();
 }
 
 function updateCalendar() {
-	const inputVal = parseInt(document.getElementById('months-input').value) || 2;
+	const totalMonths = parseInt(document.getElementById('months-input').value) || 2;
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const weekBtn = document.getElementById('week-start-btn');
-	const weekStart = (weekBtn && weekBtn.textContent === 'Mon') ? 'mon' : 'sun';
-	const totalMonths = yearsMode ? inputVal * 12 : inputVal;
+	const weekStart = (weekBtn && weekBtn.textContent === 'MO') ? 'mon' : 'sun';
 	const url = new URL(window.location);
-	url.searchParams.set('l', inputVal);
+	url.searchParams.set('l', totalMonths);
 	url.searchParams.set('g', rows);
 	url.searchParams.set('w', weekStart);
-	if (yearsMode) url.searchParams.set('u', 'y'); else url.searchParams.delete('u');
+	url.searchParams.delete('u');
 	window.history.replaceState({}, '', url);
 
 	buildPages(totalMonths, rows, weekStart);
@@ -654,9 +655,22 @@ function onRowsSlider(val) {
 	// Sync mobile
 	const mobRows = document.getElementById('mob-rows');
 	if (mobRows) mobRows.textContent = val;
-	// Highlight active rows chip
-	document.querySelectorAll('.mob-chip-opt[data-rows]').forEach(b => {
+	// Highlight active rows chips (desktop + mobile)
+	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === parseInt(val));
+	});
+	clearTimeout(_rowsTimer);
+	_rowsTimer = setTimeout(updateCalendar, 80);
+}
+
+function setRows(val) {
+	document.getElementById('rows-slider').value = val;
+	document.getElementById('rows-value').textContent = val;
+	const mobRows = document.getElementById('mob-rows');
+	if (mobRows) mobRows.textContent = val;
+	// Highlight chips (desktop + mobile)
+	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
+		b.classList.toggle('active', parseInt(b.dataset.rows) === val);
 	});
 	clearTimeout(_rowsTimer);
 	_rowsTimer = setTimeout(updateCalendar, 80);
@@ -708,31 +722,59 @@ function _hidePoolFrom(pool, startIndex) {
 
 function updatePageInfo() {
 	const el = document.getElementById('page-info');
-	if (!el) return;
-	const label = currentPaperKey.toUpperCase()
-		.replace('914X4', '914×4').replace('914X2', '914×2').replace('914MM', '914mm');
+	const totalM = parseInt(document.getElementById('months-input').value) || 12;
+	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 
-	if (currentPaper.w === null) {
+	// Precompute pages for sheet formats
+	function _pagesFor(paper) {
+		const mpp = (paper.w !== null && rows >= 12) ? 8 : (paper.w !== null ? 7 : 999);
+		return Math.max(1, Math.ceil(totalM / mpp));
+	}
+
+	// Precompute roll length from SVG intrinsic width
+	function _rollLen(paper) {
 		const firstPage = document.querySelector('#calendar .cal-page');
-		if (firstPage) {
-			const screenW = firstPage.getBoundingClientRect().width;
-			const paperW_mm = screenW / (viewport.zoom * MM_PX) + 20;
-			const meters = (paperW_mm / 1000).toFixed(1);
-			el.textContent = label + ' ' + meters + 'm';
+		if (!firstPage) return '';
+		const svgW = firstPage._calW || parseFloat(firstPage.getAttribute('width')) || 800;
+		const svgH = firstPage._calH || parseFloat(firstPage.getAttribute('height')) || 600;
+		const MARGIN_MM = 7;
+		const copies = paper.copies || 1;
+		const copyH = paper.h / copies;
+		const printH = copyH - 2 * MARGIN_MM;
+		const scale = (printH * MM_PX) / svgH;
+		const paperW_mm = svgW * scale / MM_PX + 2 * MARGIN_MM;
+		return (paperW_mm / 1000).toFixed(1) + ' m';
+	}
+
+	// Build tooltip per button
+	document.querySelectorAll('.tb-btn[data-size]').forEach(b => {
+		const key = b.dataset.size;
+		const paper = PAPER_SIZES[key];
+		if (!paper) return;
+		let tip = '';
+		if (paper.w !== null) {
+			const p = _pagesFor(paper);
+			tip = p > 1 ? p + ' pages' : '1 page';
 		} else {
-			el.textContent = label;
+			tip = _rollLen(paper);
 		}
-	} else if (totalPages > 1) {
-		el.textContent = label + ' ' + totalPages + ' pages';
-	} else {
-		el.textContent = label;
+		b.setAttribute('data-tooltip', tip);
+	});
+
+	// Keep hidden span for mobile sync
+	if (el) {
+		const paper = currentPaper;
+		if (paper.w === null) el.textContent = _rollLen(paper);
+		else if (totalPages > 1) el.textContent = totalPages + ' pages';
+		else el.textContent = '';
 	}
 }
 
 function setPaperSize(key) {
 	currentPaper = PAPER_SIZES[key] || PAPER_SIZES.a4;
 	currentPaperKey = key;
-	document.querySelectorAll('.pm-item[data-size]').forEach(b => {
+	// Highlight desktop top-bar + dropdown
+	document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]').forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
 	// Sync mobile UI
@@ -1045,8 +1087,8 @@ function drawRulers() {
 // ─── Helpers ───
 function toggleWeekStart() {
 	const btn = document.getElementById('week-start-btn');
-	const isSun = btn.textContent === 'Sun';
-	btn.textContent = isSun ? 'Mon' : 'Sun';
+	const isSun = btn.textContent === 'SU';
+	btn.textContent = isSun ? 'MO' : 'SU';
 	btn.style.color = isSun ? '' : '#C41E3A';
 	// Sync mobile
 	const monBtn = document.getElementById('mob-week-mon');
@@ -1164,6 +1206,7 @@ function _applyWheelDuration() {
 	const totalMonths = _wheelYr * 12 + _wheelMo;
 	if (totalMonths < 1) return; // min 1 month
 	document.getElementById('months-input').value = totalMonths;
+	_syncDialsFromTotal(totalMonths);
 	_updateMobMonthsLabel(totalMonths);
 	updateCalendar();
 	setTimeout(_updateMobRollLen, 200);
@@ -1174,8 +1217,8 @@ function mobSetRows(val) {
 	document.getElementById('rows-slider').value = val;
 	document.getElementById('rows-value').textContent = val;
 	document.getElementById('mob-rows').textContent = val;
-	// Highlight active chip
-	document.querySelectorAll('.mob-chip-opt[data-rows]').forEach(b => {
+	// Highlight chips (desktop + mobile)
+	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === val);
 	});
 	clearTimeout(_rowsTimer);
@@ -1236,8 +1279,8 @@ function _syncMobileUI() {
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const mobRows = document.getElementById('mob-rows');
 	if (mobRows) mobRows.textContent = rows;
-	// Highlight active rows chip
-	document.querySelectorAll('.mob-chip-opt[data-rows]').forEach(b => {
+	// Highlight active rows chips (desktop + mobile)
+	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === rows);
 	});
 	// Set wheel values
@@ -1272,13 +1315,14 @@ async function _loadPDFFonts(doc) {
 	// Fetch font files only once
 	if (!_fontsFetched) {
 		const weights = [
-			{ file: 'IBMPlexSans-Light.ttf', style: 'normal', weight: 200 },
+			{ file: 'IBMPlexSans-ExtraLight.ttf', style: 'normal', weight: 200 },
+			{ file: 'IBMPlexSans-Light.ttf', style: 'normal', weight: 300 },
 			{ file: 'IBMPlexSans-Regular.ttf', style: 'normal', weight: 400 },
 			{ file: 'IBMPlexSans-Medium.ttf', style: 'normal', weight: 500 },
 		];
 		for (const w of weights) {
 			try {
-				const resp = await fetch('fonts/' + w.file);
+				const resp = await fetch('fonts/IBMPlexSans/' + w.file);
 				const buf = await resp.arrayBuffer();
 				const bytes = new Uint8Array(buf);
 				let binary = '';
@@ -1467,14 +1511,60 @@ function downloadSVG() {
 	}
 }
 
+// ─── Custom confirm dialog ───
+function confirmAction(message, onYes) {
+	const overlay = document.getElementById('confirm-overlay');
+	const msg = document.getElementById('confirm-msg');
+	const yesBtn = document.getElementById('confirm-yes');
+	const cancelBtn = document.getElementById('confirm-cancel');
+	msg.textContent = message;
+	overlay.style.display = 'flex';
+
+	function close() {
+		overlay.style.display = 'none';
+		yesBtn.removeEventListener('click', onConfirm);
+		cancelBtn.removeEventListener('click', close);
+		overlay.removeEventListener('click', onOverlay);
+	}
+	function onConfirm() { close(); onYes(); }
+	function onOverlay(e) { if (e.target === overlay) close(); }
+
+	yesBtn.addEventListener('click', onConfirm);
+	cancelBtn.addEventListener('click', close);
+	overlay.addEventListener('click', onOverlay);
+}
+
 // ─── Init & event handlers ───
 document.addEventListener('DOMContentLoaded', () => {
 	init();
 
-	// Enter key on inputs triggers update
-	document.getElementById('months-input').addEventListener('keydown', (e) => {
-		if (e.key === 'Enter') updateCalendar();
-	});
+	// ── Dual dial wheel handlers ──
+	const dialYr = document.getElementById('tb-dial-yr');
+	const dialMo = document.getElementById('tb-dial-mo');
+	const valYr = document.getElementById('tb-val-yr');
+	const valMo = document.getElementById('tb-val-mo');
+	const hiddenInput = document.getElementById('months-input');
+	let _dialTimer;
+
+	function _onDialWheel(e, valEl, min, max) {
+		e.preventDefault();
+		const step = e.deltaY < 0 ? 1 : -1;
+		let cur = parseInt(valEl.textContent) || 0;
+		cur = Math.max(min, Math.min(max, cur + step));
+		valEl.textContent = cur;
+		// Sync total
+		const total = Math.max(1, _totalFromDials());
+		hiddenInput.value = total;
+		clearTimeout(_dialTimer);
+		_dialTimer = setTimeout(updateCalendar, 120);
+	}
+
+	if (dialYr) {
+		dialYr.addEventListener('wheel', (e) => _onDialWheel(e, valYr, 0, 20), { passive: false });
+	}
+	if (dialMo) {
+		dialMo.addEventListener('wheel', (e) => _onDialWheel(e, valMo, 0, 240), { passive: false });
+	}
 
 	// Click corner to reset viewport
 	document.querySelector('.ruler-corner').addEventListener('click', () => {

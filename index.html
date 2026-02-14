@@ -5,43 +5,68 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>WallPlan Calendar</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300;400;500;700&display=swap">
 	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-	<div class="controls">
-		<button id="months-label" onclick="toggleMonthsYears()" title="Switch Months / Years">Months</button>
-		<input type="number" id="months-input" min="1" max="49" value="12">
-		<div class="print-group">
-			<button class="print-btn" onclick="togglePrintMenu()" title="Print / Paper size"><svg width="16" height="16"
-					viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-					stroke-linejoin="round">
-					<path d="M6 9V2h12v7" />
-					<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-					<rect x="6" y="14" width="12" height="8" />
-				</svg><span id="page-info">2 pages</span></button>
-			<div id="print-menu" class="print-menu" style="display:none">
-				<button onclick="setPaperSize('a4')" class="pm-item" data-size="a4">A4</button>
-				<button onclick="setPaperSize('a3')" class="pm-item" data-size="a3">A3</button>
-				<button onclick="setPaperSize('914mm')" class="pm-item" data-size="914mm">914 mm</button>
-				<button onclick="setPaperSize('914x2')" class="pm-item" data-size="914x2">914 mm ×2</button>
-				<button onclick="setPaperSize('914x4')" class="pm-item" data-size="914x4">914 mm ×4</button>
-				<hr>
-				<button onclick="downloadSVG(); togglePrintMenu()" class="pm-item pm-print">Download SVG</button>
-				<button onclick="printPDF(); togglePrintMenu()" class="pm-item">Download PDF</button>
+	<div class="controls top-bar" id="top-bar">
+		<div class="tb-dial" id="tb-dial-yr" data-tooltip="Years">
+			<div class="tb-dial-value" id="tb-val-yr">1</div>
+			<div class="tb-dial-label">yr</div>
+		</div>
+		<div class="tb-dial" id="tb-dial-mo" data-tooltip="Months">
+			<div class="tb-dial-value" id="tb-val-mo">0</div>
+			<div class="tb-dial-label">mo</div>
+		</div>
+		<input type="hidden" id="months-input" value="12">
+		<span id="months-label" style="display:none">mo</span>
+		<div class="tb-sep"></div>
+		<div class="paper-chips" id="paper-chips-group">
+			<div class="tb-btn" data-size="a4" onclick="setPaperSize('a4')">A4</div>
+			<div class="tb-btn" data-size="a3" onclick="setPaperSize('a3')">A3</div>
+			<div class="tb-btn tb-btn-sm" data-size="914mm" onclick="setPaperSize('914mm')">914</div>
+			<div class="tb-btn tb-btn-sm" data-size="914x2" onclick="setPaperSize('914x2')">×2</div>
+			<div class="tb-btn tb-btn-sm" data-size="914x4" onclick="setPaperSize('914x4')">×4</div>
+		</div>
+		<span id="page-info" style="display:none"></span>
+		<div class="tb-sep"></div>
+		<div class="tb-btn" onclick="confirmAction('Download SVG?', downloadSVG)" data-tooltip="Download SVG">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+				stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+				<polyline points="7 10 12 15 17 10" />
+				<line x1="12" y1="15" x2="12" y2="3" />
+			</svg>
+		</div>
+		<div class="tb-btn" onclick="confirmAction('Download PDF?', printPDF)" data-tooltip="Download PDF">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+				stroke-linecap="round" stroke-linejoin="round">
+				<path d="M6 9V2h12v7" />
+				<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+				<rect x="6" y="14" width="12" height="8" />
+			</svg>
+		</div>
+	</div>
+	<!-- Custom confirm modal -->
+	<div id="confirm-overlay" class="confirm-overlay" style="display:none">
+		<div class="confirm-box">
+			<div class="confirm-msg" id="confirm-msg">Download?</div>
+			<div class="confirm-btns">
+				<button class="confirm-btn confirm-yes" id="confirm-yes">Yes</button>
+				<button class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
 			</div>
 		</div>
-
 	</div>
 	<div class="controls gantt-panel" id="gantt-panel">
-		<button id="week-start-btn" data-tooltip="Week start day" onclick="toggleWeekStart()">Sun</button>
-		<input type="range" id="rows-slider" class="rows-slider" min="6" max="12" step="2" value="10"
-			oninput="onRowsSlider(this.value)">
-		<span id="rows-value" class="rows-value" data-tooltip="Gantt rows">10</span>
+		<button id="week-start-btn" data-tooltip="Week start day" onclick="toggleWeekStart()">SU</button>
+		<input type="hidden" id="rows-slider" value="10">
+		<span id="rows-value" style="display:none">10</span>
+		<div class="rows-chips" data-tooltip="Gantt rows">
+			<button class="rows-chip" data-rows="6" onclick="setRows(6)">6</button>
+			<button class="rows-chip" data-rows="8" onclick="setRows(8)">8</button>
+			<button class="rows-chip active" data-rows="10" onclick="setRows(10)">10</button>
+			<button class="rows-chip" data-rows="12" onclick="setRows(12)">12</button>
+		</div>
 	</div>
 	<canvas id="ruler-left" class="ruler ruler-left"></canvas>
 	<canvas id="ruler-bottom" class="ruler ruler-bottom"></canvas>
