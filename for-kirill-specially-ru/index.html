@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>WallPlan Календарь</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+    <div class="controls top-bar" id="top-bar">
+        <div class="tb-dial" id="tb-dial-yr" data-tooltip="Годы">
+            <div class="tb-dial-value" id="tb-val-yr">1</div>
+            <div class="tb-dial-label">г</div>
+        </div>
+        <div class="tb-dial" id="tb-dial-mo" data-tooltip="Месяцы">
+            <div class="tb-dial-value" id="tb-val-mo">0</div>
+            <div class="tb-dial-label">м</div>
+        </div>
+        <input type="hidden" id="months-input" value="12">
+        <span id="months-label" style="display:none">м</span>
+        <div class="tb-sep"></div>
+        <div class="paper-chips" id="paper-chips-group">
+            <div class="tb-btn" data-size="a4" onclick="setPaperSize('a4')">A4</div>
+            <div class="tb-btn" data-size="a3" onclick="setPaperSize('a3')">A3</div>
+            <div class="tb-btn tb-btn-sm" data-size="914mm" onclick="setPaperSize('914mm')">914</div>
+            <div class="tb-btn tb-btn-sm" data-size="914x2" onclick="setPaperSize('914x2')">×2</div>
+            <div class="tb-btn tb-btn-sm" data-size="914x4" onclick="setPaperSize('914x4')">×4</div>
+        </div>
+        <span id="page-info" style="display:none"></span>
+        <div class="tb-sep"></div>
+        <div class="tb-btn" onclick="confirmAction('Скачать SVG?', downloadSVG)" data-tooltip="Скачать SVG">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+        </div>
+        <div class="tb-btn" onclick="confirmAction('Скачать PDF?', printPDF)" data-tooltip="Скачать PDF">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9V2h12v7" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <rect x="6" y="14" width="12" height="8" />
+            </svg>
+        </div>
+    </div>
+    <!-- Custom confirm modal -->
+    <div id="confirm-overlay" class="confirm-overlay" style="display:none">
+        <div class="confirm-box">
+            <div class="confirm-msg" id="confirm-msg">Скачать?</div>
+            <div class="confirm-btns">
+                <button class="confirm-btn confirm-yes" id="confirm-yes">Да</button>
+                <button class="confirm-btn confirm-cancel" id="confirm-cancel">Отмена</button>
+            </div>
+        </div>
+    </div>
+    <div class="controls gantt-panel" id="gantt-panel">
+        <button id="week-start-btn" data-tooltip="Начало недели" onclick="toggleWeekStart()">ПН</button>
+        <input type="hidden" id="rows-slider" value="10">
+        <span id="rows-value" style="display:none">10</span>
+        <div class="rows-chips" data-tooltip="Строки Ганта">
+            <button class="rows-chip" data-rows="6" onclick="setRows(6)">6</button>
+            <button class="rows-chip" data-rows="8" onclick="setRows(8)">8</button>
+            <button class="rows-chip active" data-rows="10" onclick="setRows(10)">10</button>
+            <button class="rows-chip" data-rows="12" onclick="setRows(12)">12</button>
+        </div>
+    </div>
+    <canvas id="ruler-left" class="ruler ruler-left"></canvas>
+    <canvas id="ruler-bottom" class="ruler ruler-bottom"></canvas>
+    <div class="ruler-corner"></div>
+    <div id="paper-sheet"></div>
+    <div id="guide-h" class="guide guide-h"></div>
+    <div id="guide-v" class="guide guide-v"></div>
+    <div id="guide-h-a4" class="guide guide-h"></div>
+    <div id="guide-v-a4" class="guide guide-v"></div>
+    <div id="guide-margin-bottom" class="guide guide-h guide-margin"></div>
+    <div id="guide-margin-top" class="guide guide-h guide-margin"></div>
+    <div id="guide-margin-left" class="guide guide-v guide-margin"></div>
+    <div id="guide-margin-right" class="guide guide-v guide-margin"></div>
+    <div id="calendar"></div>
+
+    <!-- Mobile bottom toolbar -->
+    <div id="mob-bar" class="mob-bar">
+        <div class="mob-bar-left">
+            <button class="mob-val" onclick="toggleMobSheet()">
+                <span id="mob-months">12</span>
+                <span class="mob-label" id="mob-months-label">м</span>
+            </button>
+            <div class="mob-sep"></div>
+            <button class="mob-val" onclick="toggleMobSheet()">
+                <span id="mob-rows">10</span>
+                <span class="mob-label">строк</span>
+            </button>
+        </div>
+        <button class="mob-chip" id="mob-format" onclick="toggleMobSheet()">A4</button>
+        <div class="mob-bar-right">
+            <div class="mob-dl-group">
+                <button class="mob-icon" onclick="toggleMobDL()" title="Скачать">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                </button>
+                <div id="mob-dl-popup" class="mob-dl-popup" style="display:none">
+                    <button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
+                    <button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
+                </div>
+            </div>
+            <button class="mob-icon" onclick="toggleMobSheet()" title="Настройки">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile bottom sheet -->
+    <div id="mob-overlay" class="mob-overlay" onclick="toggleMobSheet()"></div>
+    <div id="mob-sheet" class="mob-sheet">
+        <div class="mob-sheet-handle"></div>
+        <div class="mob-sheet-section">
+            <div class="mob-sheet-label">Период</div>
+            <div class="mob-wheels">
+                <div class="mob-wheel-col">
+                    <div class="mob-wheel" id="mob-wheel-yr"></div>
+                    <div class="mob-wheel-unit">г</div>
+                </div>
+                <div class="mob-wheel-col">
+                    <div class="mob-wheel" id="mob-wheel-mo"></div>
+                    <div class="mob-wheel-unit">м</div>
+                </div>
+            </div>
+        </div>
+        <div class="mob-sheet-section">
+            <div class="mob-sheet-label">Формат бумаги <span id="mob-roll-len" class="mob-roll-len"></span></div>
+            <div class="mob-chips" id="mob-paper-chips">
+                <button class="mob-chip-opt active" data-size="a4" onclick="mobSetPaper('a4')">A4</button>
+                <button class="mob-chip-opt" data-size="a3" onclick="mobSetPaper('a3')">A3</button>
+                <button class="mob-chip-opt" data-size="914mm" onclick="mobSetPaper('914mm')">914</button>
+                <button class="mob-chip-opt" data-size="914x2" onclick="mobSetPaper('914x2')">914×2</button>
+                <button class="mob-chip-opt" data-size="914x4" onclick="mobSetPaper('914x4')">914×4</button>
+            </div>
+        </div>
+        <div class="mob-sheet-section">
+            <div class="mob-sheet-label">Строки Ганта</div>
+            <div class="mob-chips">
+                <button class="mob-chip-opt" data-rows="6" onclick="mobSetRows(6)">6</button>
+                <button class="mob-chip-opt" data-rows="8" onclick="mobSetRows(8)">8</button>
+                <button class="mob-chip-opt active" data-rows="10" onclick="mobSetRows(10)">10</button>
+                <button class="mob-chip-opt" data-rows="12" onclick="mobSetRows(12)">12</button>
+            </div>
+        </div>
+        <div class="mob-sheet-section">
+            <div class="mob-sheet-label">Начало недели</div>
+            <div class="mob-toggle-group">
+                <button class="mob-toggle active" id="mob-week-mon" onclick="mobSetWeek('mon')">Пн</button>
+                <button class="mob-toggle" id="mob-week-sun" onclick="mobSetWeek('sun')">Вс</button>
+            </div>
+        </div>
+    </div>
+    <script src="calendar-ru.js"></script>
+</body>
+
+</html>
