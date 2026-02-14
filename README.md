@@ -20,6 +20,8 @@ Twelve years ago, in October 2014 I [released](https://app.box.com/s/7yqyh8vfphq
 - **Customizable**: Week start (Mon/Sun), US Federal Holidays, adjustable Gantt rows (6/8/10/12).
 - **WallPlan Day**: January 11 — marked annually in Copper Penny DTP font with a wine-colored accent (#6B2332).
 - **Custom Entries**: Add session-only annotations (e.g. "Product launch" on 15.03) via the T button. Supports DD.MM input with auto-formatting, yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
+- **Social Preview**: Open Graph + Twitter Card meta tags with app screenshot for rich link previews in Telegram, Facebook, Twitter, etc.
+- **Custom Domain**: `osovsky.com/wallplan/` via Vercel rewrites proxy (`osovsky-site` project).
 - **Russian Edition**: Localized calendar at `/for-kirill-specially-ru/` with Russian holidays and emojis. Hidden from search engines (`noindex`).
 - **Google Analytics**: GA4 tracking on both English and Russian versions.
 - **Mobile**: Touch pan & pinch-to-zoom, iOS-like bottom toolbar with T (add entry), Hide Days toggle, download (SVG/PDF), and settings sheet.
@@ -48,6 +50,7 @@ See [architecture.md](./architecture.md) for detailed technical documentation on
 | `index.html` | Main app shell + GA4 tracking |
 | `for-kirill-specially-ru/` | Russian locale (separate JS + HTML, shared CSS/fonts) |
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
+| `Prtscreen.png` | OG social preview image (app screenshot) |
 
 ## 🙏🏻 Credits
 

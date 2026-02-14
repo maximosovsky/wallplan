@@ -10,6 +10,12 @@ Implemented via the **Hide Days** toggle. Calendar without daily grid — only v
 ### ~~Custom Entries ✏️~~
 Session-only text annotations on any date. T button (Copper Penny font) opens modal: text + DD.MM date input with auto-formatting (all delimiters, pure digits). Yearly repeat option. Renders alongside holidays, exports to SVG/PDF. Not persisted — lightweight by design. Available on both desktop (gantt-panel) and mobile (bottom toolbar).
 
+### ~~Social Preview 🔗~~
+Open Graph + Twitter Card meta tags on both EN and RU versions. App screenshot as OG image for rich link previews in Telegram, Facebook, Twitter.
+
+### ~~Custom Domain 🌐~~
+`osovsky.com/wallplan/` via `osovsky-site` Vercel project with rewrites proxy to `wallplan.vercel.app`. Root `/` auto-redirects to `/wallplan/`.
+
 ---
 
 ## 🟢 Easy (1–2 days)
