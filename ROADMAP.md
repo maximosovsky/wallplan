@@ -111,6 +111,39 @@ Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards �
 
 ---
 
+## 💰 Monetization
+
+### 10. Print-as-a-Service 🖨️
+"Order Print & Delivery" button → user creates calendar → WallPlan generates PDF → sends to print API → printed on heavy paper → delivered worldwide. Integration with **Gelato** (130+ print partners, 32 countries, A3/A2/A1 posters) or **Printful**. Payment via Stripe. Margin: $10-30 per calendar.
+
+**Why:** Most natural monetization — user already wants to print. One click from free tool to paid product. No subscription fatigue.
+
+### 11. Freemium 💎
+| Free | Pro ($29 one-time) |
+|------|--------------------|
+| Up to 12 months | Up to 20 years |
+| 3 Gantt rows | Unlimited rows |
+| Watermark on PDF | Clean PDF |
+| Basic holidays | Holidays for all countries |
+| — | Cloud save (Google Auth) |
+| — | Custom sticker packs |
+
+### 12. Brand Collaborations 🤝
+Sponsored calendar templates / themed editions with brands:
+- **Monopoly** — calendar with Monopoly property grid aesthetic
+- **LEGO** — brick-style calendar blocks, LEGO color palette
+- **IKEA** — minimalist Scandinavian calendar design
+- **Designers** — limited edition calendars by invited graphic designers
+- **Sports teams** — season calendars with club colors and match dates
+- **Universities** — academic year calendars with semester dates
+
+Revenue model: licensing fee per template + revenue share on prints. Brands get exposure, WallPlan gets content and distribution.
+
+### 13. Corporate Licensing 🏢
+White-label version with company logo, brand colors, internal holidays. Self-hosted option for intranet. $200-500/year per company.
+
+---
+
 ## 💡 Improvements (no new features)
 
 ### UX
