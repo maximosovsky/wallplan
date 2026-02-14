@@ -149,3 +149,77 @@ Grid lines are collected as path data strings during the month loop and emitted 
 - `calendar.js` — SVG renderer, viewport, export, touch, mobile UI logic
 - `style.css` — Themes, mobile toolkit, print optimization
 - `fonts/` — Local font assets (IBM Plex Sans, 14 weights)
+- `og-image.png` — Social preview image (1200×630)
+- `robots.txt` — Crawler rules (Google, Bing, AI bots)
+- `sitemap.xml` — URL map with hreflang alternates
+- `llms.txt` — Concise site description for LLM models
+- `llms-full.txt` — Full documentation in Markdown for AI ingestion
+- `manifest.json` — PWA manifest (name, theme, icon)
+- `vercel.json` — Rewrites, security headers
+- `for-kirill-specially-ru/` — Russian locale (separate JS + HTML)
+
+## SEO & Infrastructure
+
+### Meta Tags (both EN & RU)
+
+| Tag | Purpose |
+|-----|---------|
+| `<title>` | Primary search result title (55 chars) |
+| `<meta description>` | Search snippet with keywords (160 chars) |
+| `<meta keywords>` | 20 EN / 14 RU targeted search terms |
+| `<meta theme-color>` | Moleskine cream `#F5F0E8` in mobile address bar |
+| `<link canonical>` | Prevents duplicate content |
+| `<link hreflang>` | EN ↔ RU language linking + x-default |
+| `<link rel="icon">` | Inline SVG favicon 📅 |
+| `<link apple-touch-icon>` | iOS bookmark icon |
+| `<link manifest>` | PWA "Add to Home Screen" |
+| `<noscript>` | Fallback text for non-JS browsers |
+
+### Open Graph & Twitter Card
+
+| Tag | EN Value |
+|-----|----------|
+| `og:title` | WallPlan — Calendar Generator for Long-Term Planning |
+| `og:description` | Free online multi-year wall calendar generator... |
+| `og:image` | `https://osovsky.com/wallplan/og-image.png` |
+| `og:image:width/height` | 1200 × 630 |
+| `og:site_name` | WallPlan |
+| `twitter:card` | `summary_large_image` |
+
+### Structured Data (JSON-LD)
+`SoftwareApplication` schema on EN page:
+- `applicationCategory`: Productivity
+- `operatingSystem`: Web
+- `offers.price`: 0 (free)
+- `author.sameAs`: `https://www.wikidata.org/wiki/Q107189449` (Maxim Osovsky)
+
+### Hidden Crawler Content
+`<div>` with `position:absolute;left:-9999px` contains `<h1>` + full feature descriptions. Required because the app is canvas/SVG — Google cannot read SVG text nodes.
+
+### Security Headers (`vercel.json`)
+
+| Header | Value |
+|--------|-------|
+| `X-Content-Type-Options` | `nosniff` |
+| `X-Frame-Options` | `DENY` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+
+### LLM Visibility
+- `llms.txt` — Short description following the proposed AI standard
+- `llms-full.txt` — Full Markdown documentation for deep AI reading
+- `robots.txt` — Explicitly allows GPTBot, ClaudeBot, PerplexityBot, ChatGPT-User
+
+### Domain Routing (`osovsky-site` Vercel project)
+`osovsky.com/wallplan/` proxies to `wallplan.vercel.app` via Vercel rewrites:
+```
+/wallplan      → https://wallplan.vercel.app/
+/wallplan/     → https://wallplan.vercel.app/
+/wallplan/(.*) → https://wallplan.vercel.app/$1
+```
+Root `/` redirects to `/wallplan/` via `<meta http-equiv="refresh">`.
+
+### Analytics
+GA4 (`G-NW8NPGK3DY`) on all three entry points:
+1. `wallplan.vercel.app` (EN)
+2. `wallplan.vercel.app/for-kirill-specially-ru/` (RU)
+3. `osovsky-site` landing page
