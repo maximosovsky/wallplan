@@ -41,6 +41,7 @@ function getHolidays(year) {
 	const h = {};
 	const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
 	add(1, 1, "New Year's Day");
+	add(1, 11, 'WALLPLAN DAY');
 	add(6, 19, 'Juneteenth');
 	add(7, 4, 'Independence Day');
 	add(11, 11, 'Veterans Day');
@@ -264,6 +265,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		.red { fill: ${COLORS.red}; }
 		.ink-light { fill: ${COLORS.inkLight}; }
 		.year { fill: #999999; }
+		.wallplan-day { font-family: 'Copper Penny DTP', serif; fill: #6B2332; }
 	`;
 
 	// ── Section Y offsets ──
@@ -323,121 +325,152 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		}, svg).textContent = m.name;
 
 		// ── R3: Vertical calendar (31 rows) ──
-		for (let di = 0; di < 31; di++) {
-			const rowY = yVer + di * L.verRowH;
-			const dayData = m.days[di];
+		if (!hideDays) {
+			for (let di = 0; di < 31; di++) {
+				const rowY = yVer + di * L.verRowH;
+				const dayData = m.days[di];
 
-			if (dayData) {
-				const textClass = dayData.isWeekend ? 'red' : '';
+				if (dayData) {
+					const textClass = dayData.isWeekend ? 'red' : '';
 
-				// Day number
-				svgEl('text', {
-					x: xCursor + 6, y: rowY + L.verRowH - 2,
-					'font-size': '9',
-					class: textClass,
-				}, svg).textContent = dayData.day;
-
-				// Day of week
-				svgEl('text', {
-					x: xCursor + 22, y: rowY + L.verRowH - 3,
-					'font-size': '5.5', 'letter-spacing': '0.05em',
-					class: textClass,
-				}, svg).textContent = WEEK_DAYS_BASE[dayData.rawDow];
-
-				// Bottom border → batch path
-				const by = rowY + L.verRowH;
-				pathVerGray += `M${xCursor} ${by}H${xCursor + mW}`;
-
-				// First day of month — top border → batch path
-				if (dayData.isFirstOfMonth) {
-					pathVerGray += `M${xCursor} ${rowY}H${xCursor + mW}`;
-				}
-
-				// Week separator → batch path
-				if (dayData.isWeekStart && !dayData.isFirstOfMonth) {
-					pathVerWeek += `M${xCursor} ${rowY}H${xCursor + mW}`;
-				}
-
-				// Week number
-				if (dayData.isWeekStart || dayData.isFirstOfMonth) {
+					// Day number
 					svgEl('text', {
-						x: xCursor + mW - 8, y: rowY + L.verRowH - 3,
-						'font-size': '4.5', 'text-anchor': 'end',
-						class: 'ink-light',
-					}, svg).textContent = dayData.weekNum;
-				}
+						x: xCursor + 6, y: rowY + L.verRowH - 2,
+						'font-size': '9',
+						class: textClass,
+					}, svg).textContent = dayData.day;
 
-				// Holiday name
-				if (dayData.holiday) {
+					// Day of week
 					svgEl('text', {
-						x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH - 3,
-						'font-size': is914s ? '3.5' : '4.5', 'text-anchor': 'start',
+						x: xCursor + 22, y: rowY + L.verRowH - 3,
+						'font-size': '5.5', 'letter-spacing': '0.05em',
+						class: textClass,
+					}, svg).textContent = WEEK_DAYS_BASE[dayData.rawDow];
+
+					// Bottom border → batch path
+					const by = rowY + L.verRowH;
+					pathVerGray += `M${xCursor} ${by}H${xCursor + mW}`;
+
+					// First day of month — top border → batch path
+					if (dayData.isFirstOfMonth) {
+						pathVerGray += `M${xCursor} ${rowY}H${xCursor + mW}`;
+					}
+
+					// Week separator → batch path
+					if (dayData.isWeekStart && !dayData.isFirstOfMonth) {
+						pathVerWeek += `M${xCursor} ${rowY}H${xCursor + mW}`;
+					}
+
+					// Week number
+					if (dayData.isWeekStart || dayData.isFirstOfMonth) {
+						svgEl('text', {
+							x: xCursor + mW - 8, y: rowY + L.verRowH - 3,
+							'font-size': '4.5', 'text-anchor': 'end',
+							class: 'ink-light',
+						}, svg).textContent = dayData.weekNum;
+					}
+
+					// Holiday name
+					if (dayData.holiday) {
+						const isWPDay = dayData.holiday === 'WALLPLAN DAY';
+						svgEl('text', {
+							x: xCursor + (is914s ? 38 : 44), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
+							'font-size': is914s ? '3.5' : '4.5',
+							'text-anchor': 'start',
+							class: isWPDay ? 'wallplan-day' : '',
+						}, svg).textContent = dayData.holiday;
+					}
+				}
+			}
+		} // end if (!hideDays) R3
+
+		// WallPlan Day — always visible even with hideDays
+		if (hideDays) {
+			for (let di = 0; di < 31; di++) {
+				const dayData = m.days[di];
+				if (dayData && dayData.holiday === 'WALLPLAN DAY') {
+					const rowY = yVer + di * L.verRowH;
+					svgEl('text', {
+						x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH / 2 + 2.5,
+						'font-size': is914s ? '3.5' : '4.5',
+						'text-anchor': 'start',
+						class: 'wallplan-day',
 					}, svg).textContent = dayData.holiday;
 				}
 			}
 		}
 
 		// ── R4: Gantt horizontal grid ──
-		// Header: day letters + day numbers
-		for (let di = 0; di < numDays; di++) {
-			const d = m.days[di];
-			const cx = xCursor + di * cellW;
-			const textClass = d.isWeekend ? 'red' : '';
-
-			// Day letter (narrow)
-			svgEl('text', {
-				x: cx + cellW / 2, y: yGantt + L.dayLabelH + 3,
-				'font-size': F.ganttDay, 'text-anchor': 'middle',
-				'font-stretch': 'condensed', 'letter-spacing': '-0.05em',
-				class: textClass,
-			}, svg).textContent = WEEK_DAYS_NARROW[d.adjustedDow];
-
-			// Day number
-			svgEl('text', {
-				x: cx + cellW / 2, y: yGantt + ganttHeaderH - 2,
-				'font-size': F.ganttNum, 'text-anchor': 'middle',
-				'font-stretch': 'condensed', 'letter-spacing': '-0.05em',
-				class: textClass,
-			}, svg).textContent = d.day;
+		// Gantt row horizontal borders — always visible (even with hideDays)
+		{
+			const hdStart = hideDays ? yVer : yGantt + ganttHeaderH;
+			const hdArea = hideDays ? (r3H + r4H) : (ganttRowH * emptyRows);
+			const hdRowH = hdArea / emptyRows;
+			for (let ri = 0; ri < emptyRows; ri++) {
+				const rowY = hdStart + ri * hdRowH;
+				const by = rowY + hdRowH;
+				pathGanttGray += `M${xCursor} ${by}H${xCursor + mW}`;
+			}
+			// Top border when hideDays (close the area under month name)
+			if (hideDays) {
+				pathGanttGray += `M${xCursor} ${yVer}H${xCursor + mW}`;
+			}
 		}
 
-		// Gantt grid — rows with cell borders → batch paths
-		for (let ri = 0; ri < emptyRows; ri++) {
-			const rowY = yGantt + ganttHeaderH + ri * ganttRowH;
-
-			// Bottom border of each row → batch
-			const by = rowY + ganttRowH;
-			pathGanttGray += `M${xCursor} ${by}H${xCursor + mW}`;
-
-			// Vertical cell borders → batch
+		if (!hideDays) {
+			// Header: day letters + day numbers
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
 				const cx = xCursor + di * cellW;
+				const textClass = d.isWeekend ? 'red' : '';
 
-				// Left cell border → batch
-				pathGanttGray += `M${cx} ${rowY}V${by}`;
+				// Day letter (narrow)
+				svgEl('text', {
+					x: cx + cellW / 2, y: yGantt + L.dayLabelH + 3,
+					'font-size': F.ganttDay, 'text-anchor': 'middle',
+					'font-stretch': 'condensed', 'letter-spacing': '-0.05em',
+					class: textClass,
+				}, svg).textContent = WEEK_DAYS_NARROW[d.adjustedDow];
 
-				// Week separator → batch
-				if (d.isWeekStart && !d.isFirstOfMonth) {
-					pathGanttWeek += `M${cx} ${rowY}V${by}`;
+				// Day number
+				svgEl('text', {
+					x: cx + cellW / 2, y: yGantt + ganttHeaderH - 2,
+					'font-size': F.ganttNum, 'text-anchor': 'middle',
+					'font-stretch': 'condensed', 'letter-spacing': '-0.05em',
+					class: textClass,
+				}, svg).textContent = d.day;
+			}
+
+			// Gantt grid — vertical cell borders + week separators
+			for (let ri = 0; ri < emptyRows; ri++) {
+				const rowY = yGantt + ganttHeaderH + ri * ganttRowH;
+				const by = rowY + ganttRowH;
+
+				for (let di = 0; di < numDays; di++) {
+					const d = m.days[di];
+					const cx = xCursor + di * cellW;
+					pathGanttGray += `M${cx} ${rowY}V${by}`;
+					if (d.isWeekStart && !d.isFirstOfMonth) {
+						pathGanttWeek += `M${cx} ${rowY}V${by}`;
+					}
 				}
 			}
-		}
 
-		// Week numbers in first Gantt row
-		for (let di = 0; di < numDays; di++) {
-			const d = m.days[di];
-			const wnKey = m.year + '-' + d.weekNum;
-			if (d.isWeekStart && !seenWeeks.has(wnKey)) {
-				seenWeeks.add(wnKey);
-				const cx = xCursor + di * cellW;
-				svgEl('text', {
-					x: cx + cellW / 2, y: yGantt + ganttHeaderH + ganttRowH - 3,
-					'font-size': F.ganttWk, 'text-anchor': 'middle',
-					class: 'ink-light',
-				}, svg).textContent = d.weekNum;
+			// Week numbers in first Gantt row
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				const wnKey = m.year + '-' + d.weekNum;
+				if (d.isWeekStart && !seenWeeks.has(wnKey)) {
+					seenWeeks.add(wnKey);
+					const cx = xCursor + di * cellW;
+					svgEl('text', {
+						x: cx + cellW / 2, y: yGantt + ganttHeaderH + ganttRowH - 3,
+						'font-size': F.ganttWk, 'text-anchor': 'middle',
+						class: 'ink-light',
+					}, svg).textContent = d.weekNum;
+				}
 			}
-		}
+		} // end if (!hideDays) R4
 
 		// ── R5: Box calendar month name ──
 		svgEl('text', {
@@ -535,6 +568,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 
 // ─── Duration helpers ───
 let yearsMode = false; // legacy, kept for URL compat
+let hideDays = false;
 
 function _syncDialsFromTotal(totalMonths) {
 	const yr = Math.floor(totalMonths / 12);
@@ -599,6 +633,7 @@ function init() {
 	let emptyRows = parseInt(params.get('g')) || 10;
 	let weekStart = params.get('w') || 'sun';
 	yearsMode = params.get('u') === 'y';
+	hideDays = params.get('d') === '1';
 
 	if (emptyRows < 5 || emptyRows > 15) emptyRows = 10;
 	if (weekStart !== 'mon') weekStart = 'sun';
@@ -641,6 +676,7 @@ function updateCalendar() {
 	url.searchParams.set('g', rows);
 	url.searchParams.set('w', weekStart);
 	url.searchParams.delete('u');
+	if (hideDays) url.searchParams.set('d', '1'); else url.searchParams.delete('d');
 	window.history.replaceState({}, '', url);
 
 	buildPages(totalMonths, rows, weekStart);
@@ -1091,6 +1127,14 @@ function drawRulers() {
 			bctx.globalAlpha = 1;
 		}
 	}
+}
+
+// ─── Hide days toggle ───
+function toggleHideDays() {
+	hideDays = !hideDays;
+	const btn = document.getElementById('hide-days-btn');
+	if (btn) btn.classList.toggle('active', hideDays);
+	updateCalendar();
 }
 
 // ─── Helpers ───

@@ -55,6 +55,14 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: 'Copper Penny DTP';
+	src: url('fonts/cooper/Copper Penny DTP.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 /* ─── Moleskine-inspired palette ─── */
 :root {
 	--mol-cream: #FDF6E3;
@@ -371,6 +379,30 @@ body {
 
 #week-start-btn:hover {
 	background: var(--mol-border-light);
+}
+
+#hide-days-btn {
+	width: 36px;
+	height: 36px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	color: var(--mol-ink-light);
+	transition: background .15s, color .15s;
+}
+
+#hide-days-btn:hover {
+	background: var(--mol-border-light);
+}
+
+#hide-days-btn.active {
+	background: var(--mol-ink);
+	color: var(--mol-cream);
 }
 
 /* Miro-style black tooltips */
