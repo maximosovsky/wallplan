@@ -1,6 +1,12 @@
 {
   "rewrites": [
-    { "source": "/for-kirill-specially-ru", "destination": "/for-kirill-specially-ru/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/for-kirill-specially-ru",
+      "destination": "/for-kirill-specially-ru/index.html"
+    },
+    {
+      "source": "/((?!for-kirill-specially-ru).*)",
+      "destination": "/index.html"
+    }
   ]
 }
