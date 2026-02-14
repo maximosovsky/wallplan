@@ -11,6 +11,12 @@ Upload images onto the calendar canvas. Resize on upload (max 800px, JPEG 80%) �
 ### Unified Overlay System
 Single `renderOverlays()` function called after every `buildPages()` to re-render stickers and images from a shared data model.
 
+### Custom Sticker Packs 💬
+Custom SVG sticker sets — like Telegram or WhatsApp sticker packs. Users can create, import, and share themed sticker collections. Each sticker is a standalone SVG that can be placed on the calendar. Potential for community-created packs.
+
+### Timeline Mode 📏
+Calendar without daily grid — only vertical year, quarter, and month divisions (optionally weeks). Designed for long timelines (5–20 years) where individual days are not needed. Gantt rows remain for high-level project planning.
+
 ---
 
 ## 🔗 Integrations
