@@ -10,6 +10,9 @@
 | Gantt chart calendar | Specific need | 🟢 Low |
 | printable calendar generator | Tool search | 🟡 Medium |
 | free calendar maker | Tool search | 🔴 High |
+| large wall calendar | Specific need | 🟡 Medium |
+| planning calendar | Tool search | 🟡 Medium |
+| timeline | Tool search | 🔴 High |
 
 ## 📐 Feature Keywords (Medium Priority)
 
@@ -40,6 +43,8 @@
 | calendar maker with holidays | ~500 |
 | custom multi-year calendar | ~100 |
 | printable Gantt calendar | ~50 |
+| 2 year calendar | ~500 |
+| 3 year calendar | ~300 |
 
 ## 🇷🇺 Russian Keywords
 
@@ -59,6 +64,11 @@
 | SVG календарь | SVG calendar |
 | PDF календарь | PDF calendar |
 | календарь с праздниками | calendar with holidays |
+| большой настенный календарь | large wall calendar |
+| Гантт календарь | Gantt calendar |
+| календарь на 2 года | 2 year calendar |
+| календарь на 3 года | 3 year calendar |
+| календарь для планирования | planning calendar |
 
 ## 💡 Content Ideas for SEO Growth
 
@@ -84,3 +94,11 @@
 | `og:description` | Gantt charts, strategic planning, SVG, PDF |
 | `llms-full.txt` | Full feature list with all keywords |
 | `sitemap.xml` | Canonical URLs |
+| GitHub Topics | `calendar`, `calendar-generator`, `gantt`, `wall-calendar`, `planner`, `planning-tool`, `timeline` |
+
+## 👤 Author Keywords
+
+| Language | Keyword |
+|----------|---------|
+| EN | Maxim Osovsky |
+| RU | Максим Осовский |
