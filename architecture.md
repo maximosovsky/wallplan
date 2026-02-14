@@ -219,7 +219,6 @@ Grid lines are collected as path data strings during the month loop and emitted 
 Root `/` redirects to `/wallplan/` via `<meta http-equiv="refresh">`.
 
 ### Analytics
-GA4 (`G-NW8NPGK3DY`) on all three entry points:
+GA4 (`G-NW8NPGK3DY`) on all entry points:
 1. `osovsky.com/wallplan/` (EN)
-2. `osovsky.com/wallplan/for-kirill-specially-ru/` (RU)
-3. `osovsky.com` root landing page
+2. `osovsky.com` root landing page

@@ -24,6 +24,7 @@ Twelve years ago, in October 2014 I [released](https://app.box.com/s/7yqyh8vfphq
 - **Custom Entries**: Add session-only annotations (e.g. "Product launch" on 15.03) via the T button. Supports DD.MM input with auto-formatting, yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
 - **Social Preview**: Open Graph + Twitter Card meta tags with app screenshot for rich link previews in Telegram, Facebook, Twitter, etc.
 - **Custom Domain**: `osovsky.com/wallplan/` via Vercel rewrites proxy (`osovsky-site` project).
+- **Russian Edition**: Localized calendar with Russian holidays and emojis. Hidden from search engines (`noindex`).
 - **Google Analytics**: GA4 tracking on all versions.
 - **Mobile**: Touch pan & pinch-to-zoom, iOS-like bottom toolbar with T (add entry), Hide Days toggle, download (SVG/PDF), and settings sheet.
 - **Performance**: Batch SVG path rendering, holiday caching, rAF-based viewport updates.
@@ -49,7 +50,7 @@ See [architecture.md](./architecture.md) for detailed technical documentation on
 | `calendar.js` | SVG renderer, viewport, pan/zoom, export (EN) |
 | `style.css` | Miro-style UI, Moleskine palette, responsive layout |
 | `index.html` | Main app shell + GA4 tracking |
-| `for-kirill-specially-ru/` | Russian locale (separate JS + HTML, shared CSS/fonts) |
+| `for-kirill-specially-ru/` | Russian locale (separate JS + HTML, shared CSS/fonts, noindex) |
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
 | `og-image.png` | OG social preview image (1200×630) |
 
