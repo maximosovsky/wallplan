@@ -220,6 +220,6 @@ Root `/` redirects to `/wallplan/` via `<meta http-equiv="refresh">`.
 
 ### Analytics
 GA4 (`G-NW8NPGK3DY`) on all three entry points:
-1. `wallplan.vercel.app` (EN)
-2. `wallplan.vercel.app/for-kirill-specially-ru/` (RU)
-3. `osovsky-site` landing page
+1. `osovsky.com/wallplan/` (EN)
+2. `osovsky.com/wallplan/for-kirill-specially-ru/` (RU)
+3. `osovsky.com` root landing page
