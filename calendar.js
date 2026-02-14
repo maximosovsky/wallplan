@@ -552,9 +552,7 @@ function _totalFromDials() {
 	return yr * 12 + mo;
 }
 
-function toggleMonthsYears() {
-	// No-op now — dual dials handle everything
-}
+// (toggleMonthsYears removed — was no-op after dual-dial rewrite)
 
 // ─── Page building ───
 let _cachedPages = [];
@@ -622,8 +620,12 @@ function init() {
 	}
 
 	buildPages(totalMonths, emptyRows, weekStart);
+	// Cache static UI elements for repeated use
+	_ui.sizeChips = Array.from(document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]'));
+	_ui.rowsChips = Array.from(document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]'));
+	_ui.mobSizeChips = Array.from(document.querySelectorAll('.mob-chip-opt[data-size]'));
 	// Highlight default paper chip
-	document.querySelectorAll('.tb-btn[data-size]').forEach(b => {
+	_ui.sizeChips.forEach(b => {
 		b.classList.toggle('active', b.dataset.size === currentPaperKey);
 	});
 	_syncMobileUI();
@@ -656,7 +658,7 @@ function onRowsSlider(val) {
 	const mobRows = document.getElementById('mob-rows');
 	if (mobRows) mobRows.textContent = val;
 	// Highlight active rows chips (desktop + mobile)
-	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
+	_ui.rowsChips.forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === parseInt(val));
 	});
 	clearTimeout(_rowsTimer);
@@ -669,7 +671,7 @@ function setRows(val) {
 	const mobRows = document.getElementById('mob-rows');
 	if (mobRows) mobRows.textContent = val;
 	// Highlight chips (desktop + mobile)
-	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
+	_ui.rowsChips.forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === val);
 	});
 	clearTimeout(_rowsTimer);
@@ -697,6 +699,13 @@ let currentPaper = PAPER_SIZES.a4;
 let currentPaperKey = 'a4';
 let totalPages = 1;
 let calendarScale = 1;
+
+// ─── Cached UI element references (fix: avoid repeated querySelectorAll) ───
+const _ui = {
+	sizeChips: [],    // .tb-btn[data-size] + .pm-item[data-size]
+	rowsChips: [],    // .rows-chip[data-rows] + .mob-chip-opt[data-rows]
+	mobSizeChips: [], // .mob-chip-opt[data-size]
+};
 
 // ─── Cached DOM pools ───
 const _paperPool = [];
@@ -747,7 +756,7 @@ function updatePageInfo() {
 	}
 
 	// Build tooltip per button
-	document.querySelectorAll('.tb-btn[data-size]').forEach(b => {
+	_ui.sizeChips.forEach(b => {
 		const key = b.dataset.size;
 		const paper = PAPER_SIZES[key];
 		if (!paper) return;
@@ -774,7 +783,7 @@ function setPaperSize(key) {
 	currentPaper = PAPER_SIZES[key] || PAPER_SIZES.a4;
 	currentPaperKey = key;
 	// Highlight desktop top-bar + dropdown
-	document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]').forEach(b => {
+	_ui.sizeChips.forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
 	// Sync mobile UI
@@ -783,7 +792,7 @@ function setPaperSize(key) {
 		const labels = { a4: 'A4', a3: 'A3', '914mm': '914', '914x2': '914×2', '914x4': '914×4' };
 		mobFmt.textContent = labels[key] || key;
 	}
-	document.querySelectorAll('.mob-chip-opt[data-size]').forEach(b => {
+	_ui.mobSizeChips.forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
 	updateCalendar();
@@ -1218,7 +1227,7 @@ function mobSetRows(val) {
 	document.getElementById('rows-value').textContent = val;
 	document.getElementById('mob-rows').textContent = val;
 	// Highlight chips (desktop + mobile)
-	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
+	_ui.rowsChips.forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === val);
 	});
 	clearTimeout(_rowsTimer);
@@ -1280,7 +1289,7 @@ function _syncMobileUI() {
 	const mobRows = document.getElementById('mob-rows');
 	if (mobRows) mobRows.textContent = rows;
 	// Highlight active rows chips (desktop + mobile)
-	document.querySelectorAll('.rows-chip[data-rows], .mob-chip-opt[data-rows]').forEach(b => {
+	_ui.rowsChips.forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === rows);
 	});
 	// Set wheel values
@@ -1309,6 +1318,16 @@ function _exportDate() {
 const _fontCache = []; // [{id, b64, name, style, weight}]
 let _fontsFetched = false;
 
+function _arrayBufferToBase64(buf) {
+	const bytes = new Uint8Array(buf);
+	const CHUNK = 8192;
+	const parts = [];
+	for (let i = 0; i < bytes.length; i += CHUNK) {
+		parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK)));
+	}
+	return btoa(parts.join(''));
+}
+
 async function _loadPDFFonts(doc) {
 	const fontName = 'IBM Plex Sans'; // must match SVG font-family
 
@@ -1324,12 +1343,9 @@ async function _loadPDFFonts(doc) {
 			try {
 				const resp = await fetch('fonts/IBMPlexSans/' + w.file);
 				const buf = await resp.arrayBuffer();
-				const bytes = new Uint8Array(buf);
-				let binary = '';
-				for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
 				_fontCache.push({
 					id: 'IBMPlexSans-' + w.weight + '.ttf',
-					b64: btoa(binary),
+					b64: _arrayBufferToBase64(buf),
 					name: fontName,
 					style: w.style,
 					weight: w.weight,
@@ -1349,8 +1365,41 @@ async function _loadPDFFonts(doc) {
 	if (_fontCache.length) doc.setFont(fontName);
 }
 
+// ─── Lazy-load PDF libraries ───
+let _pdfLibsLoaded = false;
+let _pdfLibsLoading = false;
+
+function _loadScript(src) {
+	return new Promise((resolve, reject) => {
+		const s = document.createElement('script');
+		s.src = src;
+		s.onload = resolve;
+		s.onerror = reject;
+		document.head.appendChild(s);
+	});
+}
+
+async function _ensurePDFLibs() {
+	if (_pdfLibsLoaded) return true;
+	if (_pdfLibsLoading) {
+		// Wait for in-progress load
+		while (_pdfLibsLoading) await new Promise(r => setTimeout(r, 50));
+		return _pdfLibsLoaded;
+	}
+	_pdfLibsLoading = true;
+	try {
+		await _loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js');
+		await _loadScript('https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.4/dist/svg2pdf.umd.min.js');
+		_pdfLibsLoaded = true;
+	} catch (e) {
+		console.warn('Failed to load PDF libraries:', e);
+	}
+	_pdfLibsLoading = false;
+	return _pdfLibsLoaded;
+}
+
 async function printPDF() {
-	if (typeof jspdf === 'undefined' || typeof svg2pdf === 'undefined') {
+	if (!await _ensurePDFLibs() || typeof jspdf === 'undefined') {
 		window.print(); // fallback
 		return;
 	}
