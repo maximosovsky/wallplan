@@ -218,6 +218,13 @@ body {
 	justify-content: center;
 }
 
+@media (max-width: 600px) {
+	.confirm-overlay {
+		align-items: flex-start;
+		padding-top: 15vh;
+	}
+}
+
 .confirm-box {
 	background: var(--mol-ctrl-bg);
 	border: 1px solid var(--mol-ctrl-border);
