@@ -36,6 +36,7 @@ function getLastWeekday(year, month, weekday) {
 }
 
 const _holidayCache = {};
+const customEntries = []; // {month, day, text, yearly}
 function getHolidays(year) {
 	if (_holidayCache[year]) return _holidayCache[year];
 	const h = {};
@@ -53,6 +54,17 @@ function getHolidays(year) {
 	add(10, getNthWeekday(year, 9, 1, 2), 'Columbus Day');
 	add(11, getNthWeekday(year, 10, 4, 4), 'Thanksgiving Day');
 	_holidayCache[year] = h;
+	return h;
+}
+
+function getCustomEntries(year) {
+	const h = {};
+	for (const e of customEntries) {
+		if (e.yearly || e.year === year) {
+			const key = pad2(e.month) + pad2(e.day);
+			h[key] = e.text;
+		}
+	}
 	return h;
 }
 
@@ -142,8 +154,10 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + totalLength + 1, 0);
 
 	const holidaysByYear = {};
+	const entriesByYear = {};
 	for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
 		holidaysByYear[y] = getHolidays(y);
+		entriesByYear[y] = getCustomEntries(y);
 	}
 
 	// Collect per-month data
@@ -158,7 +172,8 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	while (curDate < loopEnd) {
 		const md = pad2(curDate.getMonth() + 1) + pad2(curDate.getDate());
 		const yearHolidays = holidaysByYear[curDate.getFullYear()];
-		const holiday = yearHolidays[md] || '';
+		const yearEntries = entriesByYear[curDate.getFullYear()] || {};
+		const holiday = yearHolidays[md] || yearEntries[md] || '';
 		const rawDow = getUSDayOfWeek(curDate);
 		const isWeekend = (rawDow === 0 || rawDow === 6);
 		const adjustedDow = (rawDow - wsOffset + 7) % 7;
@@ -1137,6 +1152,64 @@ function toggleHideDays() {
 	updateCalendar();
 }
 
+// ─── Custom entries ───
+function openEntryModal() {
+	const dateEl = document.getElementById('entry-date');
+	const textEl = document.getElementById('entry-text');
+	dateEl.value = '';
+	textEl.value = '';
+	document.getElementById('entry-yearly').checked = true;
+	document.getElementById('entry-overlay').style.display = 'flex';
+	setTimeout(() => textEl.focus(), 50);
+
+	// Auto-insert dot after 2 digits
+	dateEl.oninput = () => {
+		let v = dateEl.value;
+		if (/^\d{2}$/.test(v)) {
+			dateEl.value = v + '.';
+		}
+	};
+
+	// Enter key handlers: text → date → submit
+	textEl.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); dateEl.focus(); } };
+	dateEl.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomEntry(); } };
+}
+
+function closeEntryModal() {
+	document.getElementById('entry-overlay').style.display = 'none';
+}
+
+function addCustomEntry() {
+	const dateStr = document.getElementById('entry-date').value.trim();
+	const text = document.getElementById('entry-text').value.trim();
+	const yearly = document.getElementById('entry-yearly').checked;
+
+	// Parse DD.MM (accepts . , / ; - : space \ as delimiter)
+	let match = dateStr.match(/^(\d{1,2})[.,\/;\-:\s\\](\d{1,2})$/);
+	// Fallback: pure digits (3→DD.M, 4→DD.MM)
+	if (!match && /^\d{3,4}$/.test(dateStr)) {
+		const d = dateStr.length === 4 ? dateStr.slice(0, 2) : dateStr.slice(0, 2);
+		const m = dateStr.length === 4 ? dateStr.slice(2) : dateStr.slice(2);
+		match = [null, d, m];
+	}
+	if (!match) { document.getElementById('entry-date').focus(); return; }
+	const day = parseInt(match[1]);
+	const month = parseInt(match[2]);
+	if (month < 1 || month > 12 || day < 1) { document.getElementById('entry-date').focus(); return; }
+
+	const maxDay = new Date(2024, month, 0).getDate();
+	if (day > maxDay) { document.getElementById('entry-date').focus(); return; }
+
+	if (!text) { document.getElementById('entry-text').focus(); return; }
+
+	const entry = { month, day, text, yearly };
+	if (!yearly) entry.year = new Date().getFullYear();
+	customEntries.push(entry);
+
+	closeEntryModal();
+	updateCalendar();
+}
+
 // ─── Helpers ───
 function toggleWeekStart() {
 	const btn = document.getElementById('week-start-btn');
@@ -1671,7 +1744,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let _rafId = 0;
 
 	document.addEventListener('mousedown', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.confirm-overlay')) return;
 		isPanning = true;
 		panStartX = e.clientX;
 		panStartY = e.clientY;
