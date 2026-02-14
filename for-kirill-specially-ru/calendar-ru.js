@@ -21,6 +21,17 @@ function getOrderedDays(weekStart) {
 
 // Российские государственные праздники
 const _holidayCache = {};
+const customEntries = [];
+function getCustomEntries(year) {
+	const h = {};
+	for (const e of customEntries) {
+		if (e.yearly || e.year === year) {
+			const key = pad2(e.month) + pad2(e.day);
+			h[key] = e.text;
+		}
+	}
+	return h;
+}
 function getHolidays(year) {
 	if (_holidayCache[year]) return _holidayCache[year];
 	const h = {};
@@ -134,6 +145,8 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	const holidaysByYear = {};
 	for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
 		holidaysByYear[y] = getHolidays(y);
+		const ce = getCustomEntries(y);
+		for (const k of Object.keys(ce)) holidaysByYear[y][k] = ce[k];
 	}
 
 	// Collect per-month data
@@ -1104,6 +1117,50 @@ function toggleHideDays() {
 	hideDays = !hideDays;
 	const btn = document.getElementById('hide-days-btn');
 	if (btn) btn.classList.toggle('active', hideDays);
+	const mobBtn = document.getElementById('mob-hide-days-btn');
+	if (mobBtn) mobBtn.classList.toggle('active', hideDays);
+	updateCalendar();
+}
+
+function openEntryModal() {
+	const dateEl = document.getElementById('entry-date');
+	const textEl = document.getElementById('entry-text');
+	dateEl.value = '';
+	textEl.value = '';
+	document.getElementById('entry-yearly').checked = true;
+	document.getElementById('entry-overlay').style.display = 'flex';
+	setTimeout(() => textEl.focus(), 50);
+	dateEl.oninput = () => {
+		let v = dateEl.value;
+		if (/^\d{2}$/.test(v)) { dateEl.value = v + '.'; }
+	};
+	textEl.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); dateEl.focus(); } };
+	dateEl.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomEntry(); } };
+}
+
+function closeEntryModal() {
+	document.getElementById('entry-overlay').style.display = 'none';
+}
+
+function addCustomEntry() {
+	const text = document.getElementById('entry-text').value.trim();
+	const dateStr = document.getElementById('entry-date').value.trim();
+	const yearly = document.getElementById('entry-yearly').checked;
+	if (!text) { document.getElementById('entry-text').focus(); return; }
+	let match = dateStr.match(/^(\d{1,2})[.,\/;\-\s\\](\d{1,2})$/);
+	if (!match && /^\d{3,4}$/.test(dateStr)) {
+		const d = dateStr.slice(0, 2);
+		const m = dateStr.length === 4 ? dateStr.slice(2) : dateStr.slice(2);
+		match = [null, d, m];
+	}
+	if (!match) { document.getElementById('entry-date').focus(); return; }
+	const day = parseInt(match[1], 10);
+	const month = parseInt(match[2], 10);
+	if (month < 1 || month > 12 || day < 1 || day > 31) { document.getElementById('entry-date').focus(); return; }
+	const now = new Date();
+	customEntries.push({ day, month, year: now.getFullYear(), text, yearly });
+	for (const k of Object.keys(_holidayCache)) delete _holidayCache[k];
+	closeEntryModal();
 	updateCalendar();
 }
 
@@ -1641,7 +1698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let _rafId = 0;
 
 	document.addEventListener('mousedown', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.confirm-overlay')) return;
 		isPanning = true;
 		panStartX = e.clientX;
 		panStartY = e.clientY;
@@ -1692,7 +1749,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.addEventListener('touchstart', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay') || e.target.closest('.mob-dl-popup')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay') || e.target.closest('.mob-dl-popup') || e.target.closest('.confirm-overlay')) return;
 		if (e.touches.length === 1) {
 			touchPanning = true;
 			pinching = false;

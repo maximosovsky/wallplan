@@ -81,7 +81,32 @@
             </div>
         </div>
     </div>
+    <!-- Entry modal -->
+    <div id="entry-overlay" class="confirm-overlay" style="display:none">
+        <div class="confirm-box entry-box">
+            <div class="confirm-msg">Добавить запись</div>
+            <div class="entry-form">
+                <div class="entry-row entry-inline">
+                    <input type="text" id="entry-text" placeholder="Запуск продукта" maxlength="40" autocomplete="off"
+                        style="flex:1;">
+                    <input type="text" id="entry-date" placeholder="19.12" maxlength="5" autocomplete="off"
+                        style="width:60px; text-align:center;">
+                </div>
+                <div class="entry-row">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="checkbox" id="entry-yearly" checked> Каждый год
+                    </label>
+                </div>
+                <div class="confirm-btns">
+                    <button class="confirm-btn confirm-yes" onclick="addCustomEntry()">Добавить</button>
+                    <button class="confirm-btn confirm-cancel" onclick="closeEntryModal()">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="controls gantt-panel" id="gantt-panel">
+        <button class="entry-btn" data-tooltip="Добавить запись" onclick="openEntryModal()"
+            style="font-family:'Copper Penny DTP',serif; font-size:22px;">T</button>
         <button id="hide-days-btn" data-tooltip="Скрыть дни" onclick="toggleHideDays()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -132,6 +157,20 @@
         </div>
         <button class="mob-chip" id="mob-format" onclick="toggleMobSheet()">A4</button>
         <div class="mob-bar-right">
+            <button class="mob-icon" onclick="openEntryModal()" title="Добавить запись">
+                <span style="font-family:'Copper Penny DTP',serif; font-size:18px; line-height:1;">T</span>
+            </button>
+            <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Скрыть дни">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <line x1="3" y1="9" x2="21" y2="9" />
+                    <line x1="9" y1="9" x2="9" y2="21" />
+                    <line x1="15" y1="9" x2="15" y2="21" />
+                    <line x1="3" y1="15" x2="21" y2="15" />
+                    <line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
+                </svg>
+            </button>
             <div class="mob-dl-group">
                 <button class="mob-icon" onclick="toggleMobDL()" title="Скачать">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
