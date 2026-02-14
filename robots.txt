@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://osovsky.com/wallplan/sitemap.xml
+
+# Russian version is noindex by meta tag
