@@ -8,7 +8,7 @@ Tasks ordered by complexity (easiest first). Each task includes a rationale for 
 Implemented via the **Hide Days** toggle. Calendar without daily grid — only vertical year, quarter, and month divisions. Gantt rows remain for high-level project planning. URL parameter `&d=1`.
 
 ### ~~Custom Entries ✏️~~
-Session-only text annotations on any date. T button (Copper Penny font) opens modal: text + DD.MM date input with auto-formatting (all delimiters, pure digits). Yearly repeat option. Renders alongside holidays, exports to SVG/PDF. Not persisted — lightweight by design.
+Session-only text annotations on any date. T button (Copper Penny font) opens modal: text + DD.MM date input with auto-formatting (all delimiters, pure digits). Yearly repeat option. Renders alongside holidays, exports to SVG/PDF. Not persisted — lightweight by design. Available on both desktop (gantt-panel) and mobile (bottom toolbar).
 
 ---
 

@@ -669,6 +669,14 @@ function init() {
 		weekBtn.style.color = weekStart === 'mon' ? '' : '#C41E3A';
 	}
 
+	// Sync hide-days buttons
+	if (hideDays) {
+		const hBtn = document.getElementById('hide-days-btn');
+		if (hBtn) hBtn.classList.add('active');
+		const mhBtn = document.getElementById('mob-hide-days-btn');
+		if (mhBtn) mhBtn.classList.add('active');
+	}
+
 	buildPages(totalMonths, emptyRows, weekStart);
 	// Cache static UI elements for repeated use
 	_ui.sizeChips = Array.from(document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]'));
@@ -1149,6 +1157,8 @@ function toggleHideDays() {
 	hideDays = !hideDays;
 	const btn = document.getElementById('hide-days-btn');
 	if (btn) btn.classList.toggle('active', hideDays);
+	const mobBtn = document.getElementById('mob-hide-days-btn');
+	if (mobBtn) mobBtn.classList.toggle('active', hideDays);
 	updateCalendar();
 }
 

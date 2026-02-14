@@ -869,6 +869,11 @@ body {
 		background: var(--mol-border-light);
 	}
 
+	.mob-icon.active {
+		background: var(--mol-ink);
+		color: var(--mol-cream);
+	}
+
 	/* ── Bottom sheet ── */
 	.mob-overlay {
 		display: none;
