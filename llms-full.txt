@@ -1,0 +1,92 @@
+# WallPlan — Calendar Generator for Long-Term Planning
+
+## Overview
+
+WallPlan is a free online tool that generates multi-year wall calendars with Gantt charts for strategic planning. Every year we publish a new version of a multi-year calendar. The publishing industry mostly makes calendars for just the next year, limiting our ability to plan in detail many years ahead.
+
+Twelve years ago, in October 2014, the first such calendar covering two years was released. For many years calendars were laid out manually, until in 2020 Michael Kvrivishvili — the designer of the official Boston Metro map — developed a service specifically to generate a calendar for any number of months, with any number of Gantt rows.
+
+- **URL**: https://osovsky.com/wallplan/
+- **Author**: Maxim Osovsky (https://www.wikidata.org/wiki/Q107189449)
+- **Co-author**: Michael Kvrivishvili
+- **License**: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+- **Technology**: Pure vanilla JavaScript, SVG, CSS. Zero npm dependencies.
+
+## Features
+
+### SVG Renderer
+Pure SVG output with three calendar types:
+- **Vertical**: Classic days list with day numbers and names
+- **Gantt**: Horizontal planning grid with configurable rows (6, 8, 10, or 12)
+- **Box**: Traditional mini month grid
+
+### Duration
+From 1 month to 20 years. Mobile scroll-wheel picker (years + months), desktop number input.
+
+### Hide Days Mode
+Toggle to hide day-level details (numbers, names, holidays, grid lines) from Vertical and Gantt views. Gantt horizontal rows redistribute to fill the full height — ideal for long-term strategic planning. Persisted via `&d=1` URL parameter.
+
+### Paper Sizes
+- A4, A3 (automatic page fitting, 7–8 months per page)
+- 914mm single roll
+- 914mm ×2 (dual copies)
+- 914mm ×4 (quad copies)
+
+Format-specific tuning: each roll format has optimized cell widths — 4mm (single), 2.7mm (×2), 1.7mm (×4) — and font scaling for readability at each physical size.
+
+### Export
+Download as vector SVG or PDF with embedded IBM Plex Sans fonts. Free, no login required.
+
+### Customizable
+- Week start: Monday or Sunday
+- US Federal Holidays display
+- Adjustable Gantt rows: 6, 8, 10, or 12
+
+### Custom Entries
+Add session-only text annotations on any date via the T button (Copper Penny DTP font). Supports DD.MM date input with auto-formatting (all delimiters supported). Yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
+
+### WallPlan Day
+January 11 — marked annually in Copper Penny DTP font with wine-colored accent (#6B2332).
+
+### Mobile
+Touch pan & pinch-to-zoom. iOS-like bottom toolbar with frosted glass effect shows current duration, rows count, and paper format. Settings sheet with scroll-wheel duration picker, paper format selector with roll length display, Gantt rows chips (6/8/10/12), and week start toggle. Download popup for SVG/PDF. T button for custom entries. Hide Days toggle.
+
+### Printing
+Long multi-year calendars can be printed at copy centers on engineering paper up to 1 meter wide with virtually infinite length. Custom print CSS — what you see is what you get. Ideal for working on strategies.
+
+### Russian Edition
+Localized calendar at /for-kirill-specially-ru/ with Russian holidays and emojis. Hidden from search engines (noindex).
+
+## Architecture
+
+| File | Purpose |
+|------|---------|
+| calendar.js | SVG renderer, viewport, pan/zoom, export (EN) |
+| style.css | Miro-style UI, Moleskine palette, responsive layout |
+| index.html | Main app shell + GA4 tracking |
+| for-kirill-specially-ru/ | Russian locale (separate JS + HTML, shared CSS/fonts) |
+| fonts/ | IBM Plex Sans (7 weights) + Copper Penny DTP |
+| og-image.png | Social preview image (1200×630) |
+
+## Technical Details
+
+- Pure SVG rendering via `createElementNS()` + `setAttribute()` (no innerHTML with user data)
+- Batch SVG path rendering for performance
+- Holiday caching
+- requestAnimationFrame-based viewport updates
+- Rulers and guides with cm/m labels
+- Vertical guides marking printable area
+- Zero external dependencies — no npm, no frameworks
+- Google Analytics GA4 tracking
+
+## Roadmap
+
+Planned features (in order of complexity):
+1. Stickers — yellow/pink SVG stickers on calendar, drag to move, double-click to edit
+2. Unified Overlay System — shared rendering for stickers and images
+3. Image Upload — embed photos/logos on calendar canvas
+4. Google Authentication — cloud sync of configurations
+5. GA4 → Telegram Alerts — real-time analytics notifications
+6. Google Calendar Import — auto-import birthdays and events
+7. Custom Sticker Packs — create and share themed SVG sticker sets
+8. Miro App — publish as Miro Marketplace plugin

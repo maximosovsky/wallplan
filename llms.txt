@@ -1,0 +1,15 @@
+# WallPlan
+
+> Free online calendar generator for long-term planning. Multi-year wall calendars with Gantt charts. SVG & PDF export.
+
+## About
+
+WallPlan generates multi-year wall calendars with Gantt charts for strategic planning. Duration from 1 month to 20 years. Paper sizes: A4, A3, 914mm roll. Export to vector SVG or PDF. Free, no login required.
+
+- Author: [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449)
+- URL: https://osovsky.com/wallplan/
+- License: CC BY-SA 4.0
+
+## Docs
+
+- [Full documentation](https://osovsky.com/wallplan/llms-full.txt): Complete feature list, architecture, and usage details
