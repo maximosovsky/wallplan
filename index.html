@@ -22,7 +22,10 @@
 	<meta property="og:description"
 		content="Generate multi-year wall calendars with Gantt charts for strategic planning. SVG & PDF export.">
 	<meta property="og:image" content="https://osovsky.com/wallplan/og-image.png">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="630">
 	<meta property="og:url" content="https://osovsky.com/wallplan/">
+	<meta property="og:site_name" content="WallPlan">
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image">
@@ -57,10 +60,20 @@
 	}
 	</script>
 
+	<meta name="theme-color" content="#F5F0E8">
 	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+	<!-- SEO: hidden content for crawlers (canvas/SVG is invisible to search engines) -->
+	<div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+		<h1>WallPlan — Calendar Generator for Long-Term Planning</h1>
+		<p>Generate multi-year wall calendars with Gantt charts for strategic planning. Export to SVG and PDF. Duration
+			from 1 month to 20 years. Paper sizes: A4, A3, 914mm roll. Customizable Gantt rows, week start day, US
+			Federal Holidays. Free online tool — no login required.</p>
+		<p>Features: Hide Days mode for timeline view, custom text entries, mobile-optimized interface with touch pan
+			and pinch-to-zoom, print-ready output for engineering paper up to 1 meter wide.</p>
+	</div>
 	<div class="controls top-bar" id="top-bar">
 		<div class="tb-dial" id="tb-dial-yr" data-tooltip="Years">
 			<div class="tb-dial-value" id="tb-val-yr">1</div>
