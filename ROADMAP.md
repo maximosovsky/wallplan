@@ -14,7 +14,13 @@ Session-only text annotations on any date. T button (Copper Penny font) opens mo
 Open Graph + Twitter Card meta tags on both EN and RU versions. App screenshot as OG image for rich link previews in Telegram, Facebook, Twitter.
 
 ### ~~Custom Domain 🌐~~
-`osovsky.com/wallplan/` via `osovsky-site` Vercel project with rewrites proxy to `wallplan.vercel.app`. Root `/` auto-redirects to `/wallplan/`.
+`osovsky.com/wallplan/` via `osovsky-site` Vercel project with rewrites proxy. Root `/` auto-redirects to `/wallplan/`.
+
+### ~~SEO Optimization 🔍~~
+Complete technical SEO: meta tags (title, description, keywords), OG + Twitter Card (1200×630), canonical + hreflang, JSON-LD SoftwareApplication + Wikidata sameAs, favicon, apple-touch-icon, PWA manifest, theme-color, noscript fallback, robots.txt (with AI crawlers), sitemap.xml, llms.txt + llms-full.txt, hidden crawler content for SPA, security headers, Google Search Console, GitHub backlink in README.
+
+### ~~GitHub Topics ⚙️~~
+Added repository topics: `calendar`, `gantt`, `svg`, `pdf`, `wall-calendar`, `planner`, `javascript`, `planning-tool`.
 
 ---
 
@@ -102,3 +108,26 @@ Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards �
 - GA4 alerts require a separate backend (Cloud Function or Zapier)
 - Miro App requires separate Miro SDK integration
 - Recommended build order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
+
+---
+
+## 💡 Improvements (no new features)
+
+### UX
+- **Onboarding** — first-visit tooltips (what to scroll, where is Gantt)
+- **Keyboard Shortcuts** — `+/-` zoom, `Ctrl+S` export
+- **Dark Theme** — light/dark toggle
+- **Favicon.ico** — real `.ico` file (not all browsers support SVG favicon)
+
+### Marketing & Distribution
+- **ProductHunt Launch** — free traffic + high-authority backlink
+- **Reddit** — posts in r/productivity, r/selfhosted, r/webdev
+- **Hacker News** — Show HN post
+- **Landing Page** — `/wallplan/about/` with SEO text targeting long-tail keywords
+
+### Technical
+- **Lighthouse Audit** — aim for 90+ on Performance/Accessibility/SEO
+- **Service Worker** — offline PWA
+- **Error Tracking** — Sentry for JS errors
+- **Lazy Font Loading** — load fonts on demand
+- **A/B Testing** — experiment with title/description for better CTR
