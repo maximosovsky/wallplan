@@ -68,11 +68,47 @@
 	<!-- SEO: hidden content for crawlers (canvas/SVG is invisible to search engines) -->
 	<div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
 		<h1>WallPlan — Calendar Generator for Long-Term Planning</h1>
-		<p>Generate multi-year wall calendars with Gantt charts for strategic planning. Export to SVG and PDF. Duration
-			from 1 month to 20 years. Paper sizes: A4, A3, 914mm roll. Customizable Gantt rows, week start day, US
-			Federal Holidays. Free online tool — no login required.</p>
-		<p>Features: Hide Days mode for timeline view, custom text entries, mobile-optimized interface with touch pan
-			and pinch-to-zoom, print-ready output for engineering paper up to 1 meter wide.</p>
+		<p>Every year we publish a new version of a multi-year calendar. The publishing industry mostly makes calendars
+			for just the next year, limiting our ability to plan in detail many years ahead. WallPlan is a free online
+			tool that generates multi-year wall calendars with Gantt charts for strategic planning.</p>
+
+		<h2>Features</h2>
+		<p>SVG Renderer: Pure SVG output with three calendar types — Vertical (classic days list), Gantt (horizontal
+			planning grid), and Box (traditional mini month grid).</p>
+		<p>Duration from 1 month to 20 years. Mobile scroll-wheel picker for years and months, desktop number input.</p>
+		<p>Hide Days Mode: Toggle to hide day-level details from Vertical and Gantt views. Gantt rows redistribute to
+			fill full height — ideal for long-term strategic planning. Persisted via URL parameter.</p>
+		<p>Paper Sizes: A4, A3, 914mm single roll, 914mm ×2 dual copies, 914mm ×4 quad copies. Precision layout
+			automatically fits 7–8 months per page.</p>
+		<p>Format-Specific Tuning: Each roll format has optimized cell widths — 4mm single, 2.7mm dual, 1.7mm quad — and
+			font scaling for readability at each physical size.</p>
+		<p>Export: Download as vector SVG or PDF with embedded IBM Plex Sans fonts. Free, no login required.</p>
+		<p>Customizable: Week start Monday or Sunday, US Federal Holidays, adjustable Gantt rows 6, 8, 10, or 12.</p>
+		<p>Custom Entries: Add session-only annotations via the T button. Supports DD.MM date input with
+			auto-formatting, yearly repeat option. Entries render alongside holidays and export to SVG and PDF.</p>
+		<p>WallPlan Day: January 11 — marked annually in Copper Penny DTP font with wine-colored accent.</p>
+		<p>Social Preview: Open Graph and Twitter Card meta tags with app screenshot for rich link previews in Telegram,
+			Facebook, Twitter.</p>
+
+		<h2>Printing</h2>
+		<p>Long multi-year calendars can be printed at copy centers on engineering paper up to 1 meter wide with
+			virtually infinite length. Ideal for working on strategies. Print optimized — what you see is what you get.
+		</p>
+
+		<h2>Mobile</h2>
+		<p>Touch pan and pinch-to-zoom. iOS-like bottom toolbar with frosted glass effect shows current duration, rows
+			count, and paper format. Tap to open settings sheet with scroll-wheel duration picker, paper format selector
+			with roll length display, Gantt rows chips, and week start toggle. Download icon opens SVG and PDF popup. T
+			button for custom entries. Hide Days toggle.</p>
+
+		<h2>Technical</h2>
+		<p>Rulers and guides with cm/m labels, vertical guides marking printable area. Batch SVG path rendering, holiday
+			caching, requestAnimationFrame-based viewport updates. Russian edition available with Russian holidays.
+			Google Analytics GA4 tracking.</p>
+
+		<h2>Credits</h2>
+		<p>2014–2026 Michael Kvrivishvili, Maxim Osovsky. Licensed under Creative Commons Attribution-ShareAlike 4.0
+			International License CC BY-SA 4.0.</p>
 	</div>
 	<div class="controls top-bar" id="top-bar">
 		<div class="tb-dial" id="tb-dial-yr" data-tooltip="Years">
