@@ -24,7 +24,6 @@ Twelve years ago, in October 2014 I [released](https://app.box.com/s/7yqyh8vfphq
 - **Custom Entries**: Add session-only annotations (e.g. "Product launch" on 15.03) via the T button. Supports DD.MM input with auto-formatting, yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
 - **Social Preview**: Open Graph + Twitter Card meta tags with app screenshot for rich link previews in Telegram, Facebook, Twitter, etc.
 - **Custom Domain**: `osovsky.com/wallplan/` via Vercel rewrites proxy (`osovsky-site` project).
-- **Russian Edition**: Localized calendar at `/for-kirill-specially-ru/` with Russian holidays and emojis. Hidden from search engines (`noindex`).
 - **Google Analytics**: GA4 tracking on both English and Russian versions.
 - **Mobile**: Touch pan & pinch-to-zoom, iOS-like bottom toolbar with T (add entry), Hide Days toggle, download (SVG/PDF), and settings sheet.
 - **Performance**: Batch SVG path rendering, holiday caching, rAF-based viewport updates.
