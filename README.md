@@ -52,7 +52,7 @@ See [architecture.md](./architecture.md) for detailed technical documentation on
 | `index.html` | Main app shell + GA4 tracking |
 | `for-kirill-specially-ru/` | Russian locale (separate JS + HTML, shared CSS/fonts) |
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
-| `Prtscreen.png` | OG social preview image (app screenshot) |
+| `og-image.png` | OG social preview image (1200×630) |
 
 ## 🙏🏻 Credits
 
