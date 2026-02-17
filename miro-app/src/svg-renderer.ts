@@ -138,7 +138,8 @@ export function renderCalendarSVG(settings: RenderSettings, fonts: FontData[]): 
     const totalW = monthsData.length * mW;
 
     const parts: string[] = [];
-    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} ${totalH}" width="${totalW}" height="${totalH}">`);
+    const svgScale = 4; // render at higher resolution for Miro
+    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} ${totalH}" width="${totalW * svgScale}" height="${totalH * svgScale}">`);
     parts.push(`<rect width="${totalW}" height="${totalH}" fill="${C.paper}"/>`);
 
     // @font-face declarations

@@ -33,7 +33,7 @@ export async function generateCalendar(settings: GeneratorSettings) {
         url: dataUrl,
         x: 0,
         y: 0,
-        width: settings.months * 200,
+        width: settings.months * 2800,
         rotation: 0,
     });
     onProgress?.(5, 5);
