@@ -63,13 +63,7 @@
         <input type="hidden" id="months-input" value="12">
         <span id="months-label" style="display:none">м</span>
         <div class="tb-sep"></div>
-        <div class="paper-chips" id="paper-chips-group">
-            <div class="tb-btn" data-size="a4" onclick="setPaperSize('a4')">A4</div>
-            <div class="tb-btn" data-size="a3" onclick="setPaperSize('a3')">A3</div>
-            <div class="tb-btn tb-btn-sm" data-size="914mm" onclick="setPaperSize('914mm')">914</div>
-            <div class="tb-btn tb-btn-sm" data-size="914x2" onclick="setPaperSize('914x2')">×2</div>
-            <div class="tb-btn tb-btn-sm" data-size="914x4" onclick="setPaperSize('914x4')">×4</div>
-        </div>
+        <div class="tb-btn" id="paper-cycle-btn" onclick="cyclePaperSize()" data-tooltip="Формат бумаги">A4</div>
         <span id="page-info" style="display:none"></span>
         <div class="tb-sep"></div>
         <div class="tb-btn" onclick="confirmAction('Скачать SVG?', downloadSVG)" data-tooltip="Скачать SVG">
@@ -102,29 +96,28 @@
     <!-- Entry modal -->
     <div id="entry-overlay" class="confirm-overlay" style="display:none">
         <div class="confirm-box entry-box">
-            <div class="confirm-msg">Добавить запись</div>
+            <div class="confirm-msg">Добавить записи</div>
             <div class="entry-form">
-                <div class="entry-row entry-inline">
-                    <input type="text" id="entry-text" placeholder="Запуск продукта" maxlength="40" autocomplete="off"
-                        style="flex:1;">
-                    <input type="text" id="entry-date" placeholder="19.12" maxlength="5" autocomplete="off"
-                        style="width:60px; text-align:center;">
-                </div>
+                <textarea id="entry-bulk" rows="6" placeholder="Запуск продукта, 19.12
+Новый год, 01.01
+День рождения, 14.02" autocomplete="off" style="width:100%; box-sizing:border-box; resize:vertical;"></textarea>
                 <div class="entry-row">
                     <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
                         <input type="checkbox" id="entry-yearly" checked> Каждый год
                     </label>
                 </div>
                 <div class="confirm-btns">
-                    <button class="confirm-btn confirm-yes" onclick="addCustomEntry()">Добавить</button>
+                    <button class="confirm-btn confirm-yes" onclick="addCustomEntries()">Добавить</button>
                     <button class="confirm-btn confirm-cancel" onclick="closeEntryModal()">Отмена</button>
                 </div>
             </div>
         </div>
     </div>
     <div class="controls gantt-panel" id="gantt-panel">
-        <button class="entry-btn" data-tooltip="Добавить запись" onclick="openEntryModal()"
-            style="font-family:'Copper Penny DTP',serif; font-size:22px;">T</button>
+        <button id="entry-btn" data-tooltip="Добавить запись" onclick="openEntryModal()">
+            <span
+                style="font-family:'Copper Penny DTP',serif; font-size:20px; line-height:1; color:var(--mol-red);">W</span>
+        </button>
         <button id="hide-days-btn" data-tooltip="Скрыть дни" onclick="toggleHideDays()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -139,12 +132,8 @@
         <button id="week-start-btn" data-tooltip="Начало недели" onclick="toggleWeekStart()">ПН</button>
         <input type="hidden" id="rows-slider" value="10">
         <span id="rows-value" style="display:none">10</span>
-        <div class="rows-chips" data-tooltip="Строки Ганта">
-            <button class="rows-chip" data-rows="6" onclick="setRows(6)">6</button>
-            <button class="rows-chip" data-rows="8" onclick="setRows(8)">8</button>
-            <button class="rows-chip active" data-rows="10" onclick="setRows(10)">10</button>
-            <button class="rows-chip" data-rows="12" onclick="setRows(12)">12</button>
-        </div>
+        <button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Строки Ганта"
+            onclick="cycleRows()">10</button>
     </div>
     <canvas id="ruler-left" class="ruler ruler-left"></canvas>
     <canvas id="ruler-bottom" class="ruler ruler-bottom"></canvas>
@@ -162,55 +151,90 @@
 
     <!-- Mobile bottom toolbar -->
     <div id="mob-bar" class="mob-bar">
-        <div class="mob-bar-left">
-            <button class="mob-val" onclick="toggleMobSheet()">
-                <span id="mob-months">12</span>
-                <span class="mob-label" id="mob-months-label">м</span>
-            </button>
-            <div class="mob-sep"></div>
-            <button class="mob-val" onclick="toggleMobSheet()">
-                <span id="mob-rows">10</span>
-                <span class="mob-label">строк</span>
-            </button>
-        </div>
-        <button class="mob-chip" id="mob-format" onclick="toggleMobSheet()">A4</button>
-        <div class="mob-bar-right">
-            <button class="mob-icon" onclick="openEntryModal()" title="Добавить запись">
-                <span style="font-family:'Copper Penny DTP',serif; font-size:18px; line-height:1;">T</span>
-            </button>
-            <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Скрыть дни">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <line x1="3" y1="9" x2="21" y2="9" />
-                    <line x1="9" y1="9" x2="9" y2="21" />
-                    <line x1="15" y1="9" x2="15" y2="21" />
-                    <line x1="3" y1="15" x2="21" y2="15" />
-                    <line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
-                </svg>
-            </button>
-            <div class="mob-dl-group">
-                <button class="mob-icon" onclick="toggleMobDL()" title="Скачать">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                </button>
-                <div id="mob-dl-popup" class="mob-dl-popup" style="display:none">
-                    <button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
-                    <button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
-                </div>
-            </div>
-            <button class="mob-icon" onclick="toggleMobSheet()" title="Настройки">
+        <button class="mob-val" onclick="openEntryModal()">
+            <span
+                style="font-family:'Copper Penny DTP',serif; font-size:1.8rem; line-height:1; color:var(--mol-red);">W</span>
+        </button>
+        <button class="mob-val" onclick="toggleMobSheet()">
+            <span id="mob-months">12</span>
+            <span class="mob-label" id="mob-months-label">м</span>
+        </button>
+        <button class="mob-val" onclick="cycleRows()">
+            <span id="mob-rows">10</span>
+            <span class="mob-label">строк</span>
+        </button>
+        <button class="mob-val" onclick="cyclePaperSize()">
+            <span id="mob-format">A4</span>
+            <span class="mob-label" id="mob-format-label">формат</span>
+        </button>
+        <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Скрыть дни">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="9" x2="9" y2="21" />
+                <line x1="15" y1="9" x2="15" y2="21" />
+                <line x1="3" y1="15" x2="21" y2="15" />
+                <line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
+            </svg>
+        </button>
+        <div class="mob-dl-group">
+            <button class="mob-icon" onclick="toggleMobDL()" title="Скачать">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3" />
-                    <path
-                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
             </button>
+            <div id="mob-dl-popup" class="mob-dl-popup" style="display:none">
+                <button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
+                <button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome carousel (mobile only, first visit) -->
+    <div id="welcome-overlay" class="welcome-overlay" style="display:none">
+        <button class="welcome-skip" onclick="closeWelcome()">Пропустить</button>
+        <div class="welcome-carousel" id="welcome-carousel">
+            <div class="welcome-slide">
+                <span class="welcome-logo"
+                    style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
+                <h2>Планируйте десятилетия на стене</h2>
+                <p>Многолетний календарь с Ганта-сеткой, вертикальным списком дней и мини-месяцами — на одном листе.</p>
+                <p>Распечатайте. Повесьте. Посмотрите на картину целиком.</p>
+                <p class="welcome-hint">Листайте дальше →</p>
+            </div>
+            <div class="welcome-slide">
+                <div class="welcome-emoji">⚙️</div>
+                <h2>Как это работает</h2>
+                <p>Задайте длительность — от 1 месяца до 20 лет.</p>
+                <p>Выберите бумагу — A4, A3 или рулон 914мм.</p>
+                <p>Настройте строки Ганта, начало недели, скачайте SVG или PDF.</p>
+                <p>Все настройки — в панели внизу.</p>
+            </div>
+            <div class="welcome-slide">
+                <div class="welcome-emoji">🖨️</div>
+                <h2>Распечатайте на стену</h2>
+                <p>Скачайте PDF и напечатайте дома на A4 — или в копицентре на рулоне шириной 1 метр.</p>
+                <p>Ваши планы — видны с одного взгляда. Бесконечная длина.</p>
+            </div>
+            <div class="welcome-slide">
+                <span class="welcome-logo"
+                    style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
+                <h2>Начните планировать</h2>
+                <p>Бесплатно навсегда. Без регистрации. Данные не покидают ваш браузер.</p>
+            </div>
+        </div>
+        <div class="welcome-bottom">
+            <div class="welcome-dots" id="welcome-dots">
+                <div class="welcome-dot active"></div>
+                <div class="welcome-dot"></div>
+                <div class="welcome-dot"></div>
+                <div class="welcome-dot"></div>
+            </div>
+            <button class="welcome-start" id="welcome-start-btn" onclick="closeWelcome()">Начать</button>
         </div>
     </div>
 

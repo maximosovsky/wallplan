@@ -119,7 +119,7 @@ const LAYOUT = {
 	weekLineW: 0.2,
 
 	// Fonts
-	fontFamily: "'IBM Plex Sans', FreeSans, sans-serif",
+	fontFamily: "IBM Plex Sans, FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -684,12 +684,24 @@ function onRowsSlider(val) {
 	_rowsTimer = setTimeout(updateCalendar, 80);
 }
 
+const ROWS_ORDER = [6, 8, 10, 12];
+
+function cycleRows() {
+	const current = parseInt(document.getElementById('rows-slider').value) || 10;
+	const idx = ROWS_ORDER.indexOf(current);
+	const next = ROWS_ORDER[(idx + 1) % ROWS_ORDER.length];
+	setRows(next);
+}
+
 function setRows(val) {
 	document.getElementById('rows-slider').value = val;
 	document.getElementById('rows-value').textContent = val;
 	const mobRows = document.getElementById('mob-rows');
 	if (mobRows) mobRows.textContent = val;
-	// Highlight chips (desktop + mobile)
+	// Sync desktop cycling button
+	const cycleBtn = document.getElementById('rows-cycle-btn');
+	if (cycleBtn) cycleBtn.textContent = val;
+	// Highlight chips (mobile sheet)
 	_ui.rowsChips.forEach(b => {
 		b.classList.toggle('active', parseInt(b.dataset.rows) === val);
 	});
@@ -714,6 +726,8 @@ const PAPER_SIZES = {
 	'914x2': { w: null, h: 914, copies: 2 },
 	'914x4': { w: null, h: 914, copies: 4, copyH: 200 },
 };
+const PAPER_ORDER = ['a4', 'a3', '914mm', '914x2', '914x4'];
+const PAPER_LABELS = { a4: 'A4', a3: 'A3', '914mm': '914', '914x2': '×2', '914x4': '×4' };
 let currentPaper = PAPER_SIZES.a4;
 let currentPaperKey = 'a4';
 let totalPages = 1;
@@ -796,21 +810,51 @@ function updatePageInfo() {
 		else if (totalPages > 1) el.textContent = totalPages + ' pages';
 		else el.textContent = '';
 	}
+
+	// Update cycling button tooltip
+	const cycleBtn = document.getElementById('paper-cycle-btn');
+	if (cycleBtn) {
+		let tip = '';
+		if (currentPaper.w !== null) {
+			const p = _pagesFor(currentPaper);
+			tip = p > 1 ? p + ' стр.' : '1 стр.';
+		} else {
+			tip = _rollLen(currentPaper);
+		}
+		cycleBtn.setAttribute('data-tooltip', tip);
+	}
+
+	// Update mobile format label with pages or roll length
+	const mobFmtLabel = document.getElementById('mob-format-label');
+	if (mobFmtLabel) {
+		if (currentPaper.w !== null) {
+			const p = _pagesFor(currentPaper);
+			mobFmtLabel.textContent = p + ' стр';
+		} else {
+			mobFmtLabel.textContent = _rollLen(currentPaper);
+		}
+	}
+}
+
+function cyclePaperSize() {
+	const idx = PAPER_ORDER.indexOf(currentPaperKey);
+	const next = PAPER_ORDER[(idx + 1) % PAPER_ORDER.length];
+	setPaperSize(next);
 }
 
 function setPaperSize(key) {
 	currentPaper = PAPER_SIZES[key] || PAPER_SIZES.a4;
 	currentPaperKey = key;
+	// Sync desktop cycling button
+	const cycleBtn = document.getElementById('paper-cycle-btn');
+	if (cycleBtn) cycleBtn.textContent = PAPER_LABELS[key] || key;
 	// Highlight desktop top-bar + dropdown
 	_ui.sizeChips.forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
 	// Sync mobile UI
 	const mobFmt = document.getElementById('mob-format');
-	if (mobFmt) {
-		const labels = { a4: 'A4', a3: 'A3', '914mm': '914', '914x2': '914×2', '914x4': '914×4' };
-		mobFmt.textContent = labels[key] || key;
-	}
+	if (mobFmt) mobFmt.textContent = PAPER_LABELS[key] || key;
 	_ui.mobSizeChips.forEach(b => {
 		b.classList.toggle('active', b.dataset.size === key);
 	});
@@ -952,24 +996,53 @@ function applyViewport() {
 		}
 	}
 
-	// Guides
-	document.getElementById('guide-h').style.top = (paperBottomY - marginPx) + 'px';
-	document.getElementById('guide-v').style.left = originScreenX + 'px';
-	const guideH = document.getElementById('guide-h-a4');
-	guideH.style.top = (paperTopY + marginPx) + 'px';
+	// Guides — per-page printable area rectangles (no tails)
+	document.getElementById('guide-h').style.display = 'none';
+	document.getElementById('guide-v').style.display = 'none';
+	document.getElementById('guide-h-a4').style.display = 'none';
 
 	const guideVA4 = document.getElementById('guide-v-a4');
 	guideVA4.style.display = 'none';
 
+	const guideTopY = paperTopY + marginPx;
+	const guideBotY = paperBottomY - marginPx;
+	const guideHeight = guideBotY - guideTopY;
+
 	let guideIdx = 0;
 	for (let p = 0; p < totalPages; p++) {
 		const pageLeft = originScreenX + p * (paperW + pageGap);
-		const gL = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-v', document.body);
-		gL.style.left = (pageLeft + marginPx) + 'px';
+		const gLeft = pageLeft + marginPx;
+		const gRight = currentPaper.w !== null ? pageLeft + paperW - marginPx : pageLeft + paperW;
+		const gWidth = gRight - gLeft;
 
+		// Top edge
+		const gT = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-h guide-page-rect', document.body);
+		gT.style.top = guideTopY + 'px';
+		gT.style.left = gLeft + 'px';
+		gT.style.width = gWidth + 'px';
+		gT.style.height = '0';
+
+		// Bottom edge
+		const gB = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-h guide-page-rect', document.body);
+		gB.style.top = guideBotY + 'px';
+		gB.style.left = gLeft + 'px';
+		gB.style.width = gWidth + 'px';
+		gB.style.height = '0';
+
+		// Left edge
+		const gL = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-rect', document.body);
+		gL.style.left = gLeft + 'px';
+		gL.style.top = guideTopY + 'px';
+		gL.style.height = guideHeight + 'px';
+		gL.style.width = '0';
+
+		// Right edge (only for fixed-width paper)
 		if (currentPaper.w !== null) {
-			const gR = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-v', document.body);
-			gR.style.left = (pageLeft + paperW - marginPx) + 'px';
+			const gR = _getPooledDiv(_guidePool, guideIdx++, 'guide guide-v guide-page-rect', document.body);
+			gR.style.left = gRight + 'px';
+			gR.style.top = guideTopY + 'px';
+			gR.style.height = guideHeight + 'px';
+			gR.style.width = '0';
 		}
 	}
 	_hidePoolFrom(_guidePool, guideIdx);
@@ -1123,42 +1196,55 @@ function toggleHideDays() {
 }
 
 function openEntryModal() {
-	const dateEl = document.getElementById('entry-date');
-	const textEl = document.getElementById('entry-text');
-	dateEl.value = '';
-	textEl.value = '';
+	const bulkEl = document.getElementById('entry-bulk');
+	bulkEl.value = '';
 	document.getElementById('entry-yearly').checked = true;
 	document.getElementById('entry-overlay').style.display = 'flex';
-	setTimeout(() => textEl.focus(), 50);
-	dateEl.oninput = () => {
-		let v = dateEl.value;
-		if (/^\d{2}$/.test(v)) { dateEl.value = v + '.'; }
-	};
-	textEl.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); dateEl.focus(); } };
-	dateEl.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomEntry(); } };
+	setTimeout(() => bulkEl.focus(), 50);
 }
 
 function closeEntryModal() {
 	document.getElementById('entry-overlay').style.display = 'none';
 }
 
-function addCustomEntry() {
-	const text = document.getElementById('entry-text').value.trim();
-	const dateStr = document.getElementById('entry-date').value.trim();
-	const yearly = document.getElementById('entry-yearly').checked;
-	if (!text) { document.getElementById('entry-text').focus(); return; }
-	let match = dateStr.match(/^(\d{1,2})[.,\/;\-\s\\](\d{1,2})$/);
-	if (!match && /^\d{3,4}$/.test(dateStr)) {
-		const d = dateStr.slice(0, 2);
-		const m = dateStr.length === 4 ? dateStr.slice(2) : dateStr.slice(2);
+function _parseDate(str) {
+	str = str.trim();
+	let match = str.match(/^(\d{1,2})[.,\/;\-:\s\\](\d{1,2})$/);
+	if (!match && /^\d{3,4}$/.test(str)) {
+		const d = str.slice(0, 2);
+		const m = str.length === 4 ? str.slice(2) : str.slice(2);
 		match = [null, d, m];
 	}
-	if (!match) { document.getElementById('entry-date').focus(); return; }
-	const day = parseInt(match[1], 10);
-	const month = parseInt(match[2], 10);
-	if (month < 1 || month > 12 || day < 1 || day > 31) { document.getElementById('entry-date').focus(); return; }
-	const now = new Date();
-	customEntries.push({ day, month, year: now.getFullYear(), text, yearly });
+	if (!match) return null;
+	const day = parseInt(match[1]);
+	const month = parseInt(match[2]);
+	if (month < 1 || month > 12 || day < 1) return null;
+	const maxDay = new Date(2024, month, 0).getDate();
+	if (day > maxDay) return null;
+	return { day, month };
+}
+
+function addCustomEntries() {
+	const bulkEl = document.getElementById('entry-bulk');
+	const yearly = document.getElementById('entry-yearly').checked;
+	const lines = bulkEl.value.split('\n').map(l => l.trim()).filter(l => l);
+
+	let added = 0;
+	for (const line of lines) {
+		const lastComma = line.lastIndexOf(',');
+		if (lastComma < 0) continue;
+		const text = line.substring(0, lastComma).trim();
+		const dateStr = line.substring(lastComma + 1).trim();
+		if (!text || !dateStr) continue;
+		const parsed = _parseDate(dateStr);
+		if (!parsed) continue;
+		const entry = { month: parsed.month, day: parsed.day, text, yearly };
+		if (!yearly) entry.year = new Date().getFullYear();
+		customEntries.push(entry);
+		added++;
+	}
+
+	if (added === 0) { bulkEl.focus(); return; }
 	for (const k of Object.keys(_holidayCache)) delete _holidayCache[k];
 	closeEntryModal();
 	updateCalendar();
@@ -1180,6 +1266,13 @@ function toggleWeekStart() {
 	updateCalendar();
 }
 
+// ─── Welcome carousel ───
+function closeWelcome() {
+	const overlay = document.getElementById('welcome-overlay');
+	if (overlay) overlay.style.display = 'none';
+	localStorage.setItem('wallplan-welcome-seen', '1');
+}
+
 // ─── Mobile toolbar functions ───
 function toggleMobSheet() {
 	const sheet = document.getElementById('mob-sheet');
@@ -1187,10 +1280,27 @@ function toggleMobSheet() {
 	if (!sheet) return;
 	const isOpen = sheet.classList.contains('open');
 	sheet.classList.toggle('open', !isOpen);
-	overlay.classList.toggle('open', !isOpen);
+	if (overlay) overlay.classList.toggle('open', !isOpen);
 	// Close download popup if open
 	const dlPopup = document.getElementById('mob-dl-popup');
 	if (dlPopup) dlPopup.style.display = 'none';
+	// Add/remove global close listener
+	if (!isOpen) {
+		setTimeout(() => {
+			document.addEventListener('click', _closeMobSheetOutside);
+		}, 0);
+	} else {
+		document.removeEventListener('click', _closeMobSheetOutside);
+	}
+}
+
+function _closeMobSheetOutside(e) {
+	const sheet = document.getElementById('mob-sheet');
+	const bar = document.getElementById('mob-bar');
+	if (sheet && !sheet.contains(e.target) && (!bar || !bar.contains(e.target))) {
+		toggleMobSheet();
+		document.removeEventListener('click', _closeMobSheetOutside);
+	}
 }
 
 function toggleMobDL() {
@@ -1315,7 +1425,8 @@ function mobSetWeek(day) {
 		btn.style.color = '#C41E3A';
 	}
 	document.getElementById('mob-week-mon').classList.toggle('active', day === 'mon');
-	document.getElementById('mob-week-sun').classList.toggle('active', day === 'sun');
+	const sunBtn = document.getElementById('mob-week-sun');
+	sunBtn.classList.toggle('active', day === 'sun');
 	updateCalendar();
 }
 
@@ -1749,7 +1860,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.addEventListener('touchstart', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay') || e.target.closest('.mob-dl-popup') || e.target.closest('.confirm-overlay')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.print-menu') || e.target.closest('.mob-bar') || e.target.closest('.mob-sheet') || e.target.closest('.mob-overlay') || e.target.closest('.mob-dl-popup') || e.target.closest('.confirm-overlay') || e.target.closest('.welcome-overlay')) return;
 		if (e.touches.length === 1) {
 			touchPanning = true;
 			pinching = false;
@@ -1845,4 +1956,58 @@ document.addEventListener('DOMContentLoaded', () => {
 			isDraggingPanel = false;
 		});
 	});
+
+	// ─── Welcome carousel (mobile only) ───
+	if (window.innerWidth <= 768 && !localStorage.getItem('wallplan-welcome-seen')) {
+		const overlay = document.getElementById('welcome-overlay');
+		if (overlay) {
+			overlay.style.display = 'flex';
+
+			const carousel = document.getElementById('welcome-carousel');
+			const dots = document.querySelectorAll('#welcome-dots .welcome-dot');
+			const startBtn = document.getElementById('welcome-start-btn');
+			const slides = carousel.querySelectorAll('.welcome-slide');
+
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						const idx = Array.from(slides).indexOf(entry.target);
+						dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+						if (idx === slides.length - 1) {
+							startBtn.classList.add('visible');
+						} else {
+							startBtn.classList.remove('visible');
+						}
+					}
+				});
+			}, { root: carousel, threshold: 0.6 });
+
+			slides.forEach(s => observer.observe(s));
+
+			let _wDrag = false, _wStartX = 0, _wScrollL = 0;
+			carousel.addEventListener('mousedown', (e) => {
+				_wDrag = true;
+				_wStartX = e.pageX;
+				_wScrollL = carousel.scrollLeft;
+				carousel.style.cursor = 'grabbing';
+				carousel.style.scrollSnapType = 'none';
+			});
+			carousel.addEventListener('mousemove', (e) => {
+				if (!_wDrag) return;
+				e.preventDefault();
+				carousel.scrollLeft = _wScrollL - (e.pageX - _wStartX);
+			});
+			const _wEnd = () => {
+				if (!_wDrag) return;
+				_wDrag = false;
+				carousel.style.cursor = 'grab';
+				carousel.style.scrollSnapType = 'x mandatory';
+				const slideW = carousel.offsetWidth;
+				const idx = Math.round(carousel.scrollLeft / slideW);
+				carousel.scrollTo({ left: idx * slideW, behavior: 'smooth' });
+			};
+			carousel.addEventListener('mouseup', _wEnd);
+			carousel.addEventListener('mouseleave', _wEnd);
+		}
+	}
 });

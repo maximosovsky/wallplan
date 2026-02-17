@@ -132,13 +132,7 @@
 		<input type="hidden" id="months-input" value="12">
 		<span id="months-label" style="display:none">mo</span>
 		<div class="tb-sep"></div>
-		<div class="paper-chips" id="paper-chips-group">
-			<div class="tb-btn" data-size="a4" onclick="setPaperSize('a4')">A4</div>
-			<div class="tb-btn" data-size="a3" onclick="setPaperSize('a3')">A3</div>
-			<div class="tb-btn tb-btn-sm" data-size="914mm" onclick="setPaperSize('914mm')">914</div>
-			<div class="tb-btn tb-btn-sm" data-size="914x2" onclick="setPaperSize('914x2')">×2</div>
-			<div class="tb-btn tb-btn-sm" data-size="914x4" onclick="setPaperSize('914x4')">×4</div>
-		</div>
+		<div class="tb-btn" id="paper-cycle-btn" onclick="cyclePaperSize()" data-tooltip="Paper size">A4</div>
 		<span id="page-info" style="display:none"></span>
 		<div class="tb-sep"></div>
 		<div class="tb-btn" onclick="confirmAction('Download SVG?', downloadSVG)" data-tooltip="Download SVG">
@@ -171,14 +165,11 @@
 	<!-- Entry modal -->
 	<div id="entry-overlay" class="confirm-overlay" style="display:none">
 		<div class="confirm-box entry-box">
-			<div class="confirm-msg">Add Entry</div>
+			<div class="confirm-msg">Add Entries</div>
 			<div class="entry-form">
-				<div class="entry-row entry-inline">
-					<input type="text" id="entry-text" placeholder="Product launch" maxlength="40" autocomplete="off"
-						style="flex:1;">
-					<input type="text" id="entry-date" placeholder="19.12" maxlength="5" autocomplete="off"
-						style="width:60px; text-align:center;">
-				</div>
+				<textarea id="entry-bulk" rows="6" placeholder="Product launch, 19.12
+New Year, 01.01
+Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-box; resize:vertical;"></textarea>
 				<div class="entry-row entry-check-row">
 					<label>
 						<input type="checkbox" id="entry-yearly" checked>
@@ -187,14 +178,15 @@
 				</div>
 			</div>
 			<div class="confirm-btns">
-				<button class="confirm-btn confirm-yes" onclick="addCustomEntry()">Add</button>
+				<button class="confirm-btn confirm-yes" onclick="addCustomEntries()">Add</button>
 				<button class="confirm-btn confirm-cancel" onclick="closeEntryModal()">Cancel</button>
 			</div>
 		</div>
 	</div>
 	<div class="controls gantt-panel" id="gantt-panel">
 		<button id="entry-btn" data-tooltip="Add entry" onclick="openEntryModal()">
-			<span style="font-family:'Copper Penny DTP',serif; font-size:20px; line-height:1;">T</span>
+			<span
+				style="font-family:'Copper Penny DTP',serif; font-size:20px; line-height:1; color:var(--mol-red);">W</span>
 		</button>
 		<button id="hide-days-btn" data-tooltip="Hide days" onclick="toggleHideDays()">
 			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
@@ -210,12 +202,7 @@
 		<button id="week-start-btn" data-tooltip="Week start day" onclick="toggleWeekStart()">SU</button>
 		<input type="hidden" id="rows-slider" value="10">
 		<span id="rows-value" style="display:none">10</span>
-		<div class="rows-chips" data-tooltip="Gantt rows">
-			<button class="rows-chip" data-rows="6" onclick="setRows(6)">6</button>
-			<button class="rows-chip" data-rows="8" onclick="setRows(8)">8</button>
-			<button class="rows-chip active" data-rows="10" onclick="setRows(10)">10</button>
-			<button class="rows-chip" data-rows="12" onclick="setRows(12)">12</button>
-		</div>
+		<button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Gantt rows" onclick="cycleRows()">10</button>
 	</div>
 	<canvas id="ruler-left" class="ruler ruler-left"></canvas>
 	<canvas id="ruler-bottom" class="ruler ruler-bottom"></canvas>
@@ -233,55 +220,91 @@
 
 	<!-- Mobile bottom toolbar -->
 	<div id="mob-bar" class="mob-bar">
-		<div class="mob-bar-left">
-			<button class="mob-val" onclick="toggleMobSheet()">
-				<span id="mob-months">12</span>
-				<span class="mob-label" id="mob-months-label">mo</span>
-			</button>
-			<div class="mob-sep"></div>
-			<button class="mob-val" onclick="toggleMobSheet()">
-				<span id="mob-rows">10</span>
-				<span class="mob-label">rows</span>
-			</button>
-		</div>
-		<button class="mob-chip" id="mob-format" onclick="toggleMobSheet()">A4</button>
-		<div class="mob-bar-right">
-			<button class="mob-icon" onclick="openEntryModal()" title="Add entry">
-				<span style="font-family:'Copper Penny DTP',serif; font-size:18px; line-height:1;">T</span>
-			</button>
-			<button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Hide days">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-					stroke-linecap="round" stroke-linejoin="round">
-					<rect x="3" y="3" width="18" height="18" rx="2" />
-					<line x1="3" y1="9" x2="21" y2="9" />
-					<line x1="9" y1="9" x2="9" y2="21" />
-					<line x1="15" y1="9" x2="15" y2="21" />
-					<line x1="3" y1="15" x2="21" y2="15" />
-					<line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
-				</svg>
-			</button>
-			<div class="mob-dl-group">
-				<button class="mob-icon" onclick="toggleMobDL()" title="Download">
-					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						stroke-linecap="round" stroke-linejoin="round">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-						<polyline points="7 10 12 15 17 10" />
-						<line x1="12" y1="15" x2="12" y2="3" />
-					</svg>
-				</button>
-				<div id="mob-dl-popup" class="mob-dl-popup" style="display:none">
-					<button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
-					<button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
-				</div>
-			</div>
-			<button class="mob-icon" onclick="toggleMobSheet()" title="Settings">
+		<button class="mob-val" onclick="openEntryModal()">
+			<span
+				style="font-family:'Copper Penny DTP',serif; font-size:1.8rem; line-height:1; color:var(--mol-red);">W</span>
+		</button>
+		<button class="mob-val" onclick="toggleMobSheet()">
+			<span id="mob-months">12</span>
+			<span class="mob-label" id="mob-months-label">mo</span>
+		</button>
+		<button class="mob-val" onclick="cycleRows()">
+			<span id="mob-rows">10</span>
+			<span class="mob-label">rows</span>
+		</button>
+		<button class="mob-val" onclick="cyclePaperSize()">
+			<span id="mob-format">A4</span>
+			<span class="mob-label" id="mob-format-label">format</span>
+		</button>
+		<button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Hide days">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+				stroke-linecap="round" stroke-linejoin="round">
+				<rect x="3" y="3" width="18" height="18" rx="2" />
+				<line x1="3" y1="9" x2="21" y2="9" />
+				<line x1="9" y1="9" x2="9" y2="21" />
+				<line x1="15" y1="9" x2="15" y2="21" />
+				<line x1="3" y1="15" x2="21" y2="15" />
+				<line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
+			</svg>
+		</button>
+		<div class="mob-dl-group">
+			<button class="mob-icon" onclick="toggleMobDL()" title="Download">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
 					stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="12" cy="12" r="3" />
-					<path
-						d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+					<polyline points="7 10 12 15 17 10" />
+					<line x1="12" y1="15" x2="12" y2="3" />
 				</svg>
 			</button>
+			<div id="mob-dl-popup" class="mob-dl-popup" style="display:none">
+				<button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
+				<button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Welcome carousel (mobile only, first visit) -->
+	<div id="welcome-overlay" class="welcome-overlay" style="display:none">
+		<button class="welcome-skip" onclick="closeWelcome()">Skip</button>
+		<div class="welcome-carousel" id="welcome-carousel">
+			<div class="welcome-slide">
+				<span class="welcome-logo"
+					style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
+				<h2>Plan decades on your wall</h2>
+				<p>Multi-year calendar with Gantt grid, vertical day lists, and mini month boxes — all on a single
+					sheet.</p>
+				<p>Print it. Hang it. See the big picture.</p>
+				<p class="welcome-hint">Swipe to learn more →</p>
+			</div>
+			<div class="welcome-slide">
+				<div class="welcome-emoji">⚙️</div>
+				<h2>How it works</h2>
+				<p>Set duration — from 1 month to 20 years.</p>
+				<p>Choose paper — A4, A3, or 914mm roll.</p>
+				<p>Pick Gantt rows, week start, and export to SVG or PDF.</p>
+				<p>All controls are in the bottom toolbar.</p>
+			</div>
+			<div class="welcome-slide">
+				<div class="welcome-emoji">🖨️</div>
+				<h2>Print it on your wall</h2>
+				<p>Export as PDF and print at home on A4 — or at a copy center on 1-meter-wide roll paper.</p>
+				<p>Your plans, visible at a glance. Infinite length.</p>
+			</div>
+			<div class="welcome-slide">
+				<span class="welcome-logo"
+					style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
+				<h2>Start planning</h2>
+				<p>Free forever. No signup. Your data never leaves your browser.</p>
+			</div>
+		</div>
+		<div class="welcome-bottom">
+			<div class="welcome-dots" id="welcome-dots">
+				<div class="welcome-dot active"></div>
+				<div class="welcome-dot"></div>
+				<div class="welcome-dot"></div>
+				<div class="welcome-dot"></div>
+			</div>
+			<button class="welcome-start" id="welcome-start-btn" onclick="closeWelcome()">Start planning</button>
 		</div>
 	</div>
 

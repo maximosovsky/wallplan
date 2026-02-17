@@ -113,13 +113,24 @@ Grid lines are collected as path data strings during the month loop and emitted 
 
 **Mobile UI** (`@media max-width: 768px`):
 - Desktop controls hidden
-- Bottom toolbar (52px, frosted glass `backdrop-filter: blur(16px)`)
-- Bottom sheet (slide-up, cubic-bezier animation) with:
+- Bottom toolbar (56px, frosted glass `backdrop-filter: blur(16px)`)
+  - CSS Grid with 6 equal columns (`repeat(6, 1fr)`), each element centered
+  - **W** button: cherry-red (`--mol-red: #C41E3A`) Copper Penny DTP logo, opens entry modal
+  - Duration (yr/mo): tap to open settings sheet
+  - Rows count: tap to cycle 6→8→10→12
+  - Paper format: value + dynamic label (page count e.g. `2 pg` or roll length e.g. `1.8 m`)
+  - Hide days icon (circle background when active)
+  - Download icon → SVG/PDF popup
+- Bottom sheet (slide-up, cubic-bezier animation), closes on click outside:
   - Duration: two scroll-wheel pickers (years 0–20, months 0–11) with snap-scroll
   - Paper format chips + roll length display (e.g. `· 1.5 m`) for 914mm formats
   - Gantt rows: chip buttons (6 / 8 / 10 / 12)
   - Week start toggle
-- Download popup (SVG/PDF) on toolbar icon
+- Welcome carousel (first visit only, `localStorage: wallplan-welcome-seen`):
+  - 4 horizontal swipe slides (scroll-snap), cherry-red **W** logo on slides 1 & 4
+  - Dot indicators via IntersectionObserver, "Start planning" button appears on last slide
+  - Skip button top-right, mouse drag for desktop emulator
+  - Touch exclusion: added `.welcome-overlay` to global touchstart guard
 
 ### 6. Styling System (`style.css`)
 - CSS variables: `--mol-paper`, `--mol-ink`, `--mol-ink-light`

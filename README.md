@@ -46,12 +46,13 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Precision layout** | Auto-fits 7–8 months per page on A4/A3. Roll paper uses cell-width-driven calculation |
 | **Format tuning** | Optimized cell widths per format — 4mm (single), 2.7mm (×2), 1.7mm (×4) |
 | **PDF & SVG export** | Embedded IBM Plex Sans fonts, parallel font loading |
-| **Custom entries** | Add annotations via T button: `DD.MM` format, yearly repeat, exported to SVG/PDF |
+| **Custom entries** | Add annotations via **W** button: `DD.MM` format, yearly repeat, exported to SVG/PDF |
 | **Holidays** | US Federal Holidays, WallPlan Day (Jan 11) in Copper Penny DTP font |
 | **Week start** | Monday or Sunday toggle |
 | **Gantt rows** | 6, 8, 10, or 12 configurable rows |
-| **Mobile-first** | Bottom toolbar with frosted glass, settings sheet, scroll-wheel pickers |
+| **Mobile-first** | 6-column grid toolbar with frosted glass, settings sheet, scroll-wheel pickers |
 | **Touch gestures** | Pan, pinch-to-zoom on mobile |
+| **Welcome carousel** | 4-slide onboarding on first mobile visit (localStorage gated) |
 | **Rulers & guides** | Measurement rulers with cm/m labels, vertical guides for printable area |
 | **Print optimized** | Custom print CSS — what you see is what you get |
 | **Private** | All data stays in browser, never sent anywhere |
@@ -83,7 +84,7 @@ Or visit the live version:
 | **6 / 8 / 10 / 12** | Number of Gantt rows |
 | **Mon / Sun** | Week start toggle |
 | **Hide Days** | Toggle day-level details on/off |
-| **T button** | Add custom entry modal |
+| **W button** | Add custom entry modal (cherry-red Copper Penny DTP logo) |
 | **⬇ SVG / 🖨 PDF** | Export |
 | **Mouse wheel** | Zoom in/out |
 | **Click + drag** | Pan canvas |
@@ -92,11 +93,12 @@ Or visit the live version:
 
 | Control | Action |
 |---------|--------|
-| **Duration label** | Shows current yr/mo, tap for settings |
-| **Paper button** | Paper format toggle with roll length |
-| **T** | Add custom entry |
+| **W** | Cherry-red logo, add custom entry |
+| **Duration** | Shows yr/mo, tap for settings sheet |
+| **Rows** | Tap to cycle 6→8→10→12 |
+| **Paper format** | Value + dynamic label (page count or roll length) |
+| **Hide days** | Toggle day-level details |
 | **⬇** | SVG/PDF download popup |
-| **⚙** | Settings sheet (duration picker, format, rows, week start) |
 
 ---
 
@@ -110,7 +112,7 @@ Or visit the live version:
 
 ## 📱 Mobile
 
-Bottom toolbar with frosted glass effect shows current duration (smart yr/mo label), rows count, and paper format. Tap to open settings sheet with scroll-wheel duration picker (years + months), paper format selector with roll length display, Gantt rows chips (6/8/10/12), and week start toggle. Download icon opens SVG/PDF popup.
+Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in its cell. Shows cherry-red **W** logo (entry button), current duration (smart yr/mo label), rows count, paper format with dynamic label (page count or roll length). Tap duration to open settings sheet with scroll-wheel picker (years + months), paper format chips, Gantt rows (6/8/10/12), and week start toggle. Sheet closes on tap outside. Download icon opens SVG/PDF popup.
 
 ---
 
@@ -124,8 +126,9 @@ Bottom toolbar with frosted glass effect shows current duration (smart yr/mo lab
 | `for-kirill-specially-ru/` | Russian locale (separate JS + HTML, shared CSS/fonts, noindex) |
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
 | `og-image.png` | OG social preview image (1200×630) |
+| `USER_MANUAL.md` | Comprehensive user guide |
 
-See [architecture.md](./architecture.md) for full technical details.
+See [architecture.md](./architecture.md) for full technical details. See [USER_MANUAL.md](./USER_MANUAL.md) for the user guide.
 
 ---
 
