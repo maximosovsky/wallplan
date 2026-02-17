@@ -1510,6 +1510,21 @@ function _arrayBufferToBase64(buf) {
 	return btoa(parts.join(''));
 }
 
+// Copper Penny DTP base64 cache for SVG embedding
+let _copperPennyB64 = null;
+
+async function _loadCopperPennyB64() {
+	if (_copperPennyB64) return _copperPennyB64;
+	try {
+		const resp = await fetch('../fonts/cooper/Copper Penny DTP.ttf');
+		const buf = await resp.arrayBuffer();
+		_copperPennyB64 = _arrayBufferToBase64(buf);
+	} catch (e) {
+		console.warn('Copper Penny DTP load failed:', e);
+	}
+	return _copperPennyB64;
+}
+
 async function _loadPDFFonts(doc) {
 	const fontName = 'IBM Plex Sans'; // must match SVG font-family
 
@@ -1535,6 +1550,20 @@ async function _loadPDFFonts(doc) {
 			} catch (e) {
 				console.warn('Font load failed:', w.file, e);
 			}
+		}
+		// Also load Copper Penny DTP
+		try {
+			const resp = await fetch('../fonts/cooper/Copper Penny DTP.ttf');
+			const buf = await resp.arrayBuffer();
+			_fontCache.push({
+				id: 'CopperPennyDTP.ttf',
+				b64: _arrayBufferToBase64(buf),
+				name: 'Copper Penny DTP',
+				style: 'normal',
+				weight: 400,
+			});
+		} catch (e) {
+			console.warn('Copper Penny DTP load failed:', e);
 		}
 		_fontsFetched = true;
 	}
@@ -1666,11 +1695,27 @@ async function printPDF() {
 }
 
 // ─── SVG Download ───
-function _preparePageSVG(page) {
+async function _preparePageSVG(page) {
 	const clone = page.cloneNode(true);
 	clone.removeAttribute('style');
 	clone.removeAttribute('class');
 	clone.setAttribute('xmlns', SVG_NS);
+
+	// Embed Copper Penny DTP as @font-face in SVG
+	const b64 = await _loadCopperPennyB64();
+	if (b64) {
+		const styleEl = clone.querySelector('style');
+		if (styleEl) {
+			styleEl.textContent = `
+				@font-face {
+					font-family: 'Copper Penny DTP';
+					src: url(data:font/truetype;base64,${b64}) format('truetype');
+					font-weight: 400;
+					font-style: normal;
+				}
+			` + styleEl.textContent;
+		}
+	}
 	return clone;
 }
 
@@ -1688,7 +1733,7 @@ function _downloadBlob(svgNode, filename) {
 	URL.revokeObjectURL(url);
 }
 
-function downloadSVG() {
+async function downloadSVG() {
 	const copies = currentPaper.copies || 1;
 	const months = parseInt(document.getElementById('months-input').value) || 12;
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
@@ -1711,7 +1756,7 @@ function downloadSVG() {
 
 		if (copies <= 1) {
 			// Single copy — export page as-is
-			const clone = _preparePageSVG(first);
+			const clone = await _preparePageSVG(first);
 			const suffix = pageIndices.length > 1 ? `_page${pi + 1}` : '';
 			_downloadBlob(clone, `${baseName}${suffix}.svg`);
 		} else {
@@ -1728,7 +1773,7 @@ function downloadSVG() {
 
 			for (let c = 0; c < copies; c++) {
 				const src = group[c] || first; // fallback to first if clone missing
-				const clone = _preparePageSVG(src);
+				const clone = await _preparePageSVG(src);
 				const g = document.createElementNS(SVG_NS, 'g');
 				g.setAttribute('transform', `translate(0,${c * calH})`);
 				// Move all children into the group
