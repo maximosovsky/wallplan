@@ -148,8 +148,6 @@ White-label version with company logo, brand colors, internal holidays. Self-hos
 
 ### UX
 - **Onboarding** — first-visit tooltips (what to scroll, where is Gantt)
-- **Keyboard Shortcuts** — `+/-` zoom, `Ctrl+S` export
-- **Dark Theme** — light/dark toggle
 - **Favicon.ico** — real `.ico` file (not all browsers support SVG favicon)
 
 ### Marketing & Distribution
