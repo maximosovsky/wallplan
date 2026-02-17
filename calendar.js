@@ -1107,6 +1107,11 @@ function applyViewport() {
 		}
 	}
 
+	// Sync desk background size with viewport zoom
+	const bgBase = 400;
+	const bgSize = bgBase * viewport.zoom;
+	document.body.style.backgroundSize = bgSize + 'px ' + bgSize + 'px';
+
 	drawRulers();
 }
 

@@ -91,9 +91,9 @@ body {
 	padding: 0;
 	height: 100vh;
 	background: var(--mol-desk);
-	background-image:
-		radial-gradient(ellipse at 30% 50%, rgba(139, 125, 107, 0.3), transparent 70%),
-		linear-gradient(180deg, #7A6C5A 0%, #8B7D6B 40%, #9A8C7A 100%);
+	background-image: url('temp/06.jpg');
+	background-size: 400px 400px;
+	background-repeat: repeat;
 }
 
 /* Controls — Miro-style floating panel */
