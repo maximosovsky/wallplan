@@ -105,18 +105,13 @@ The palette reflects real Northern Hemisphere climate — warmth starts only in 
 - [Expanding Planning Horizons](https://osowski.medium.com/calendar-392272c97af3) — how multi-year calendars changed the way I plan
 - [Game: Strategy Visualization](https://osovsky.medium.com/game-5438c730a15e) — using wall calendars for strategic thinking
 - [Original two-year calendar (2012)](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) — the file where this color scheme was first applied
+- [Evgeniya Shamis on using the 2013–2014 calendar](https://youtu.be/y7rua9C81Ng?si=wgnVbWqXtwPECbqp) — [Evgeniya Shamis](https://www.linkedin.com/in/evgeniya-shamis-572316/) shares how she uses the printed calendar (gifted in 2012)
 
 ---
 
 ## 🙏 Acknowledgements
 
 - [Elena Rychagova](https://www.linkedin.com/in/%D0%B5%D0%BB%D0%B5%D0%BD%D0%B0-%D1%80%D1%8B%D1%87%D0%B0%D0%B3%D0%BE%D0%B2%D0%B0-15886989/) — editor at [Scriber](https://scriber.biz/), published the original calendar in «Жить интересно!» magazine
-
----
-
-## 👤 Author
-
-[Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449)
 
 ---
 
