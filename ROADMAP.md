@@ -105,6 +105,9 @@ Deployed to Vercel at [wallplan-miro.vercel.app](https://wallplan-miro.vercel.ap
 
 ## 🟢 Easy (1–2 days)
 
+### 0. Favicon 🔖
+Add favicon to WallPlan website. Currently no favicon exists — browser shows default icon. Options: SVG favicon (vector, crisp on all screens), emoji favicon (📅), or generated PNG. Should also add for Miro app panel.
+
 ### 1. Stickers 🟨🩷
 Two sticker types (yellow, pink) that stick directly onto the calendar. Click button → click on calendar → sticker appears. Double-click to edit text. Drag to move. Pure SVG (`<rect>` + `<text>`), exports cleanly to SVG and PDF. Persist in localStorage.
 
