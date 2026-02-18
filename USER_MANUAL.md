@@ -40,6 +40,7 @@ The desktop interface has two control panels at the top:
 |---------|-----------|
 | **W** | Cherry-red logo button — opens the custom entry modal to add text annotations on any date |
 | **Hide Days** | Toggle to hide day-level details, leaving only year/quarter/month divisions |
+| **🎨 Colors** | Toggle month color palette — concentric circles (off) / Itten wheel (on). See [COLORS.md](./COLORS.md) |
 | **⬇ SVG** | Download calendar as SVG file(s) |
 | **🖨 PDF** | Generate and download PDF with embedded fonts |
 
@@ -183,6 +184,7 @@ Share a specific configuration by adding parameters to the URL:
 | `p` | `?p=914mm` | Paper format |
 | `w` | `?w=sun` | Week start day |
 | `d` | `?d=1` | Hide days mode (1 = on) |
+| `c` | `?c=1` | Month color palette (1 = on) |
 
 **Example**: `osovsky.com/wallplan/?m=120&r=10&p=914mm` — 10-year calendar on roll paper.
 
@@ -207,6 +209,7 @@ Each month column contains three sections, top to bottom:
 | Year borders | Thickest black lines |
 | Holidays | Red text with holiday name |
 | Custom entries | Alongside holidays |
+| Month colors | Temperature-based palette when enabled — names and day numbers tinted by season |
 
 ---
 
@@ -233,3 +236,6 @@ A: Once loaded, the calendar works offline. PDF export requires font files that 
 
 **Q: Is my data sent anywhere?**
 A: No. Everything runs locally in your browser. No server, no tracking (except anonymous GA4 page views).
+
+**Q: What are the month colors?**
+A: A temperature-based color palette (Material Design) that tints month names and day numbers by season — from black (January) through red (July) to gray (December). Toggle with the color button in the toolbar, or add `&c=1` to the URL. See [COLORS.md](./COLORS.md) for the full palette.

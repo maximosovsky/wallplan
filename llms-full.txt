@@ -4,7 +4,7 @@
 
 WallPlan is a free online tool that generates multi-year wall calendars with Gantt charts for strategic planning. Every year we publish a new version of a multi-year calendar. The publishing industry mostly makes calendars for just the next year, limiting our ability to plan in detail many years ahead.
 
-Twelve years ago, in October 2014, the first such calendar covering two years was released. For many years calendars were laid out manually, until in 2020 Michael Kvrivishvili — the designer of the official Boston Metro map — developed a service specifically to generate a calendar for any number of months, with any number of Gantt rows.
+Fourteen years ago, in October 2012, the first such calendar covering two years was released. For many years calendars were laid out manually, until in 2020 Michael Kvrivishvili — the designer of the official Boston Metro map — developed a service specifically to generate a calendar for any number of months, with any number of Gantt rows.
 
 - **URL**: https://osovsky.com/wallplan/
 - **Author**: Maxim Osovsky (https://www.wikidata.org/wiki/Q107189449)
@@ -43,7 +43,29 @@ Download as vector SVG or PDF with embedded IBM Plex Sans fonts. Free, no login 
 - Adjustable Gantt rows: 6, 8, 10, or 12
 
 ### Custom Entries
-Add session-only text annotations on any date via the T button (Copper Penny DTP font). Supports DD.MM date input with auto-formatting (all delimiters supported). Yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
+Add session-only text annotations on any date via the W button (Copper Penny DTP font). Supports DD.MM date input with auto-formatting (all delimiters supported). Yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
+
+### Month Color Palette
+Optional temperature-based color encoding for month names, day numbers, and day-of-week labels. Toggle via toolbar button (concentric circles icon = off, Itten color wheel = on). Persisted via `&c=1` URL parameter. Colors use inline `style.fill` to override CSS defaults. Weekend days remain red regardless of month color.
+
+The palette reflects real Northern Hemisphere seasonal climate — warmth starts only in May:
+
+| Month | Hex | Color | Meaning |
+|-------|---------|-------------|-------------------------------|
+| Jan | #212121 | Black | Dead cold, darkness |
+| Feb | #3F51B5 | Indigo | Winter depth |
+| Mar | #9C27B0 | Purple | Crocuses, first flowers |
+| Apr | #2196F3 | Blue | Still cold, rain |
+| May | #4CAF50 | Green | Warm, nature comes alive |
+| Jun | #8BC34A | Lime | Summer, everything lush |
+| Jul | #F44336 | Red | Peak heat |
+| Aug | #FF9800 | Orange | Hot, but peak is over |
+| Sep | #FFC107 | Amber | Golden autumn |
+| Oct | #A1887F | Light Brown | Falling leaves |
+| Nov | #795548 | Brown | Bare trees |
+| Dec | #9E9E9E | Gray | Overcast, snow |
+
+All colors are from Google's Material Design palette. The first version of this color scheme was applied in the [original two-year calendar (October 2012)](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw), published in the Russian magazine «Жить интересно!».
 
 ### WallPlan Day
 January 11 — marked annually in Copper Penny DTP font with wine-colored accent (#6B2332).
@@ -67,6 +89,7 @@ Localized calendar at /for-kirill-specially-ru/ with Russian holidays and emojis
 | for-kirill-specially-ru/ | Russian locale (separate JS + HTML, shared CSS/fonts) |
 | fonts/ | IBM Plex Sans (7 weights) + Copper Penny DTP |
 | og-image.png | Social preview image (1200×630) |
+| COLORS.md | Month color palette reference (hex values, climate rationale) |
 
 ## Technical Details
 
@@ -84,9 +107,11 @@ Localized calendar at /for-kirill-specially-ru/ with Russian holidays and emojis
 Planned features (in order of complexity):
 1. Stickers — yellow/pink SVG stickers on calendar, drag to move, double-click to edit
 2. Unified Overlay System — shared rendering for stickers and images
-3. Image Upload — embed photos/logos on calendar canvas
-4. Google Authentication — cloud sync of configurations
-5. GA4 → Telegram Alerts — real-time analytics notifications
-6. Google Calendar Import — auto-import birthdays and events
-7. Custom Sticker Packs — create and share themed SVG sticker sets
-8. Miro App — publish as Miro Marketplace plugin
+3. Shareable Timeline Links — persist custom entries in URL params for zero-server sharing
+4. Image Upload — embed photos/logos on calendar canvas
+5. Google Authentication — cloud sync of configurations
+6. Internationalization — Italian, French, Chinese, Spanish, Arabic (UAE) locales with national holidays
+7. GA4 → Telegram Alerts — real-time analytics notifications
+8. Google Calendar Import — auto-import birthdays and events
+9. Custom Sticker Packs — create and share themed SVG sticker sets
+10. Miro App — publish as Miro Marketplace plugin

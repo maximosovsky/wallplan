@@ -19,7 +19,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 
 ## 💡 Concept
 
-> Twelve years ago, in October 2014, I [released](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) the first multi-year calendar covering two years. The publishing industry mostly makes calendars for just the next year, limiting our ability to plan in detail many years ahead. In 2020, [Michael Kvrivishvili](https://wayfinding.pro/cal/?l=6) — the designer of the official Boston Metro map — developed a service specifically for me to generate a calendar for any number of months, with any number of Gantt rows.
+> Fourteen years ago, in October 2012, I [released](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) the first multi-year calendar covering two years. The publishing industry mostly makes calendars for just the next year, limiting our ability to plan in detail many years ahead. In 2020, [Michael Kvrivishvili](https://wayfinding.pro/cal/?l=6) — the designer of the official Boston Metro map — developed a service specifically for me to generate a calendar for any number of months, with any number of Gantt rows.
 
 ### Purpose
 - **📏 Long-term planning** — see months and years at a glance on a single paper roll
@@ -153,5 +153,5 @@ See [architecture.md](./architecture.md) for detailed technical documentation on
 
 ## 📄 License
 
-© 2014–2026 [Michael Kvrivishvili](https://www.linkedin.com/in/michael-kvrivishvili-39ab062/) & [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449).
+© 2012–2026 [Michael Kvrivishvili](https://www.linkedin.com/in/michael-kvrivishvili-39ab062/) & [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449).
 Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).

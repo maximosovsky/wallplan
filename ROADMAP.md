@@ -36,25 +36,45 @@ Single `renderOverlays()` function called after every `buildPages()` to re-rende
 
 **Why:** Technical prerequisite. Without a shared overlay architecture, each new creative tool (stickers, images, stamps) would duplicate rendering logic and break on rebuild. Build once, reuse for everything.
 
+### 3. Shareable Timeline Links 🔗
+Persist custom entries (`customEntries[]`) in URL params so calendars with annotations are shareable via link. Format: `&m=DD.MM:text,DD.MM:text,...` (URI-encoded). Parse in `init()`, serialize in `updateCalendar()`. For large data — compress with `LZString.compressToEncodedURIComponent()` (~5Kb library). Copy-link button in toolbar.
+
+**Why:** Zero-server sharing. Send a link in Slack or Telegram — recipient sees your calendar with all marked dates instantly. Like Excalidraw's URL-based state. Transforms WallPlan from a local tool into a **collaboration primitive**. Makes the existing custom entries feature useful beyond a single session.
+
 ---
 
 ## 🟡 Medium (3–5 days)
 
-### 3. Image Upload 📎
+### 4. Image Upload 📎
 Upload images onto the calendar canvas. Resize on upload (max 800px, JPEG 80%) → embed as base64 `<image>` in SVG. Drag and resize on canvas. Exports to both SVG and PDF. Depends on Overlay System.
 
 **Why:** Corporate users want company logos, project photos, and team avatars on printed calendars. Makes WallPlan viable for branded office calendars and internal planning boards.
 
-### 4. Google Authentication
+### 5. Google Authentication
 Sign in with Google to save and load calendar configurations (duration, rows, paper format, stickers, images) to the cloud.
 
 **Why:** Currently state lives in URL params + localStorage — switching browser or device means starting over. Cloud sync = open on any device and everything is there. Also required for Google Calendar Import.
+
+### 6. Internationalization — 5 New Locales 🌍
+Localized calendar versions with translated month/day names and national holidays:
+
+| Locale | Path | Holidays |
+|--------|------|----------|
+| 🇮🇹 Italian | `/it/` | Capodanno, Ferragosto, Natale, Pasquetta, Liberazione... |
+| 🇫🇷 French | `/fr/` | Jour de l'an, Fête nationale, Toussaint, Noël... |
+| 🇨🇳 Chinese | `/zh/` | 春节 (Spring Festival), 国庆节, 中秋节, 清明节... |
+| 🇪🇸 Spanish | `/es/` | Año Nuevo, Día de la Hispanidad, Navidad, Reyes... |
+| 🇦🇪 Arabic (UAE) | `/ar/` | عيد الفطر, عيد الأضحى, اليوم الوطني, رأس السنة الهجرية... |
+
+**Architecture:** Shared `calendar-core.js` with locale config objects (`MONTHS`, `WEEK_DAYS`, `getHolidays()`). Each locale = separate `index.html` + thin `calendar-{lang}.js` wrapper. Arabic requires RTL layout support. Chinese/Islamic holidays need lunar calendar computation.
+
+**Why:** WallPlan is useful worldwide — calendars are universal. Italian/French/Spanish = EU market (400M people). Chinese = world's largest internet market. Arabic (Dubai) = high-value corporate market. Each locale = new SEO domain, new traffic source, new hreflang cluster.
 
 ---
 
 ## 🔴 Hard (1–3 weeks)
 
-### 6. GA4 → Telegram Alerts 📲
+### 7. GA4 → Telegram Alerts 📲
 Real-time notifications about important analytics events sent to Telegram.
 
 **Event tracking (client-side, `calendar.js`):**
@@ -85,17 +105,17 @@ Real-time notifications about important analytics events sent to Telegram.
 
 **Why:** Instant awareness of user engagement without checking dashboards. Critical for catching site outages (traffic = 0) and tracking growth (new countries, traffic spikes). Telegram = always in pocket, zero friction.
 
-### 7. Google Calendar Import
+### 8. Google Calendar Import
 Import birthdays and events from Google Calendar. Display as markers or labels on corresponding dates. Requires Google Auth + Calendar API + OAuth scopes + event parsing.
 
 **Why:** Instead of manually placing stickers for every birthday and meeting — pull them automatically. Print a 3-year calendar with all family birthdays already marked. This is the killer feature for personal users.
 
-### 8. Custom Sticker Packs 💬
+### 9. Custom Sticker Packs 💬
 Custom SVG sticker sets — like Telegram sticker packs. Users can create, import, and share themed collections. Needs UI for pack management, import/export format, potential community marketplace.
 
 **Why:** Virality and monetization. Users create and share packs → attract new users. Potential for paid premium packs (project management, education, fitness tracking). Turns WallPlan into a platform.
 
-### 9. Miro App
+### 10. Miro App
 Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards — "Universe" template style. Submit to [Miro Marketplace](https://miro.com/marketplace/). Requires Miro SDK, separate codebase, review process.
 
 **Why:** 60M+ Miro users = built-in distribution channel. WallPlan as a native Miro template for roadmapping and project planning. Different audience (product managers, agile teams), different revenue model (Miro ecosystem).
@@ -107,18 +127,18 @@ Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards �
 - All creative tools work offline (localStorage), cloud sync requires Google Auth
 - GA4 alerts require a separate backend (Cloud Function or Zapier)
 - Miro App requires separate Miro SDK integration
-- Recommended build order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
+- Recommended build order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10
 
 ---
 
 ## 💰 Monetization
 
-### 10. Print-as-a-Service 🖨️
+### 11. Print-as-a-Service 🖨️
 "Order Print & Delivery" button → user creates calendar → WallPlan generates PDF → sends to print API → printed on heavy paper → delivered worldwide. Integration with **Gelato** (130+ print partners, 32 countries, A3/A2/A1 posters) or **Printful**. Payment via Stripe. Margin: $10-30 per calendar.
 
 **Why:** Most natural monetization — user already wants to print. One click from free tool to paid product. No subscription fatigue.
 
-### 11. Freemium 💎
+### 12. Freemium 💎
 | Free | Pro ($29 one-time) |
 |------|--------------------|
 | Up to 12 months | Up to 20 years |
@@ -128,7 +148,7 @@ Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards �
 | — | Cloud save (Google Auth) |
 | — | Custom sticker packs |
 
-### 12. Brand Collaborations 🤝
+### 13. Brand Collaborations 🤝
 Sponsored calendar templates / themed editions with brands:
 - **Monopoly** — calendar with Monopoly property grid aesthetic
 - **LEGO** — brick-style calendar blocks, LEGO color palette
@@ -139,7 +159,7 @@ Sponsored calendar templates / themed editions with brands:
 
 Revenue model: licensing fee per template + revenue share on prints. Brands get exposure, WallPlan gets content and distribution.
 
-### 13. Corporate Licensing 🏢
+### 14. Corporate Licensing 🏢
 White-label version with company logo, brand colors, internal holidays. Self-hosted option for intranet. $200-500/year per company.
 
 ---
