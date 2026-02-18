@@ -215,7 +215,7 @@ Each month column contains three sections, top to bottom:
 
 ## 🧩 Miro App
 
-WallPlan is also available as a **Miro plugin**. It generates the same calendar layout directly on a Miro board as native elements (text, shapes, frames) — fully editable by any Miro user.
+WallPlan is also available as a **Miro plugin** at [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/). It generates the same calendar layout directly on a Miro board as native elements (text, shapes, frames) — fully editable by any Miro user.
 
 ### How to Use
 

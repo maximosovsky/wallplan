@@ -25,6 +25,8 @@ npm run start
 
 Then add `http://localhost:3000` as the App URL in your [Miro Developer Dashboard](https://developers.miro.com).
 
+**Production:** [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/)
+
 ## Documentation
 
 | Document | Description |

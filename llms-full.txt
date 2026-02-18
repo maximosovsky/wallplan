@@ -103,6 +103,8 @@ Long multi-year calendars can be printed at copy centers on engineering paper up
 
 A sidebar plugin for Miro boards (`miro-app/` directory). Generates multi-year Gantt calendars as **native Miro board elements** (text, shapes, frames) — fully editable by users.
 
+- **URL**: https://wallplan-miro.vercel.app/
+
 ### Tech Stack
 - TypeScript + React, Vite, Miro Web SDK 2.0, Mirotone CSS
 - Font: IBM Plex Sans (`plex_sans` — native Miro font)

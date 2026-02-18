@@ -58,7 +58,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Print optimized** | Custom print CSS — what you see is what you get |
 | **Private** | All data stays in browser, never sent anywhere |
 | **Zero dependencies** | No npm, no framework, pure vanilla JS |
-| **Miro App** | Native Miro board elements via [miro-app](./miro-app/) — progressive rendering, batch optimized |
+| **Miro App** | Native Miro board elements via [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/) — progressive rendering, batch optimized |
 
 ---
 

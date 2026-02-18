@@ -229,6 +229,8 @@ Configure `App URL = http://localhost:3000` in Miro Developer Dashboard.
 
 ### Production
 
+Hosted on Vercel: [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/)
+
 ```bash
 npm run build          # Output in dist/
 ```
