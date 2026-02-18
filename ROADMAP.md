@@ -81,7 +81,7 @@ Replaced SVG image approach (`createImage()`) with native Miro board elements (`
 *Applied:*
 1. **No `.sync()` calls** — text styles (`fontSize`, `color`, `textAlign`, `fontFamily`) passed directly in `createText()` constructor via `style` property. Eliminates ~900 extra API round-trips (each `.sync()` = 1 SDK call).
 2. **Merged horizontal lines** — R3: 360 → 31 shapes (-329). Gantt: ~120 → ~10 shapes (-110). Total: **-440 shapes**.
-3. **`BATCH_SIZE` increased 20 → 50** — `batchCreate()` sends 50 parallel `Promise.all()` calls per batch. ~2.5× throughput vs batch-of-20.
+3. **`BATCH_SIZE` tuned to 10 + 500ms delay** — conservative batching (10 parallel calls, 500ms gap) ensures reliable generation for multi-year calendars under Miro's 100K credits/min rate limit. `group()` call has 30s pre-delay + 3× retry.
 4. **Per-month box calendar batching** — box calendar (~40 elements/month) processed per-month instead of accumulating all ~500 elements in one giant batch. Prevents Miro API overload and silent failures.
 5. **Direct object storage for grouping** — `allItems[]` stores Miro objects returned by `createText()`/`createShape()`. Grouping uses these directly: `miro.board.group({ items: allItems })`. Eliminated `for (id of ids) { getById(id) }` loop that was **500+ sequential API calls** just for grouping.
 6. **Progressive rendering** — calendar generated in two phases: Phase 1 creates first 3 months → `zoomTo(frame)` (user sees results immediately). Phase 2 continues generating remaining months in background. UX feels ~3× faster.
@@ -97,6 +97,9 @@ Replaced SVG image approach (`createImage()`) with native Miro board elements (`
 - `borderWidth: 0` invalid in Miro SDK — replaced with `borderOpacity: 0`.
 - Box calendar not generating — all ~500 elements were in one batch, overwhelming Miro API. Fixed by per-month batching.
 - Progress bar stuck at "Generating" — `onProgress(current, total)` callback used fractional `current` values, `steps[2.5]` = undefined. Fixed with range-based progress text.
+
+### ~~Miro App — Phase 8: Production Hardening & Miroverse v2~~ *(18 Feb 2026)*
+Deployed to Vercel at [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/). Made generation robust for large calendars (24+ months): batch=10 with 500ms inter-batch delay, 30s pre-group wait, 3× retry for grouping with "already grouped" detection. Added panel footer (osovsky.com/wallplan · CC BY-SA 4.0). Re-submitted native-elements template to Miroverse: [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/). Optimized assets: og-image.png→jpg (678KB→163KB), removed unused patchwork.png/webp.
 
 ---
 

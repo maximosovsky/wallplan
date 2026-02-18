@@ -59,6 +59,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Private** | All data stays in browser, never sent anywhere |
 | **Zero dependencies** | No npm, no framework, pure vanilla JS |
 | **Miro App** | Native Miro board elements via [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/) — progressive rendering, batch optimized |
+| **Miroverse** | [2-Year Timeline Gantt Calendar](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) — ready-to-use template |
 
 ---
 

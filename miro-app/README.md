@@ -15,6 +15,8 @@ Multi-year Gantt calendar generator for [Miro](https://miro.com). Generates a co
 - **Embedded fonts** (IBM Plex Sans via Miro's `plex_sans`) for consistent rendering
 - **Progressive rendering** — first 3 months appear instantly, rest loads in background
 - **Non-destructive** — new calendars created alongside existing ones
+- **Rate-limit safe** — conservative batching (10 calls, 500ms gap) for multi-year calendars
+- **Miroverse** — [2-Year Template](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) available
 
 ## Quick Start
 

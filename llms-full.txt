@@ -117,13 +117,17 @@ A sidebar plugin for Miro boards (`miro-app/` directory). Generates multi-year G
 | generator.ts | Orchestrator — delegates to native-generator |
 | app.tsx | Panel UI (React settings form) |
 
-### Performance Optimizations
+### Performance & Rate Limit
 - No `.sync()` calls — styles passed in constructor
 - Merged horizontal lines (R3: 360→31, Gantt: 120→10 shapes)
-- BATCH_SIZE = 50 parallel API calls
+- BATCH_SIZE = 10, 500ms inter-batch delay — stays under 100K credits/min
 - Progressive rendering (3 months → zoom → rest)
 - Direct object storage for grouping (no `getById` loop)
+- 30s pre-group delay + 3× retry for group() call
 - SCALE = 16 for high-resolution zoom
+
+### Miroverse Template
+- [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) — ready-to-use, all native elements
 
 ## Roadmap
 

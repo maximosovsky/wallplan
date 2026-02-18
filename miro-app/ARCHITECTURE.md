@@ -146,12 +146,21 @@ User clicks "Generate ▶"
 |-----------|--------|
 | No `.sync()` calls | Styles passed in `createText()`/`createShape()` constructor |
 | Merged horizontal lines | R3: 360→31 shapes, Gantt: 120→10 shapes |
-| `BATCH_SIZE = 50` | 50 parallel `Promise.all()` calls per batch |
+| `BATCH_SIZE = 10` | 10 parallel `Promise.all()` calls per batch |
+| `BATCH_DELAY = 500ms` | 500ms pause between batches — stays under 100K credits/min |
 | Direct object storage | `allItems[]` stores Miro objects, no `getById()` loop for grouping |
 | Progressive rendering | 3 months → zoom → rest. UX feels ~3× faster |
 | Per-month batching | Box calendar ~40 elements/month, prevents API overload |
 
 Previous calendars are **not deleted** on re-generate — new calendars are created alongside existing ones.
+
+### Rate Limit Management
+
+Miro SDK has a 100,000 credits/minute rate limit. For large calendars (24+ months, ~3000 elements):
+
+1. **Conservative batching** — 10 concurrent calls, 500ms gap between batches
+2. **30s pre-group delay** — wait for rate limit to recover before `group()` call
+3. **3× retry with backoff** — if `group()` fails, retry after 20s; if error is "already grouped" (partial success), stop retrying
 
 ### Board Data Storage
 
@@ -244,6 +253,19 @@ Host `dist/` on any static server (Vercel, Netlify, GitHub Pages).
 - `identity:read` — user info
 
 ---
+
+## Miroverse Templates
+
+- [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) — published Feb 2026
+
+## Panel Footer
+
+The sidebar panel displays a credit footer:
+
+```
+osovsky.com/wallplan · Maxim Osovsky
+Licensed under CC BY-SA 4.0
+```
 
 ## Marketplace Submission
 
