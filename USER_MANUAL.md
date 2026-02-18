@@ -216,7 +216,6 @@ Each month column contains three sections, top to bottom:
 ## 🌐 Languages
 
 - **English**: [osovsky.com/wallplan](https://osovsky.com/wallplan/)
-- **Russian**: Available at `/for-kirill-specially-ru/`
 
 ---
 

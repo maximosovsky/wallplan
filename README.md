@@ -125,7 +125,6 @@ Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in i
 | `calendar.js` | SVG renderer, viewport, pan/zoom, export (EN) |
 | `style.css` | Miro-style UI, Moleskine palette, responsive layout |
 | `index.html` | Main app shell + GA4 tracking |
-| `for-kirill-specially-ru/` | Russian locale (separate JS + HTML, shared CSS/fonts, noindex) |
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
 | `og-image.png` | OG social preview image (1200×630) |
 | `USER_MANUAL.md` | Comprehensive user guide |

@@ -177,7 +177,6 @@ Optional temperature-based color encoding for month names and day labels. See [C
 - `llms-full.txt` — Full documentation in Markdown for AI ingestion
 - `manifest.json` — PWA manifest (name, theme, icon)
 - `vercel.json` — Rewrites, security headers
-- `for-kirill-specially-ru/` — Russian locale (separate JS + HTML)
 - `COLORS.md` — Month color palette reference (hex, names, rationale)
 
 ## SEO & Infrastructure

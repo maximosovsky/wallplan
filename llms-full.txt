@@ -76,8 +76,6 @@ Touch pan & pinch-to-zoom. iOS-like bottom toolbar with frosted glass effect sho
 ### Printing
 Long multi-year calendars can be printed at copy centers on engineering paper up to 1 meter wide with virtually infinite length. Custom print CSS — what you see is what you get. Ideal for working on strategies.
 
-### Russian Edition
-Localized calendar at /for-kirill-specially-ru/ with Russian holidays and emojis. Hidden from search engines (noindex).
 
 ## Architecture
 
@@ -86,7 +84,6 @@ Localized calendar at /for-kirill-specially-ru/ with Russian holidays and emojis
 | calendar.js | SVG renderer, viewport, pan/zoom, export (EN) |
 | style.css | Miro-style UI, Moleskine palette, responsive layout |
 | index.html | Main app shell + GA4 tracking |
-| for-kirill-specially-ru/ | Russian locale (separate JS + HTML, shared CSS/fonts) |
 | fonts/ | IBM Plex Sans (7 weights) + Copper Penny DTP |
 | og-image.png | Social preview image (1200×630) |
 | COLORS.md | Month color palette reference (hex values, climate rationale) |

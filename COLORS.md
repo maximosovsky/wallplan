@@ -1,4 +1,4 @@
-# 🎨 Month Color Palette
+# 🌡️ Month Color Palette
 
 **Temperature-based color encoding for WallPlan calendars**
 
@@ -44,6 +44,12 @@ Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec
 cold →→→→→→→→ warm →→→→ HOT →→→→ warm →→→→→→→→ cold
 ```
 
+### Temperature Chart
+
+The chart below maps each month's color against actual average temperatures. The orange band marks the **comfort zone (20–25°C)** — warm palette colors (green, red, orange, amber) fall inside or near this zone during May–September, while cold colors (black, indigo, blue) sit deep below zero in winter. The visual metaphor is literal: **color = temperature you feel**.
+
+<img src="temperature-color.png" alt="Temperature chart showing month colors mapped to seasonal temperatures with 20-25°C comfort zone" width="800">
+
 ---
 
 ## ⚙️ Usage
@@ -75,8 +81,6 @@ cold →→→→→→→→ warm →→→→ HOT →→→→ warm →→→�
 |------|------|
 | `calendar.js` | `MONTH_COLORS[]`, `toggleMonthColors()`, `_syncColorIcons()` |
 | `index.html` | Toggle button with `icon-mono` / `icon-color` SVGs |
-| `for-kirill-specially-ru/calendar-ru.js` | Same palette, RU locale |
-| `for-kirill-specially-ru/index.html` | Same toggle button, RU locale |
 | `miro-app/src/svg-renderer.ts` | Always-on colors for Miro board SVG |
 
 ---
