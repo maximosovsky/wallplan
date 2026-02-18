@@ -65,7 +65,7 @@ The palette reflects real Northern Hemisphere seasonal climate — warmth starts
 | Nov | #795548 | Brown | Bare trees |
 | Dec | #9E9E9E | Gray | Overcast, snow |
 
-All colors are from Google's Material Design palette. The first version of this color scheme was applied in the [original two-year calendar (October 2012)](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw), published in the Russian magazine «Жить интересно!».
+All colors are from Google's Material Design palette. The first version of this color scheme was applied in 2014 in the [2015–2020 calendar](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw), published in the Russian magazine «Жить интересно!».
 
 ### WallPlan Day
 January 11 — marked annually in Copper Penny DTP font with wine-colored accent (#6B2332).

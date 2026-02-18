@@ -11,7 +11,7 @@ When enabled, month names, day numbers, and day-of-week labels are colored accor
 
 The metaphor is simple: **color = temperature**. You feel the year at a glance.
 
-The first version of this color scheme was applied in the [original two-year calendar (October 2012)](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw), published in the Russian magazine [«Жить интересно!»](https://interesno.co/). That calendar marked the beginning of the WallPlan project.
+The first version of this color scheme was applied in 2014 in the [2015–2020 calendar](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw), published in the Russian magazine [«Жить интересно!»](https://interesno.co/). The WallPlan project itself started in 2012 with the first two-year calendar.
 
 <img src="color-weather.png" alt="Original 2012 calendar with temperature-based month colors" width="800">
 
@@ -85,7 +85,7 @@ cold →→→→→→→→ warm →→→→ HOT →→→→ warm →→→�
 
 - [Expanding Planning Horizons](https://osowski.medium.com/calendar-392272c97af3) — how multi-year calendars changed the way I plan
 - [Game: Strategy Visualization](https://osovsky.medium.com/game-5438c730a15e) — using wall calendars for strategic thinking
-- [Original two-year calendar (2012)](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) — the file where this color scheme was first applied
+- [2015–2020 calendar (made in 2014)](https://app.box.com/s/7yqyh8vfphq9hj2lg1jw) — the file where this color scheme was first applied
 - [Evgeniya Shamis on using the 2013–2014 calendar](https://youtu.be/y7rua9C81Ng?si=wgnVbWqXtwPECbqp) — [Evgeniya Shamis](https://www.linkedin.com/in/evgeniya-shamis-572316/) shares how she uses the printed calendar (gifted in 2012)
 
 ---
