@@ -22,6 +22,21 @@ Complete technical SEO: meta tags (title, description, keywords), OG + Twitter C
 ### ~~GitHub Topics ⚙️~~
 Added repository topics: `calendar`, `gantt`, `svg`, `pdf`, `wall-calendar`, `planner`, `javascript`, `planning-tool`.
 
+### ~~Month Color Palette 🌡️~~
+Temperature-based color encoding for month names, day numbers, and day-of-week labels. Material Design palette mapped to Northern Hemisphere climate. Toggle button (Itten wheel), URL parameter `&c=1`. Documented in [COLORS.md](./COLORS.md).
+
+### ~~Miro App — Phase 1: Setup ⚙️~~
+Scaffolded Miro App project with Vite + React + TypeScript. Registered app in Miro Developer Dashboard. Configured OAuth scopes (`boards:read`, `boards:write`). Local dev environment working.
+
+### ~~Miro App — Phase 2: Calendar Engine 🧮~~
+Ported core calendar logic to TypeScript (`calendar-engine.ts`). Pure functions: `generateMonths()`, `buildBoxWeeks()`, `getHolidays()`. Zero DOM dependencies.
+
+### ~~Miro App — Phase 3: Panel UI 🎨~~
+React settings panel (`app.tsx`) with Mirotone CSS. Controls: duration (years + months), start date, week start, Gantt rows (6/8/10/12), Hide Days toggle.
+
+### ~~Miro App — Phase 4: SVG Generator 🖼️~~
+Complete SVG renderer (`svg-renderer.ts`). 6-row layout (year header → month name → day list → Gantt grid → box header → box calendar). Google Fonts loaded at runtime, embedded as base64 `@font-face`. Month color palette with inline `style="fill:..."`. Hide Days mode with Gantt expansion. Calendar placed on board via `miro.board.createImage()`.
+
 ---
 
 ## 🟢 Easy (1–2 days)
@@ -115,10 +130,42 @@ Custom SVG sticker sets — like Telegram sticker packs. Users can create, impor
 
 **Why:** Virality and monetization. Users create and share packs → attract new users. Potential for paid premium packs (project management, education, fitness tracking). Turns WallPlan into a platform.
 
-### 10. Miro App
-Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards — "Universe" template style. Submit to [Miro Marketplace](https://miro.com/marketplace/). Requires Miro SDK, separate codebase, review process.
+---
 
-**Why:** 60M+ Miro users = built-in distribution channel. WallPlan as a native Miro template for roadmapping and project planning. Different audience (product managers, agile teams), different revenue model (Miro ecosystem).
+## 🔥 Priority: Miro App — Remaining Phases
+
+See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md) for full architecture. Current status: **Phases 1–4 complete** (setup, engine, panel, generator). Remaining:
+
+### M5. Production Deployment 🚀 (1–2 days)
+Build production bundle (`npm run build`). Deploy `dist/` to Vercel. Configure App URL in Miro Developer Dashboard to point to production. Test on a real Miro board with a free team.
+
+**Why:** Required before any user testing or marketplace submission. Currently runs only on localhost.
+
+### M6. Miroverse Template 📋 (1 day)
+Create a polished 12-month (Jan–Dec 2026) calendar on a public Miro board. Add instructional frame ("How to use WallPlan") + link to the full App. Submit to [Miroverse](https://miro.com/miroverse/) — community templates, no review, published immediately.
+
+**Why:** Instant visibility while the App goes through 6–8 week marketplace review. Free marketing through Miro search.
+
+### M7. Marketplace Submission 📝 (2–3 days)
+Prepare listing: title, description, screenshots (panel UI, generated calendar, close-up). Privacy policy URL, support email, app icon (128×128 SVG). Submit to [Miro Marketplace](https://miro.com/marketplace/).
+
+**Requirements checklist:**
+| Requirement | Status |
+|-------------|--------|
+| OAuth 2.0 authorization | ✅ |
+| HTTPS only (Vercel) | ☐ |
+| Privacy policy URL | ☐ |
+| Support email | ☐ |
+| App icon (128×128 SVG) | ☐ |
+| Marketplace listing (4 screenshots) | ☐ |
+| Mirotone CSS for UI | ✅ |
+
+**Review timeline:** 6–8 weeks after submission.
+
+**Why:** 60M+ Miro users = built-in distribution channel. WallPlan as a native Miro tool for roadmapping and project planning. Different audience (product managers, agile teams).
+
+### M8. Post-Launch Analytics 📊 (ongoing)
+Miro App Metrics Dashboard: total installs, daily active users, churn rate, user reviews. Iterate based on feedback.
 
 ---
 
@@ -126,8 +173,7 @@ Publish WallPlan as a Miro App / plugin. Use as a template inside Miro boards �
 - Stickers and images use the same SVG-based architecture
 - All creative tools work offline (localStorage), cloud sync requires Google Auth
 - GA4 alerts require a separate backend (Cloud Function or Zapier)
-- Miro App requires separate Miro SDK integration
-- Recommended build order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10
+- **Miro App is the current priority** — deploy → Miroverse template → marketplace submission
 
 ---
 
