@@ -43,6 +43,61 @@ Built production bundle, deployed to Vercel. App URL configured in Miro Develope
 ### ~~Miro App — Phase 6: Miroverse Template 📋~~
 Submitted "2-Year Timeline Gantt Calendar 2026–2027" to Miroverse. Categories: Diagramming, Strategy & Planning, Personal. Under review.
 
+### ~~Miro App — Phase 7: Native Generator 🧩~~ *(18 Feb 2026)*
+Replaced SVG image approach (`createImage()`) with native Miro board elements (`createShape()` + `createText()`) for full Miroverse template compatibility. SVG images are not editable by Miroverse users — native elements allow template consumers to modify, recolor, and extend the calendar.
+
+**Architecture:**
+- New `native-generator.ts` (411 lines) replaces SVG pipeline. Uses `calendar-engine.ts` (unchanged) for pure data generation.
+- `generateMonth()` extracted as reusable helper — creates all content for a single month column (R2–R6) in one batch.
+- Layout context (`LayoutCtx` interface) shared between main function and per-month helper.
+- Helper factories `txt()` and `shp()` wrap `miro.board.createText()` / `createShape()` — store created Miro objects directly in `allItems[]` array (avoids costly `getById()` re-fetching later).
+
+**6-row layout (same as SVG version):**
+| Row | Content | Implementation |
+|-----|---------|---------------|
+| R1 | Year number | `createText()`, fontSize 48, light gray, left-aligned with 15dp padding |
+| R2 | Month name | `createText()`, fontSize 48, Material Design month color palette, left-padded |
+| R3 | Day list (1–31) | Individual `createText()` per day: `" 5  Mon  5"` format (day, DOW, week number). Weekend/holiday text in red. Week separators = bold `createShape()` lines on Mondays. |
+| R4 | Gantt grid | Horizontal row lines (full-width merged shapes). Per-month vertical day dividers. Day-of-week letter + day number header (`M\n1`). Week numbers on Mondays (plain number, no "w" prefix). |
+| R5 | Box month name | `createText()`, fontSize 36, month color, left-padded |
+| R6 | Box calendar | 7-column grid: DOW headers (fontSize 18), day numbers (fontSize 16, centered), weekend red. Week number column left of grid (fontSize 10, right-aligned, light gray). |
+
+**Frame & grouping:**
+- `createFrame()` with title containing year range: `WallPlan 2026` (single year) or `WallPlan 2026–2027` (multi-year).
+- Background color: `#FDF6E3` (warm paper).
+- All created Miro objects stored in `allItems[]` during creation.
+- At the end, `miro.board.group({ items: allItems })` groups everything — no `getById()` loop needed.
+- Frame ID stored via `setAppData('wallplanIds', [frame.id])` for cleanup on re-generation.
+
+**Grid lines optimization — merged to full-width:**
+- R3 day separator lines: instead of 30 lines × 12 months (360 shapes total) → 31 full-width shapes spanning `totalW`. Borders (top/bottom) at full opacity, inner lines at 0.3 opacity.
+- Gantt horizontal row lines: instead of `rows × 12` per-month shapes → `rows + 1` full-width shapes. Top/bottom borders at full opacity, inner lines at 0.5.
+- Month borders (vertical): full-height shapes per month boundary. Year boundaries = 10dp width, quarter boundaries = 8dp `C.ink`, regular months = 8dp `C.cellLine`. Right edge = `C.ink`.
+- Week separators in R3 remain per-month (Mondays fall on different Y positions in each month — cannot merge).
+- Gantt vertical day dividers remain per-month (day column width `mW/numDays` varies with 28/29/30/31 days — X positions don't align across months).
+
+**Performance optimizations (7 applied, 2 rejected):**
+
+*Applied:*
+1. **No `.sync()` calls** — text styles (`fontSize`, `color`, `textAlign`, `fontFamily`) passed directly in `createText()` constructor via `style` property. Eliminates ~900 extra API round-trips (each `.sync()` = 1 SDK call).
+2. **Merged horizontal lines** — R3: 360 → 31 shapes (-329). Gantt: ~120 → ~10 shapes (-110). Total: **-440 shapes**.
+3. **`BATCH_SIZE` increased 20 → 50** — `batchCreate()` sends 50 parallel `Promise.all()` calls per batch. ~2.5× throughput vs batch-of-20.
+4. **Per-month box calendar batching** — box calendar (~40 elements/month) processed per-month instead of accumulating all ~500 elements in one giant batch. Prevents Miro API overload and silent failures.
+5. **Direct object storage for grouping** — `allItems[]` stores Miro objects returned by `createText()`/`createShape()`. Grouping uses these directly: `miro.board.group({ items: allItems })`. Eliminated `for (id of ids) { getById(id) }` loop that was **500+ sequential API calls** just for grouping.
+6. **Progressive rendering** — calendar generated in two phases: Phase 1 creates first 3 months → `zoomTo(frame)` (user sees results immediately). Phase 2 continues generating remaining months in background. UX feels ~3× faster.
+7. **`generateMonth()` helper** — all per-month content (R2 month name, R3 days, R4 Gantt, R5–R6 box) generated in one `batchCreate()` call per month, reducing overhead of multiple batch invocations.
+
+*Evaluated and rejected:*
+- **`Promise.allSettled`** — rejected because it silently swallows errors. User requirement: all elements must generate completely. With `allSettled`, missing elements would not trigger visible errors. `Promise.all` correctly fails fast.
+- **Combining box calendar columns** — rejected because Miro text elements don't support `line-height` CSS. Combined `<br>` text with fontSize 16 would produce ~24dp line spacing vs required 44dp (`boxCellH`). Days would not align with grid. Visual quality unacceptable.
+
+**Debugging journey:**
+- Initial error: `Validation error: Number must be greater than or equal to 8 at "width"` — Miro SDK requires ≥8dp for shape width/height. Fixed with `dim()` helper (later replaced by `LINE_W = 8` constant).
+- `type MonthData` import syntax failed on TypeScript 4.9.5 — removed type-only import.
+- `borderWidth: 0` invalid in Miro SDK — replaced with `borderOpacity: 0`.
+- Box calendar not generating — all ~500 elements were in one batch, overwhelming Miro API. Fixed by per-month batching.
+- Progress bar stuck at "Generating" — `onProgress(current, total)` callback used fractional `current` values, `steps[2.5]` = undefined. Fixed with range-based progress text.
+
 ---
 
 ## 🟢 Easy (1–2 days)

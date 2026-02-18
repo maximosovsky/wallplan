@@ -2,7 +2,7 @@
 
 ## Overview
 
-WallPlan Miro App is a sidebar plugin that generates multi-year Gantt calendars directly on a Miro board. The calendar is rendered as a single high-resolution SVG image with embedded fonts, placed on the board via the Miro Web SDK.
+WallPlan Miro App is a sidebar plugin that generates multi-year Gantt calendars directly on a Miro board. The calendar is rendered as **native Miro board elements** (text, shapes, frames) via the Miro Web SDK, making all elements fully editable by users.
 
 ## Stack
 
@@ -10,7 +10,7 @@ WallPlan Miro App is a sidebar plugin that generates multi-year Gantt calendars 
 - **UI Framework:** React + TypeScript
 - **Build Tool:** Vite
 - **Design System:** Mirotone CSS (official Miro UI kit)
-- **Fonts:** IBM Plex Sans (loaded at runtime, base64-embedded in SVG)
+- **Fonts:** IBM Plex Sans (`plex_sans` — native Miro font)
 
 ---
 
@@ -20,9 +20,10 @@ WallPlan Miro App is a sidebar plugin that generates multi-year Gantt calendars 
 src/
 ├── app.tsx              # Panel UI — settings form (React)
 ├── index.ts             # SDK entry point — registers panel
-├── generator.ts         # Orchestrator — SVG → Miro board image
+├── generator.ts         # Orchestrator — delegates to native-generator
+├── native-generator.ts  # Native Miro elements builder (text, shapes, frames)
 ├── calendar-engine.ts   # Pure date logic — no DOM, no SVG
-├── svg-renderer.ts      # SVG string builder — layout + rendering
+├── svg-renderer.ts      # SVG string builder (legacy, kept for reference)
 └── assets/
     └── style.css        # Panel style overrides (Mirotone extensions)
 ```
@@ -30,9 +31,11 @@ src/
 ### Dependency Flow
 
 ```
-app.tsx → generator.ts → svg-renderer.ts → calendar-engine.ts
-                  ↓
-            miro.board.createImage()
+app.tsx → generator.ts → native-generator.ts → calendar-engine.ts
+                                ↓
+                    miro.board.createText()
+                    miro.board.createShape()
+                    miro.board.createFrame()
 ```
 
 ---
@@ -111,25 +114,9 @@ const C = {
 
 ## Font System
 
-Fonts are loaded at runtime from Google Fonts CDN, converted to base64, and embedded directly into the SVG via `@font-face` declarations. This ensures correct rendering in Miro (which processes SVG as a raster image).
+Native Miro text elements use the built-in `plex_sans` font family (IBM Plex Sans). No font loading or embedding is needed — Miro handles font rendering natively.
 
-### Loading Pipeline
-
-```
-1. Fetch CSS from fonts.googleapis.com (woff2 URLs)
-2. Fetch each .woff2 binary
-3. Convert ArrayBuffer → base64 string
-4. Cache in module-level variable (_fontsLoaded)
-5. Inject as <style>@font-face{...}</style> into SVG <defs>
-```
-
-### Font Variants Used
-
-| Family         | Weight | Usage                      |
-|---------------|--------|----------------------------|
-| IBM Plex Sans | 300    | Day numbers, grid labels   |
-| IBM Plex Sans | 400    | Month names, general text  |
-| IBM Plex Sans | 700    | Year headers, emphasis     |
+> **Note:** Copper Penny DTP (used for WallPlan Day in the web version) is not available in Miro SDK. WallPlan Day labels use `plex_sans` instead.
 
 ---
 
@@ -137,21 +124,25 @@ Fonts are loaded at runtime from Google Fonts CDN, converted to base64, and embe
 
 ```
 User clicks "Generate ▶"
-  1. loadFonts()              — fetch & cache Google Fonts as base64
-  2. renderCalendarSVG()      — build complete SVG string
-     ├── generateMonths()     — date math, holidays, box weeks
-     ├── Build R1–R6 for each month column
-     └── Assemble SVG with embedded fonts
-  3. svgToDataUrl()           — encode SVG as data:image/svg+xml URI
-  4. miro.board.createImage() — place on board
+  1. clearCalendar()              — remove previous elements
+  2. generateMonths()             — date math, holidays, box weeks
+  3. Build item definitions       — text, shape, frame objects for R1–R6
+  4. Batch create on Miro board   — groups of 20, 120ms delay between batches
+     ├── miro.board.createFrame()  — background frame
+     ├── miro.board.createText()   — labels, day numbers, month names
+     └── miro.board.createShape()  — grid lines, borders (thin rectangles)
   5. miro.board.viewport.zoomTo() — focus viewport
-  6. Store image ID in board appData for cleanup
+  6. Store all item IDs in board appData for cleanup
 ```
+
+### Rate Limiting
+
+Miro SDK has Level 1 rate limiting (~100 API calls/sec). Items are batched in groups of 20 with `Promise.all()`, with a 120ms delay between batches. A 12-month calendar generates ~1000–1500 elements.
 
 ### Board Data Storage
 
 ```typescript
-await miro.board.setAppData('wallplanIds', [imageId]);
+await miro.board.setAppData('wallplanIds', [...allItemIds]);
 ```
 
 Used by `clearCalendar()` to remove previously generated calendars.

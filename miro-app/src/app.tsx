@@ -37,8 +37,10 @@ const App: React.FC = () => {
         startYear,
         startMonth,
         onProgress: (current, total) => {
-          const steps = ['', 'Loading fonts...', 'Rendering SVG...', 'Encoding...', 'Placing on board...', 'Done!'];
-          setProgress(steps[current] || `Step ${current}/${total}`);
+          if (current <= 1) setProgress('Preparing layout...');
+          else if (current < 3.5) setProgress(`Creating elements... ${Math.round((current - 1) / 2.5 * 100)}%`);
+          else if (current < 4) setProgress('Finishing up...');
+          else setProgress('Done! ✓');
         },
       });
 
