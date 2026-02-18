@@ -149,6 +149,13 @@ See [architecture.md](./architecture.md) for detailed technical documentation on
 
 </details>
 
+## 🙏 Acknowledgements
+
+- [Michael Kvrivishvili](https://www.linkedin.com/in/michael-kvrivishvili-39ab062/) — designer of the official Boston Metro map, built the WallPlan calendar generator
+- [Elena Rychagova](https://www.linkedin.com/in/%D0%B5%D0%BB%D0%B5%D0%BD%D0%B0-%D1%80%D1%8B%D1%87%D0%B0%D0%B3%D0%BE%D0%B2%D0%B0-15886989/) — editor at [Scriber](https://scriber.biz/), published the original calendar in «Жить интересно!» magazine
+- [Evgeniya Shamis](https://www.linkedin.com/in/evgeniya-shamis-572316/) — [reviewed](https://youtu.be/y7rua9C81Ng?si=wgnVbWqXtwPECbqp) the printed 2013–2014 calendar
+- [Ira Korzun](https://www.linkedin.com/in/korzunira/) — designer at [Fishcard](https://fishcard.me), created the patchwork desk background
+
 ---
 
 ## 📄 License
