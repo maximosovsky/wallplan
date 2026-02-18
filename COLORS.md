@@ -19,20 +19,22 @@ The first version of this color scheme was applied in the [original two-year cal
 
 ## 🗺️ Color Map
 
-| #  | Month     | Hex       | Color        | Rationale                          |
-|----|-----------|-----------|--------------|-------------------------------------|
-| 1  | January   | `#212121` | Black        | Darkest, coldest month              |
-| 2  | February  | `#3F51B5` | Indigo       | Deep winter cold                    |
-| 3  | March     | `#9C27B0` | Purple       | Transition — still cold, awakening  |
-| 4  | April     | `#2196F3` | Blue         | Cool spring, melting snow           |
-| 5  | May       | `#4CAF50` | Green        | Nature blooms, warmth arrives       |
-| 6  | June      | `#8BC34A` | Lime         | Warm, lush greenery                 |
-| 7  | July      | `#F44336` | Red          | Peak heat 🔥                        |
-| 8  | August    | `#FF9800` | Orange       | Hot, late summer                    |
-| 9  | September | `#FFC107` | Amber        | Warm fading, golden light           |
-| 10 | October   | `#A1887F` | Light Brown  | Autumn leaves, cooling              |
-| 11 | November  | `#795548` | Brown        | Late autumn, bare trees             |
-| 12 | December  | `#9E9E9E` | Gray         | Cold, overcast skies                |
+The palette reflects real Northern Hemisphere climate — warmth starts only in May, just like in real life. April's blue emphasizes that spring ≠ warmth.
+
+| #  | Month     | Hex       | Color        | Meaning                                        |
+|----|-----------|-----------|--------------|------------------------------------------------|
+| 1  | January   | `#212121` | Black        | Dead cold, darkness — the darkest month        |
+| 2  | February  | `#3F51B5` | Indigo       | Deep winter cold                               |
+| 3  | March     | `#9C27B0` | Purple       | First crocuses, but still cold                 |
+| 4  | April     | `#2196F3` | Blue         | Cool rain, melting snow — spring ≠ warmth      |
+| 5  | May       | `#4CAF50` | Green        | Finally warm, nature comes alive               |
+| 6  | June      | `#8BC34A` | Lime         | Summer — lush, everything green                |
+| 7  | July      | `#F44336` | Red          | Peak heat 🔥                                    |
+| 8  | August    | `#FF9800` | Orange       | Hot, but the peak is over                      |
+| 9  | September | `#FFC107` | Amber        | Golden autumn, warm fading light               |
+| 10 | October   | `#A1887F` | Light Brown  | Falling leaves, cooling                        |
+| 11 | November  | `#795548` | Brown        | Bare trees, late autumn                        |
+| 12 | December  | `#9E9E9E` | Gray         | Overcast skies, snow                           |
 
 ### Visual Cycle
 
@@ -41,27 +43,6 @@ Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec
  ⬛   🟦   🟪   🔵   🟩   🟢   🔴   🟠   🟡   🟫   🟫   ⬜
 cold →→→→→→→→ warm →→→→ HOT →→→→ warm →→→→→→→→ cold
 ```
-
----
-
-## 🌡️ Climate Interpretation
-
-The palette reflects real Northern Hemisphere climate — warmth starts only in May, just like in real life. April's blue emphasizes that spring ≠ warmth.
-
-| Month | Color | Meaning |
-|-------|-------|---------|
-| Янв ⬛ | Black | Dead cold, darkness |
-| Фев 💙 | Indigo | Winter depth |
-| Мар 💜 | Purple | Crocuses! First flowers, but still cold |
-| Апр 🔵 | Blue | Still cold, rain |
-| Май 💚 | Green | Finally warm, nature comes alive |
-| Июн 🌱 | Lime | Summer, everything lush |
-| Июл ❤️ | Red | HEAT! |
-| Авг 🧡 | Orange | Hot, but peak is over |
-| Сен 💛 | Amber | Golden autumn |
-| Окт 🍂 | Light Brown | Falling leaves |
-| Ноя 🪵 | Brown | Bare trees |
-| Дек ⬜ | Gray | Overcast, snow |
 
 ---
 
