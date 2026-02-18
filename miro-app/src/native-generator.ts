@@ -386,10 +386,18 @@ export async function generateNativeCalendar(settings: NativeGeneratorSettings):
     onProgress?.(3.8, 4);
     await miro.board.setAppData('wallplanIds', [frame.id]);
 
-    // ══ 8. Group all ══
-    try {
-        if (allItems.length >= 2) await miro.board.group({ items: allItems });
-    } catch (e) { console.warn('Group failed:', e); }
+    // ══ 8. Group all (with rate-limit retry) ══
+    const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+    await delay(5000); // wait for rate limit to recover
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            if (allItems.length >= 2) await miro.board.group({ items: allItems });
+            break;
+        } catch (e) {
+            console.warn(`Group attempt ${attempt}/3 failed:`, e);
+            if (attempt < 3) await delay(10000); // wait 10s before retry
+        }
+    }
 
     // ══ 9. Final zoom ══
     await miro.board.viewport.zoomTo(frame);
