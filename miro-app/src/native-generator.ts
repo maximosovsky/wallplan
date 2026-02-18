@@ -392,14 +392,17 @@ export async function generateNativeCalendar(settings: NativeGeneratorSettings):
 
     // ══ 8. Group all (with rate-limit retry) ══
     const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
-    await delay(15000); // 15s — wait for rate limit to fully recover
+    await delay(30000); // 30s — wait for rate limit to fully recover
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
             if (allItems.length >= 2) await miro.board.group({ items: allItems });
             break;
-        } catch (e) {
+        } catch (e: any) {
+            const msg = String(e?.message || e);
+            // If items are already grouped (partial success), stop retrying
+            if (msg.includes('ungrouped')) { console.log('Items already grouped'); break; }
             console.warn(`Group attempt ${attempt}/3 failed:`, e);
-            if (attempt < 3) await delay(15000); // 15s before retry
+            if (attempt < 3) await delay(20000); // 20s before retry
         }
     }
 
