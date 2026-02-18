@@ -37,6 +37,9 @@ React settings panel (`app.tsx`) with Mirotone CSS. Controls: duration (years + 
 ### ~~Miro App — Phase 4: SVG Generator 🖼️~~
 Complete SVG renderer (`svg-renderer.ts`). 6-row layout (year header → month name → day list → Gantt grid → box header → box calendar). Google Fonts loaded at runtime, embedded as base64 `@font-face`. Month color palette with inline `style="fill:..."`. Hide Days mode with Gantt expansion. Calendar placed on board via `miro.board.createImage()`.
 
+### ~~Miro App — Phase 5: Production Deployment 🚀~~
+Built production bundle, deployed to Vercel. App URL configured in Miro Developer Dashboard. Tested on real Miro board.
+
 ---
 
 ## 🟢 Easy (1–2 days)
@@ -134,15 +137,12 @@ Custom SVG sticker sets — like Telegram sticker packs. Users can create, impor
 
 ## 🔥 Priority: Miro App — Remaining Phases
 
-See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md) for full architecture. Current status: **Phases 1–4 complete** (setup, engine, panel, generator). Remaining:
-
-### M5. Production Deployment 🚀 (1–2 days)
-Build production bundle (`npm run build`). Deploy `dist/` to Vercel. Configure App URL in Miro Developer Dashboard to point to production. Test on a real Miro board with a free team.
-
-**Why:** Required before any user testing or marketplace submission. Currently runs only on localhost.
+See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md) for full architecture. Current status: **Phases 1–5 complete** (setup, engine, panel, generator, deployment). Remaining:
 
 ### M6. Miroverse Template 📋 (1 day)
 Create a polished 12-month (Jan–Dec 2026) calendar on a public Miro board. Add instructional frame ("How to use WallPlan") + link to the full App. Submit to [Miroverse](https://miro.com/miroverse/) — community templates, no review, published immediately.
+
+- [ ] Record English demo video (1–2 min screencast) for Miroverse listing
 
 **Why:** Instant visibility while the App goes through 6–8 week marketplace review. Free marketing through Miro search.
 

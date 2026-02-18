@@ -11,7 +11,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 
 **Zero dependencies · No login · 100% private**
 
-<img src="og-image.png" alt="WallPlan Preview" width="600">
+<img src="Cover-Image.jpeg" alt="WallPlan Preview" width="600">
 
 </div>
 
