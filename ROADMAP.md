@@ -40,6 +40,9 @@ Complete SVG renderer (`svg-renderer.ts`). 6-row layout (year header → month n
 ### ~~Miro App — Phase 5: Production Deployment 🚀~~
 Built production bundle, deployed to Vercel. App URL configured in Miro Developer Dashboard. Tested on real Miro board.
 
+### ~~Miro App — Phase 6: Miroverse Template 📋~~
+Submitted "2-Year Timeline Gantt Calendar 2026–2027" to Miroverse. Categories: Diagramming, Strategy & Planning, Personal. Under review.
+
 ---
 
 ## 🟢 Easy (1–2 days)
@@ -137,14 +140,7 @@ Custom SVG sticker sets — like Telegram sticker packs. Users can create, impor
 
 ## 🔥 Priority: Miro App — Remaining Phases
 
-See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md) for full architecture. Current status: **Phases 1–5 complete** (setup, engine, panel, generator, deployment). Remaining:
-
-### M6. Miroverse Template 📋 (1 day)
-Create a polished 12-month (Jan–Dec 2026) calendar on a public Miro board. Add instructional frame ("How to use WallPlan") + link to the full App. Submit to [Miroverse](https://miro.com/miroverse/) — community templates, no review, published immediately.
-
-- [ ] Record English demo video (1–2 min screencast) for Miroverse listing
-
-**Why:** Instant visibility while the App goes through 6–8 week marketplace review. Free marketing through Miro search.
+See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md) for full architecture. Current status: **Phases 1–6 complete** (setup, engine, panel, generator, deployment, Miroverse). Remaining:
 
 ### M7. Marketplace Submission 📝 (2–3 days)
 Prepare listing: title, description, screenshots (panel UI, generated calendar, close-up). Privacy policy URL, support email, app icon (128×128 SVG). Submit to [Miro Marketplace](https://miro.com/marketplace/).
