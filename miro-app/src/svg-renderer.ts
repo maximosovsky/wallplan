@@ -38,6 +38,22 @@ const FS = {
     boxWk: 4,     // R6: box week numbers
 };
 
+// Temperature-based month colors (index 0=Jan … 11=Dec)
+const MONTH_COLORS = [
+    '#212121',    // Jan — black
+    '#3F51B5',    // Feb — indigo
+    '#9C27B0',    // Mar — purple
+    '#2196F3',    // Apr — blue
+    '#4CAF50',    // May — green (warm)
+    '#8BC34A',    // Jun — lime (warm)
+    '#F44336',    // Jul — red (hot!)
+    '#FF9800',    // Aug — orange (hot)
+    '#FFC107',    // Sep — amber (warm)
+    '#A1887F',    // Oct — light brown (autumn)
+    '#795548',    // Nov — brown (late autumn)
+    '#9E9E9E',    // Dec — gray (coldest)
+];
+
 export interface RenderSettings {
     months: number;
     rows: number;
@@ -198,8 +214,9 @@ export function renderCalendarSVG(settings: RenderSettings, fonts: FontData[]): 
             parts.push(`<text x="${xCol + 10}" y="${yearH - 2}" font-size="${FS.year}" font-weight="200" letter-spacing="-0.03em" class="year">${m.year}</text>`);
         }
 
-        // R2: Month name
-        parts.push(`<text x="${xCol + 10}" y="${yearH + monthH - 10}" font-size="${FS.verMonth}" font-weight="200" letter-spacing="-0.025em">${m.name}</text>`);
+        // R2: Month name (colored by temperature)
+        const monthColor = MONTH_COLORS[m.month] || C.ink;
+        parts.push(`<text x="${xCol + 10}" y="${yearH + monthH - 10}" font-size="${FS.verMonth}" font-weight="200" letter-spacing="-0.025em" style="fill:${monthColor}">${m.name}</text>`);
 
         // R3: Day rows
         if (!hideDays) {
@@ -209,12 +226,13 @@ export function renderCalendarSVG(settings: RenderSettings, fonts: FontData[]): 
                 const isHoliday = !!day.holiday;
                 const cls = isWPDay ? 'wpday' : (isHoliday || day.isWeekend) ? 'red' : '';
 
-                // Day number
-                parts.push(`<text x="${xCol + 6}" y="${rowY + verRowH - 2}" font-size="${FS.dayNum}" ${cls ? `class="${cls}"` : ''}>${String(day.day).padStart(2, '\u00A0')}</text>`);
+                // Day number (month color for weekdays, red for weekends)
+                const dayFill = (isWPDay || isHoliday || day.isWeekend) ? '' : ` style="fill:${monthColor}"`;
+                parts.push(`<text x="${xCol + 6}" y="${rowY + verRowH - 2}" font-size="${FS.dayNum}" ${cls ? `class="${cls}"` : ''}${dayFill}>${String(day.day).padStart(2, '\u00A0')}</text>`);
 
-                // Day of week
+                // Day of week (month color for weekdays)
                 const dowNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                parts.push(`<text x="${xCol + 22}" y="${rowY + verRowH - 3}" font-size="${FS.dayDow}" letter-spacing="0.05em" ${cls ? `class="${cls}"` : ''}>${dowNames[day.dow]}</text>`);
+                parts.push(`<text x="${xCol + 22}" y="${rowY + verRowH - 3}" font-size="${FS.dayDow}" letter-spacing="0.05em" ${cls ? `class="${cls}"` : ''}${dayFill}>${dowNames[day.dow]}</text>`);
 
                 // Week number
                 if (day.weekNum !== undefined) {
@@ -270,8 +288,8 @@ export function renderCalendarSVG(settings: RenderSettings, fonts: FontData[]): 
             }
         }
 
-        // R5: Box month name
-        parts.push(`<text x="${xCol + 10}" y="${yBoxName + r5H - 12}" font-size="${FS.boxMonth}" font-weight="300" letter-spacing="-0.02em">${m.name}</text>`);
+        // R5: Box month name (colored)
+        parts.push(`<text x="${xCol + 10}" y="${yBoxName + r5H - 12}" font-size="${FS.boxMonth}" font-weight="300" letter-spacing="-0.02em" style="fill:${monthColor}">${m.name}</text>`);
 
         // R6: Box calendar
         const boxGridW = mW * 0.85;

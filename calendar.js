@@ -142,6 +142,24 @@ const COLORS = {
 	cellLine: '#999999',
 };
 
+// Temperature-based month colors (index 0 unused, 1=Jan … 12=Dec)
+const MONTH_COLORS = [
+	'',           // 0 — unused
+	'#212121',    // 1  Jan — black
+	'#3F51B5',    // 2  Feb — indigo
+	'#9C27B0',    // 3  Mar — purple
+	'#2196F3',    // 4  Apr — blue
+	'#4CAF50',    // 5  May — green (warm)
+	'#8BC34A',    // 6  Jun — lime (warm)
+	'#F44336',    // 7  Jul — red (hot!)
+	'#FF9800',    // 8  Aug — orange (hot)
+	'#FFC107',    // 9  Sep — amber (warm)
+	'#A1887F',    // 10 Oct — light brown (autumn)
+	'#795548',    // 11 Nov — brown (late autumn)
+	'#9E9E9E',    // 12 Dec — gray (coldest)
+];
+let useMonthColors = false;
+
 // ─── SVG Calendar Generator ───
 function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxMonthsPerPage = 0) {
 	const { days: WEEK_DAYS, narrow: WEEK_DAYS_NARROW, offset: wsOffset } = getOrderedDays(weekStart);
@@ -332,12 +350,15 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}, svg).textContent = m.year;
 		}
 
-		// ── R2: Month name ──
-		svgEl('text', {
+		// ── R2: Month name (colored by temperature) ──
+		const monthColor = useMonthColors ? (MONTH_COLORS[m.monthNum] || COLORS.ink) : COLORS.ink;
+		const monthNameEl = svgEl('text', {
 			x: xCursor + 10, y: yMonth + r2H - 10,
 			'font-size': F.verMonth, 'font-weight': '200',
 			'letter-spacing': '-0.025em',
-		}, svg).textContent = m.name;
+		}, svg);
+		monthNameEl.textContent = m.name;
+		if (useMonthColors) monthNameEl.style.fill = monthColor;
 
 		// ── R3: Vertical calendar (31 rows) ──
 		if (!hideDays) {
@@ -348,19 +369,23 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 				if (dayData) {
 					const textClass = dayData.isWeekend ? 'red' : '';
 
-					// Day number
-					svgEl('text', {
+					// Day number (month color for weekdays, red for weekends)
+					const dayEl = svgEl('text', {
 						x: xCursor + 6, y: rowY + L.verRowH - 2,
 						'font-size': '9',
 						class: textClass,
-					}, svg).textContent = dayData.day;
+					}, svg);
+					dayEl.textContent = dayData.day;
+					if (useMonthColors && !dayData.isWeekend) dayEl.style.fill = monthColor;
 
-					// Day of week
-					svgEl('text', {
+					// Day of week (month color for weekdays)
+					const dowEl = svgEl('text', {
 						x: xCursor + 22, y: rowY + L.verRowH - 3,
 						'font-size': '5.5', 'letter-spacing': '0.05em',
 						class: textClass,
-					}, svg).textContent = WEEK_DAYS_BASE[dayData.rawDow];
+					}, svg);
+					dowEl.textContent = WEEK_DAYS_BASE[dayData.rawDow];
+					if (useMonthColors && !dayData.isWeekend) dowEl.style.fill = monthColor;
 
 					// Bottom border → batch path
 					const by = rowY + L.verRowH;
@@ -487,12 +512,14 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}
 		} // end if (!hideDays) R4
 
-		// ── R5: Box calendar month name ──
-		svgEl('text', {
+		// ── R5: Box calendar month name (colored) ──
+		const boxMonthEl = svgEl('text', {
 			x: xCursor + 10, y: yBoxName + r5H - 12,
 			'font-size': F.boxMonth, 'font-weight': '300',
 			'letter-spacing': '-0.02em',
-		}, svg).textContent = m.name;
+		}, svg);
+		boxMonthEl.textContent = m.name;
+		if (useMonthColors) boxMonthEl.style.fill = monthColor;
 
 		// ── R6: Box calendar grid ──
 		{
@@ -649,6 +676,7 @@ function init() {
 	let weekStart = params.get('w') || 'sun';
 	yearsMode = params.get('u') === 'y';
 	hideDays = params.get('d') === '1';
+	useMonthColors = params.get('c') === '1';
 
 	if (emptyRows < 5 || emptyRows > 15) emptyRows = 10;
 	if (weekStart !== 'mon') weekStart = 'sun';
@@ -677,6 +705,13 @@ function init() {
 		if (mhBtn) mhBtn.classList.add('active');
 	}
 
+	// Sync color toggle button
+	if (useMonthColors) {
+		const cBtn = document.getElementById('color-toggle-btn');
+		if (cBtn) cBtn.classList.add('active');
+	}
+	_syncColorIcons();
+
 	buildPages(totalMonths, emptyRows, weekStart);
 	// Cache static UI elements for repeated use
 	_ui.sizeChips = Array.from(document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]'));
@@ -700,9 +735,25 @@ function updateCalendar() {
 	url.searchParams.set('w', weekStart);
 	url.searchParams.delete('u');
 	if (hideDays) url.searchParams.set('d', '1'); else url.searchParams.delete('d');
+	if (useMonthColors) url.searchParams.set('c', '1'); else url.searchParams.delete('c');
 	window.history.replaceState({}, '', url);
 
 	buildPages(totalMonths, rows, weekStart);
+}
+
+function toggleMonthColors() {
+	useMonthColors = !useMonthColors;
+	const btn = document.getElementById('color-toggle-btn');
+	if (btn) btn.classList.toggle('active', useMonthColors);
+	_syncColorIcons();
+	updateCalendar();
+}
+
+function _syncColorIcons() {
+	const mono = document.getElementById('icon-mono');
+	const color = document.getElementById('icon-color');
+	if (mono) mono.style.display = useMonthColors ? 'none' : '';
+	if (color) color.style.display = useMonthColors ? '' : 'none';
 }
 
 function toggleRowsSlider() {
@@ -758,6 +809,7 @@ const viewport = {
 	top: 10 * MM_PX,
 	zoom: 1,
 };
+let bgOffX = 0, bgOffY = 0;  // background origin — only updated during zoom
 
 const PAPER_SIZES = {
 	a4: { w: 297, h: 210 },
@@ -1107,10 +1159,11 @@ function applyViewport() {
 		}
 	}
 
-	// Sync desk background size with viewport zoom
+	// Sync desk background with viewport zoom (position only changes on zoom, not pan)
 	const bgBase = 400;
 	const bgSize = bgBase * viewport.zoom;
 	document.body.style.backgroundSize = bgSize + 'px ' + bgSize + 'px';
+	document.body.style.backgroundPosition = bgOffX + 'px ' + bgOffY + 'px';
 
 	drawRulers();
 }
@@ -1936,6 +1989,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		const mouseY = e.clientY;
 		const worldPxX = (mouseX - viewport.left) / viewport.zoom;
 		const worldPxY = (mouseY - viewport.top) / viewport.zoom;
+		// Keep background texture in sync with zoom origin
+		bgOffX = mouseX - (mouseX - bgOffX) * (newZoom / viewport.zoom);
+		bgOffY = mouseY - (mouseY - bgOffY) * (newZoom / viewport.zoom);
 		viewport.zoom = newZoom;
 		viewport.left = mouseX - worldPxX * newZoom;
 		viewport.top = mouseY - worldPxY * newZoom;
@@ -1982,6 +2038,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			const newZoom = Math.max(0.05, Math.min(10, pinchStartZoom * (dist / pinchStartDist)));
 			const worldPxX = (pinchCenterX - viewport.left) / viewport.zoom;
 			const worldPxY = (pinchCenterY - viewport.top) / viewport.zoom;
+			bgOffX = pinchCenterX - (pinchCenterX - bgOffX) * (newZoom / viewport.zoom);
+			bgOffY = pinchCenterY - (pinchCenterY - bgOffY) * (newZoom / viewport.zoom);
 			viewport.zoom = newZoom;
 			viewport.left = pinchCenterX - worldPxX * newZoom;
 			viewport.top = pinchCenterY - worldPxY * newZoom;

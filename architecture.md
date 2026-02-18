@@ -68,6 +68,16 @@ Grid lines are collected as path data strings during the month loop and emitted 
 | Quarter | 0.75pt | black |
 | Year | 1pt | black |
 
+#### Month Color Palette
+
+Optional temperature-based color encoding for month names and day labels. See [COLORS.md](./COLORS.md) for full palette reference.
+
+- **Toggle**: toolbar button switches concentric circles icon (off) ↔ Itten color wheel (on)
+- **URL persistence**: `?c=1` enables colors
+- **CSS override**: uses `element.style.fill` (inline) to beat `text { fill: ... }` rule
+- **Weekend exception**: weekend days stay red (`#C41E3A`) regardless of month color
+- **Synced across**: EN, RU, and Miro app (always-on in Miro)
+
 ### 2. Page Building & Copies
 
 **`buildPages(totalMonths, emptyRows, weekStart)`**
@@ -168,6 +178,7 @@ Grid lines are collected as path data strings during the month loop and emitted 
 - `manifest.json` — PWA manifest (name, theme, icon)
 - `vercel.json` — Rewrites, security headers
 - `for-kirill-specially-ru/` — Russian locale (separate JS + HTML)
+- `COLORS.md` — Month color palette reference (hex, names, rationale)
 
 ## SEO & Infrastructure
 

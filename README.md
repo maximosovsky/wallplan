@@ -48,6 +48,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **PDF & SVG export** | Embedded IBM Plex Sans fonts, parallel font loading |
 | **Custom entries** | Add annotations via **W** button: `DD.MM` format, yearly repeat, exported to SVG/PDF |
 | **Holidays** | US Federal Holidays, WallPlan Day (Jan 11) in Copper Penny DTP font |
+| **Month colors** | Temperature-based [color palette](./COLORS.md) — toggle via toolbar button. URL: `&c=1` |
 | **Week start** | Monday or Sunday toggle |
 | **Gantt rows** | 6, 8, 10, or 12 configurable rows |
 | **Mobile-first** | 6-column grid toolbar with frosted glass, settings sheet, scroll-wheel pickers |
@@ -84,6 +85,7 @@ Or visit the live version:
 | **6 / 8 / 10 / 12** | Number of Gantt rows |
 | **Mon / Sun** | Week start toggle |
 | **Hide Days** | Toggle day-level details on/off |
+| **🎨 Colors** | Toggle month temperature colors (Itten wheel = on, concentric circles = off) |
 | **W button** | Add custom entry modal (cherry-red Copper Penny DTP logo) |
 | **⬇ SVG / 🖨 PDF** | Export |
 | **Mouse wheel** | Zoom in/out |
@@ -127,6 +129,7 @@ Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in i
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
 | `og-image.png` | OG social preview image (1200×630) |
 | `USER_MANUAL.md` | Comprehensive user guide |
+| `COLORS.md` | Month color palette reference (hex, names, rationale) |
 
 See [architecture.md](./architecture.md) for full technical details. See [USER_MANUAL.md](./USER_MANUAL.md) for the user guide.
 
