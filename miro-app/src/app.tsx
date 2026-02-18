@@ -170,6 +170,22 @@ const App: React.FC = () => {
           {generating ? 'Generating...' : 'Generate ▶'}
         </button>
       </div>
+
+      {/* Footer */}
+      <div className="cs1 ce12" style={{ marginTop: '24px', borderTop: '1px solid #e3e3e1', paddingTop: '12px' }}>
+        <p style={{ fontSize: '10px', color: '#999', textAlign: 'center', margin: 0 }}>
+          <a href="https://osovsky.com/wallplan" target="_blank" rel="noopener" style={{ color: '#81D8D0' }}>
+            osovsky.com/wallplan
+          </a>
+          {' · Maxim Osovsky'}
+        </p>
+        <p style={{ fontSize: '10px', color: '#999', textAlign: 'center', margin: '2px 0 0' }}>
+          {'Licensed under '}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style={{ color: '#81D8D0' }}>
+            CC BY-SA 4.0
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
