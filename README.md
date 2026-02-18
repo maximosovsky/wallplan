@@ -58,6 +58,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Print optimized** | Custom print CSS — what you see is what you get |
 | **Private** | All data stays in browser, never sent anywhere |
 | **Zero dependencies** | No npm, no framework, pure vanilla JS |
+| **Miro App** | Native Miro board elements via [miro-app](./miro-app/) — progressive rendering, batch optimized |
 
 ---
 
@@ -126,7 +127,7 @@ Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in i
 | `style.css` | Miro-style UI, Moleskine palette, responsive layout |
 | `index.html` | Main app shell + GA4 tracking |
 | `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
-| `og-image.png` | OG social preview image (1200×630) |
+| `og-image.jpg` | OG social preview image (1200×630) |
 | `USER_MANUAL.md` | Comprehensive user guide |
 | `COLORS.md` | Month color palette reference (hex, names, rationale) |
 

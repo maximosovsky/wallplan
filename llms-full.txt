@@ -85,7 +85,7 @@ Long multi-year calendars can be printed at copy centers on engineering paper up
 | style.css | Miro-style UI, Moleskine palette, responsive layout |
 | index.html | Main app shell + GA4 tracking |
 | fonts/ | IBM Plex Sans (7 weights) + Copper Penny DTP |
-| og-image.png | Social preview image (1200×630) |
+| og-image.jpg | Social preview image (1200×630) |
 | COLORS.md | Month color palette reference (hex values, climate rationale) |
 
 ## Technical Details
@@ -99,6 +99,30 @@ Long multi-year calendars can be printed at copy centers on engineering paper up
 - Zero external dependencies — no npm, no frameworks
 - Google Analytics GA4 tracking
 
+## Miro App
+
+A sidebar plugin for Miro boards (`miro-app/` directory). Generates multi-year Gantt calendars as **native Miro board elements** (text, shapes, frames) — fully editable by users.
+
+### Tech Stack
+- TypeScript + React, Vite, Miro Web SDK 2.0, Mirotone CSS
+- Font: IBM Plex Sans (`plex_sans` — native Miro font)
+
+### Key Files
+| File | Purpose |
+|------|---------|
+| native-generator.ts | Creates calendar as native shapes + text on Miro board |
+| calendar-engine.ts | Pure date math (shared with web version) |
+| generator.ts | Orchestrator — delegates to native-generator |
+| app.tsx | Panel UI (React settings form) |
+
+### Performance Optimizations
+- No `.sync()` calls — styles passed in constructor
+- Merged horizontal lines (R3: 360→31, Gantt: 120→10 shapes)
+- BATCH_SIZE = 50 parallel API calls
+- Progressive rendering (3 months → zoom → rest)
+- Direct object storage for grouping (no `getById` loop)
+- SCALE = 16 for high-resolution zoom
+
 ## Roadmap
 
 Planned features (in order of complexity):
@@ -111,4 +135,4 @@ Planned features (in order of complexity):
 7. GA4 → Telegram Alerts — real-time analytics notifications
 8. Google Calendar Import — auto-import birthdays and events
 9. Custom Sticker Packs — create and share themed SVG sticker sets
-10. Miro App — publish as Miro Marketplace plugin
+10. ~~Miro App — publish as Miro Marketplace plugin~~ ✓ Done (native elements, Phase 7)

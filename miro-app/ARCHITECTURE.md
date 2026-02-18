@@ -40,7 +40,7 @@ app.tsx → generator.ts → native-generator.ts → calendar-engine.ts
 
 ---
 
-## Calendar Layout (SVG Rows)
+## Calendar Layout (Rows)
 
 The calendar is composed of 6 horizontal rows per month column:
 
@@ -64,23 +64,25 @@ The calendar is composed of 6 horizontal rows per month column:
 ├──────────────────────────────────────────┤
 │ R6  Box calendar grid (mini month)       │  boxHeaderH + weeks × boxCellH
 │     7-column grid (Mo Tu We Th Fr Sa Su) │
-│     Week numbers on left                 │
+│     Week numbers on right                │
 └──────────────────────────────────────────┘
 ```
 
 ### Key Layout Constants
 
-| Constant     | Value  | Description                              |
-|-------------|--------|------------------------------------------|
-| `mW`        | 124    | Month column width (~4mm per Gantt day)  |
-| `yearH`     | 20     | R1 height                                |
-| `monthH`    | 30     | R2 height                                |
-| `verRowH`   | 11     | R3 single day row height                 |
-| `boxNameH`  | 28     | R5 header height                         |
-| `boxHeaderH`| 8      | R6 day-of-week header                    |
-| `boxCellH`  | 11     | R6 single week row                       |
+All base values are multiplied by `SCALE = 16` to produce Miro dp units:
 
-All values are in SVG user units (equivalent to millimeters when printed).
+| Constant     | Base   | Miro dp | Description                              |
+|-------------|--------|---------|------------------------------------------|
+| `mW`        | 124    | 1984    | Month column width                       |
+| `yearH`     | 20     | 320     | R1 height                                |
+| `monthH`    | 30     | 480     | R2 height                                |
+| `verRowH`   | 11     | 176     | R3 single day row height                 |
+| `boxNameH`  | 28     | 448     | R5 header height                         |
+| `boxHeaderH`| 8      | 128     | R6 day-of-week header                    |
+| `boxCellH`  | 11     | 176     | R6 single week row                       |
+| `PAD_L`     | —      | 60      | Left text padding                        |
+| `LINE_W`    | —      | 14      | Grid line thickness                      |
 
 ---
 
@@ -124,28 +126,40 @@ Native Miro text elements use the built-in `plex_sans` font family (IBM Plex San
 
 ```
 User clicks "Generate ▶"
-  1. clearCalendar()              — remove previous elements
-  2. generateMonths()             — date math, holidays, box weeks
-  3. Build item definitions       — text, shape, frame objects for R1–R6
-  4. Batch create on Miro board   — groups of 20, 120ms delay between batches
-     ├── miro.board.createFrame()  — background frame
-     ├── miro.board.createText()   — labels, day numbers, month names
-     └── miro.board.createShape()  — grid lines, borders (thin rectangles)
-  5. miro.board.viewport.zoomTo() — focus viewport
-  6. Store all item IDs in board appData for cleanup
+  1. generateMonths()              — date math, holidays, box weeks
+  2. Compute layout dimensions     — totalW, totalH, Y offsets for R1–R6
+  3. createFrame()                 — background frame (#FDF6E3)
+  4. Full-width horizontal lines   — merged R3 separators (31) + Gantt rows
+  5. Month borders (vertical)      — year/quarter/month boundaries
+  6. Progressive rendering:
+     ├── Phase 1: first 3 months   — generateMonth() × 3
+     ├── zoomTo(frame)             — user sees results immediately
+     └── Phase 2: remaining months — generateMonth() × (N-3)
+  7. Year labels                   — one per year boundary
+  8. group({ items: allItems })    — group all elements
+  9. Store frame ID in appData     — for future reference
 ```
 
-### Rate Limiting
+### Optimizations
 
-Miro SDK has Level 1 rate limiting (~100 API calls/sec). Items are batched in groups of 20 with `Promise.all()`, with a 120ms delay between batches. A 12-month calendar generates ~1000–1500 elements.
+| Technique | Effect |
+|-----------|--------|
+| No `.sync()` calls | Styles passed in `createText()`/`createShape()` constructor |
+| Merged horizontal lines | R3: 360→31 shapes, Gantt: 120→10 shapes |
+| `BATCH_SIZE = 50` | 50 parallel `Promise.all()` calls per batch |
+| Direct object storage | `allItems[]` stores Miro objects, no `getById()` loop for grouping |
+| Progressive rendering | 3 months → zoom → rest. UX feels ~3× faster |
+| Per-month batching | Box calendar ~40 elements/month, prevents API overload |
+
+Previous calendars are **not deleted** on re-generate — new calendars are created alongside existing ones.
 
 ### Board Data Storage
 
 ```typescript
-await miro.board.setAppData('wallplanIds', [...allItemIds]);
+await miro.board.setAppData('wallplanIds', [frame.id]);
 ```
 
-Used by `clearCalendar()` to remove previously generated calendars.
+Stores the frame ID for reference. Previous calendars are preserved.
 
 ---
 

@@ -213,6 +213,41 @@ Each month column contains three sections, top to bottom:
 
 ---
 
+## 🧩 Miro App
+
+WallPlan is also available as a **Miro plugin**. It generates the same calendar layout directly on a Miro board as native elements (text, shapes, frames) — fully editable by any Miro user.
+
+### How to Use
+
+1. Install the WallPlan app from the Miro panel
+2. Open the sidebar → configure duration, Gantt rows, week start
+3. Click **Generate ▶**
+4. First 3 months appear immediately, then the viewport zooms to the calendar
+5. Remaining months generate in the background
+
+### Key Differences from Web Version
+
+| Feature | Web | Miro App |
+|---------|-----|----------|
+| Output | SVG / PDF file | Native Miro board elements |
+| Editable | No (static image) | Yes — move, recolor, resize any element |
+| Export | Download SVG/PDF | Miro's built-in export |
+| Paper sizes | A4, A3, 914mm | N/A (infinite Miro canvas) |
+| Colors toggle | Yes | No (temperature colors always on) |
+| Re-generate | Replaces calendar | Creates new calendar alongside existing |
+
+### Development
+
+```bash
+cd miro-app
+npm install
+npm run start    # localhost:3000
+```
+
+Set `http://localhost:3000` as App URL in [Miro Developer Dashboard](https://developers.miro.com).
+
+---
+
 ## 🌐 Languages
 
 - **English**: [osovsky.com/wallplan](https://osovsky.com/wallplan/)
