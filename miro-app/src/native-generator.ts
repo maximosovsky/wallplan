@@ -36,8 +36,9 @@ const verRowH = 11 * SCALE;   // 176
 const PAD_L = 60;
 const LINE_W = 14;
 
-// ─── Batching ───
-const BATCH_SIZE = 50;
+// ─── Batching (conservative for multi-year calendars) ───
+const BATCH_SIZE = 10;
+const BATCH_DELAY = 500; // ms between batches — keeps us well under 100K credits/min
 
 async function batchCreate<T>(items: (() => Promise<T>)[]): Promise<T[]> {
     const results: T[] = [];
@@ -45,6 +46,9 @@ async function batchCreate<T>(items: (() => Promise<T>)[]): Promise<T[]> {
         const batch = items.slice(i, i + BATCH_SIZE);
         const batchResults = await Promise.all(batch.map(fn => fn()));
         results.push(...batchResults);
+        if (i + BATCH_SIZE < items.length) {
+            await new Promise(r => setTimeout(r, BATCH_DELAY));
+        }
     }
     return results;
 }
@@ -388,14 +392,14 @@ export async function generateNativeCalendar(settings: NativeGeneratorSettings):
 
     // ══ 8. Group all (with rate-limit retry) ══
     const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
-    await delay(5000); // wait for rate limit to recover
+    await delay(15000); // 15s — wait for rate limit to fully recover
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
             if (allItems.length >= 2) await miro.board.group({ items: allItems });
             break;
         } catch (e) {
             console.warn(`Group attempt ${attempt}/3 failed:`, e);
-            if (attempt < 3) await delay(10000); // wait 10s before retry
+            if (attempt < 3) await delay(15000); // 15s before retry
         }
     }
 
