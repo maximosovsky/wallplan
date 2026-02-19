@@ -239,7 +239,8 @@ WallPlan is also available as a **Miro plugin** at [wallplan-miro.vercel.app](ht
 ### Development
 
 ```bash
-cd miro-app
+git clone https://github.com/maximosovsky/wallplan-miro.git
+cd wallplan-miro
 npm install
 npm run start    # localhost:3000
 ```
@@ -248,7 +249,7 @@ Set `http://localhost:3000` as App URL in [Miro Developer Dashboard](https://dev
 
 ### Ready-Made Template
 
-Don't want to generate? Use the pre-built [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) from Miroverse — add to your board in one click.
+Don't want to generate? Use the pre-built [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027/) from Miroverse — add to your board in one click.
 
 ---
 

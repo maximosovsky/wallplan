@@ -71,7 +71,7 @@ The chart below maps each month's color against actual average temperatures. The
 3. **Temperature metaphor** — the gradient follows the Northern Hemisphere seasonal
    temperature curve, making it intuitive for most users
 4. **1-indexed array** — `MONTH_COLORS[0]` is empty; months use natural numbering (1–12)
-   in `calendar.js`, and 0-indexed (0–11) in `miro-app/src/svg-renderer.ts`
+   in `calendar.js`, and 0-indexed (0–11) in [`wallplan-miro/svg-renderer.ts`](https://github.com/maximosovsky/wallplan-miro)
 
 ---
 
@@ -81,7 +81,7 @@ The chart below maps each month's color against actual average temperatures. The
 |------|------|
 | `calendar.js` | `MONTH_COLORS[]`, `toggleMonthColors()`, `_syncColorIcons()` |
 | `index.html` | Toggle button with `icon-mono` / `icon-color` SVGs |
-| `miro-app/src/svg-renderer.ts` | Always-on colors for Miro board SVG |
+| [`wallplan-miro/svg-renderer.ts`](https://github.com/maximosovsky/wallplan-miro) | Always-on colors for Miro board SVG |
 
 ---
 

@@ -101,7 +101,7 @@ Long multi-year calendars can be printed at copy centers on engineering paper up
 
 ## Miro App
 
-A sidebar plugin for Miro boards (`miro-app/` directory). Generates multi-year Gantt calendars as **native Miro board elements** (text, shapes, frames) — fully editable by users.
+A sidebar plugin for Miro boards (separate repo: https://github.com/maximosovsky/wallplan-miro). Generates multi-year Gantt calendars as **native Miro board elements** (text, shapes, frames) — fully editable by users.
 
 - **URL**: https://wallplan-miro.vercel.app/
 
@@ -127,7 +127,7 @@ A sidebar plugin for Miro boards (`miro-app/` directory). Generates multi-year G
 - SCALE = 16 for high-resolution zoom
 
 ### Miroverse Template
-- [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) — ready-to-use, all native elements
+- [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027/) — ready-to-use, all native elements
 
 ## Roadmap
 
