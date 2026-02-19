@@ -44,7 +44,7 @@ Planning across years requires more than a spreadsheet — it needs spatial cont
 | **Progressive rendering** | First 3 months appear instantly, rest loads in background |
 | **Rate-limit safe** | Conservative batching (10 calls, 500 ms gap) for large calendars |
 | **Non-destructive** | New calendars created alongside existing ones |
-| **Miroverse template** | [2-Year Template 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/) ready to use |
+| **Miroverse template** | [2-Year Template 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027/) ready to use |
 
 ---
 
