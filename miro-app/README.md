@@ -16,7 +16,7 @@
 
 <div align="center">
 
-<img src="https://miro.com/blog/wp-content/uploads/2017/06/gantt-chart-hero.png" width="600" alt="WallPlan calendar preview">
+<img src="miroverse.jpeg" width="600" alt="WallPlan — 2-Year Timeline Gantt Calendar on Miroverse">
 
 [Quick Start](#-quick-start) · [Features](#-features) · [Tech Stack](#️-tech-stack) · [Docs](#documentation)
 
