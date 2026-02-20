@@ -21,7 +21,7 @@
   "redirects": [
     {
       "source": "/@yka_yka",
-      "destination": "/@yka_yka/",
+      "destination": "/wallplan/@yka_yka/",
       "statusCode": 308
     }
   ],
