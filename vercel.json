@@ -21,11 +21,7 @@
   "rewrites": [
     {
       "source": "/@yka_yka",
-      "destination": "/for-kirill-specially-ru/index.html"
-    },
-    {
-      "source": "/calendar-ru.js",
-      "destination": "/for-kirill-specially-ru/calendar-ru.js"
+      "destination": "/@yka_yka/index.html"
     },
     {
       "source": "/for-kirill-specially-ru",
