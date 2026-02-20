@@ -20,11 +20,15 @@
   ],
   "rewrites": [
     {
+      "source": "/@yka_yka",
+      "destination": "/for-kirill-specially-ru/index.html"
+    },
+    {
       "source": "/for-kirill-specially-ru",
       "destination": "/for-kirill-specially-ru/index.html"
     },
     {
-      "source": "/((?!for-kirill-specially-ru).*)",
+      "source": "/((?!for-kirill-specially-ru|@yka_yka).*)",
       "destination": "/index.html"
     }
   ]
