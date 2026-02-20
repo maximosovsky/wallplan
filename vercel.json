@@ -24,6 +24,10 @@
       "destination": "/for-kirill-specially-ru/index.html"
     },
     {
+      "source": "/calendar-ru.js",
+      "destination": "/for-kirill-specially-ru/calendar-ru.js"
+    },
+    {
       "source": "/for-kirill-specially-ru",
       "destination": "/for-kirill-specially-ru/index.html"
     },
