@@ -226,6 +226,121 @@ Miro App Metrics Dashboard: total installs, daily active users, churn rate, user
 
 ---
 
+## 🔬 Competitive Analysis
+
+### WallPlan vs Competitors — Feature Comparison
+
+| | **WallPlan** | **Calidar.io** | **Kruglendar** | **Notion Planners** | **Calendar Generators** (SaaS) |
+|---|---|---|---|---|---|
+| **Concept** | Multi-year wall Gantt calendar on roll paper | InDesign template generator (wall, photo, tri-month) | Circular diary poster on A1 | Digital planners in Notion + PDF for print | Online generators (Venngage, Template.net, etc.) |
+| **Horizon** | 1 month – 20 years | 1 year | 1 year | 1 week – 1 year | Usually 1 year |
+| **Output** | SVG + PDF | IDML (Adobe InDesign) | PDF (A1) | Notion + PDF | PNG/PDF |
+| **Gantt rows** | ✅ 6/8/10/12 | ❌ | ❌ | ❌ | ❌ |
+| **Multi-year** | ✅ up to 240 months | ❌ single year only | ❌ | ❌ | ❌ |
+| **Paper sizes** | A4, A3, 914mm (×1/×2/×4) | A0–A6 (landscape/portrait) + custom | A1 fixed | Digital-first | Varies |
+| **Customization** | Rows, colors, entries, hide days | Fonts (Google Fonts), colors (CMYK/Pantone/HKS), lunar calendar, week numbering | ❌ Fixed design | Notion blocks, fixed layout | Templates with variables |
+| **Price** | Free, open-source | Freemium (1 free, Premium = unlimited) | Free (PDF) | $5–$50+ per template pack | Freemium |
+| **Technology** | Vanilla JS, SVG, zero deps | Server-side IDML generation | Static PDF | Notion API | Varies (AI-based) |
+| **Miro integration** | ✅ Native app + Miroverse template | ❌ | ❌ | ❌ | ❌ |
+| **Mobile** | ✅ Touch, bottom sheet, welcome carousel | ✅ Responsive site | ❌ | ✅ Notion mobile | Varies |
+| **Open-source** | ✅ CC BY-SA 4.0 | ❌ | ❌ | ❌ | ❌ |
+
+**Unique advantages of WallPlan:**
+1. **Only multi-year generator** — all competitors limited to 1 year
+2. **Gantt rows** — no competitor offers planning rows on top of calendar
+3. **Roll printing** — 914mm engineering paper format is unique
+4. **Miro** — only product with native Miro integration (app + Miroverse template)
+5. **Zero-dependency** — unlike Calidar (server-side InDesign) and Notion (platform lock-in)
+
+**Where competitors are stronger:**
+- **Calidar.io** — professional typography (CMYK, Pantone, HKS, Google Fonts, InDesign format). Deeper print pipeline for designers/print shops
+- **Kruglendar** — unique circular year visualization, beautiful "diary poster" concept. Different niche (reflective journaling vs planning)
+- **Notion Planners** — Notion ecosystem, digital workflow. Different category (app-first vs print-first)
+
+---
+
+### How Competitors Present Themselves — Landing, SEO, Monetization, Promotion
+
+#### Landing Pages
+
+| | **WallPlan** | **Calidar.io** | **Kruglendar** | **Notion Planners** |
+|---|---|---|---|---|
+| **Hero** | App = landing (calendar immediately on screen) | Classic marketing landing with sections | Minimalist single-page with use cases | Gumroad/Etsy product card |
+| **CTA** | No explicit CTA — user is already in the app | «Kalender erstellen» (Create Calendar) | «Download PDF» | «Buy Now $9.99» |
+| **Social proof** | ❌ None | ✅ Trustpilot 4.5★, Google reviews, designer quotes | ❌ | ✅ Etsy/Gumroad reviews |
+| **Trust metrics** | ❌ | ✅ «47,000+ templates, 94,000 hours saved, 249 countries, 118 languages» | ❌ | ✅ «500+ products sold» |
+| **Audience personas** | Implicit (README only) | ✅ Separate sections: Designers, Agencies, Photographers, Publishers, Developers | ❌ | ✅ Via template categories |
+| **Languages** | EN + RU | DE + EN (4 locales) | EN (RU author, EN site) | EN |
+
+**🔑 Takeaways for WallPlan:**
+- Add **social proof** section (reviews, download counter)
+- Add **"Who is it for"** section (managers, entrepreneurs, teams)
+- Show **numbers** (downloads, users, countries)
+- Repurpose **welcome carousel** (already exists on mobile) as desktop first-visit intro
+
+#### SEO
+
+| | **WallPlan** | **Calidar.io** | **Kruglendar** | **Notion Planners** |
+|---|---|---|---|---|
+| **Title/Meta** | ✅ Optimized | ✅ Per-locale optimized | ❌ Basic | ✅ Etsy SEO |
+| **JSON-LD** | ✅ SoftwareApplication | Likely yes | ❌ | ❌ (Etsy built-in) |
+| **Structured pages** | 1 page (SPA) | ✅ Dozens of pages: each calendar type = separate page | 1 page | Etsy/Gumroad listings |
+| **hreflang** | ✅ EN ↔ RU | ✅ DE-DE, DE-AT, DE-CH, EN-GB, EN-US | ❌ | ❌ |
+| **llms.txt** | ✅ | ❌ | ❌ | ❌ |
+| **AI crawler access** | ✅ GPTBot, ClaudeBot | Unknown | ❌ | ❌ |
+| **Keyword coverage** | Narrow niche | ✅ Broad: «Photo calendar», «Desk calendar», «Family planner»… 13+ types | Narrow | Broad (long-tail) |
+
+**🔑 Takeaways for WallPlan:**
+- **Calidar** creates a separate page for each calendar type → drives SEO traffic on specific queries. WallPlan can create landing pages:
+  - `/gantt-calendar` — «Multi-year Gantt Calendar Generator»
+  - `/wall-calendar` — «Printable Wall Calendar for Large Paper»
+  - `/roll-calendar` — «914mm Roll Paper Calendar»
+- Add **FAQ section** (Google rich snippets)
+- Create **`/use-cases`** or **`/for-who`** page (like Calidar: «for managers», «for teams»)
+
+#### Monetization Comparison
+
+| | **WallPlan** | **Calidar.io** | **Kruglendar** | **Notion Planners** | **Calendar Generators** (SaaS) |
+|---|---|---|---|---|---|
+| **Model** | Free, open-source | **Freemium SaaS**: 1 free → Premium subscription | Free PDF | **Paid product**: $5–50 per pack | Freemium / subscription |
+| **What's paid** | — | Unlimited templates, InDesign/Quark/Affinity export | — | Templates + eBook | Customization, formats, logos |
+| **Add-on services** | — | ✅ «Complex calendar programming», «Custom design», «Printing» | — | Customization | API, white-label |
+| **Marketplaces** | Miroverse (free) | Own website | Own website | Etsy + Gumroad | ProductHunt + own site |
+
+#### Promotion Channels
+
+| Channel | **Calidar** | **Kruglendar** | **Notion Planners** | **WallPlan now** | **WallPlan should** |
+|---------|-------------|----------------|---------------------|-----------------|---------------------|
+| **ProductHunt** | ❌ | ❌ | ✅ Launch | ❌ | ✅ **Must do** |
+| **Miroverse** | ❌ | ❌ | ❌ | ✅ Done | ✅ Already done |
+| **Newsletter** | ✅ rapidmail | ❌ | ❌ | ❌ | ✅ Add |
+| **Trustpilot/Google** | ✅ 4.5★ | ❌ | ❌ | ❌ | ✅ Create profile |
+| **Telegram** | ❌ | ✅ Author's channel | ❌ | ❌ | ✅ Channel or bot |
+| **Medium/Blog** | ❌ | ❌ | ❌ | ✅ 2 articles | ✅ Expand |
+| **Etsy/Gumroad** | ❌ | ❌ | ❌ | ❌ | 💡 For passive income |
+| **GitHub Stars** | ❌ | ❌ | ❌ | Low | ✅ Promote OSS |
+
+---
+
+### Action Plan (derived from competitive analysis)
+
+**Quick wins (1–2 days):**
+1. **ProductHunt launch** — main channel for indie tools, free traffic + high-authority backlink
+2. Add **social proof** to landing (download counter, embed reviews)
+3. Complete **GitHub About section** (Description + Topics + Website)
+
+**Mid-term (1–2 weeks):**
+4. Create **SEO landing pages** by type (`/gantt`, `/wall`, `/roll`)
+5. Prepare **Etsy/Gumroad listing** with ready-made PDFs for 2026–2027
+6. Add **FAQ section** for rich snippets
+
+**Strategic (1–3 months):**
+7. **Freemium model**: paid custom branding / white-label (see § Monetization)
+8. **Newsletter** for annual updates (like Kruglendar — yearly email notifications)
+9. **API** for corporate clients (like Calidar)
+
+---
+
 ## 📌 Notes
 - Stickers and images use the same SVG-based architecture
 - All creative tools work offline (localStorage), cloud sync requires Google Auth
