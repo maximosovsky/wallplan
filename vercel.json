@@ -18,9 +18,16 @@
       ]
     }
   ],
-  "rewrites": [
+  "redirects": [
     {
       "source": "/@yka_yka",
+      "destination": "/@yka_yka/",
+      "statusCode": 308
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/@yka_yka/",
       "destination": "/@yka_yka/index.html"
     },
     {
