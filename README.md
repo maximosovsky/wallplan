@@ -5,7 +5,7 @@
 **Print years on paper — plan decades ahead**
 
 [![Live Demo](https://img.shields.io/badge/demo-osovsky.com/wallplan-81D8D0?style=for-the-badge)](https://osovsky.com/wallplan/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)](LICENSE)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey?style=for-the-badge)](https://creativecommons.org/licenses/by-sa/4.0/)
 
 A browser-based multi-year calendar generator with Gantt-style grid, vertical day lists, and mini month boxes. Configure duration, paper size, export to SVG or PDF, and print on large format paper.
 
@@ -161,4 +161,5 @@ See [architecture.md](./architecture.md) for detailed technical documentation on
 
 ## 📄 License
 
-[Michael Kvrivishvili](https://www.linkedin.com/in/michael-kvrivishvili-39ab062/) & [Maxim Osovsky](https://www.linkedin.com/in/osovsky/). Licensed under [MIT](LICENSE).
+© 2012–2026 [Michael Kvrivishvili](https://www.linkedin.com/in/michael-kvrivishvili-39ab062/) & [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449).
+Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
