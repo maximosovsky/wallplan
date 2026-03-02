@@ -137,18 +137,59 @@ Sign in with Google to save and load calendar configurations (duration, rows, pa
 
 **Why:** Currently state lives in URL params + localStorage — switching browser or device means starting over. Cloud sync = open on any device and everything is there. Also required for Google Calendar Import.
 
-### 6. Internationalization — 5 New Locales 🌍
-Localized calendar versions with translated month/day names and national holidays:
+### 6a. Locale Refactoring 🔧 *(prerequisite for 6b)*
+Extract locale-specific data from `calendar.js` / `calendar-ru.js` into separate locale files. Single shared rendering engine.
+
+**Current problem:** 4 copies of the same JS (EN + 2×RU + future ZH). Every feature (e.g. weekend highlighting) requires identical edits in all files.
+
+**Target architecture:**
+```
+calendar.js           → shared rendering engine (loadLocale)
+locales/en.js         → { months, weekDays, holidays, weekStart: 'sun' }
+locales/ru.js         → { months, weekDays, holidays, weekStart: 'mon' }
+locales/zh.js         → { months, weekDays, holidays, weekStart: 'mon' }
+```
+
+**Why:** Without this, each new locale = another copy = exponential maintenance cost. Refactor once → add locales freely.
+
+### 6b. Chinese Calendar 🇨🇳 *(depends on 6a)*
+English UI with Chinese public holidays and zodiac year labels. Path: `/zh/`. URL: `wallplan.osovsky.com/zh/`. Target: businesses planning around China's work schedule.
+
+**Decisions (confirmed with user):**
+- Language: **English** with Chinese holiday names in English
+- Week start: **Monday** (Chinese standard)
+- Zodiac years: show animal + element/color (e.g. "2025 — Wood Snake 🐍", "2026 — Fire Horse 🐴")
+- Lunar dates: show alongside Gregorian in Vertical calendar (R3)
+- 补班 (makeup workdays): **not marked** — just don't mark them as weekends
+
+**Holiday data strategy:**
+- **2026**: exact dates from State Council decree (国务院办公厅)
+- **2027+**: repeat 2026 pattern (fixed holidays) + compute lunar holidays algorithmically
+- Update annually when new decree is published
+
+**Chinese public holidays:**
+| Holiday | Date | Type |
+|---------|------|------|
+| New Year | Jan 1 | Fixed |
+| Spring Festival (春节) | Lunar Jan 1 | Lunar, 7 days |
+| Qingming Festival (清明节) | Apr 4–5 | Solar term |
+| Labour Day (劳动节) | May 1 | Fixed, 5 days |
+| Dragon Boat Festival (端午节) | Lunar May 5 | Lunar |
+| Mid-Autumn Festival (中秋节) | Lunar Aug 15 | Lunar |
+| National Day (国庆节) | Oct 1 | Fixed, 7 days |
+
+**Chinese Zodiac cycle (12 animals × 5 elements = 60-year cycle):**
+Animals: Rat, Ox, Tiger, Rabbit, Dragon, Snake, Horse, Goat, Monkey, Rooster, Dog, Pig
+Elements/Colors: Wood (Green), Fire (Red), Earth (Yellow), Metal (White), Water (Black)
+
+### 6c. Additional Locales 🌍 *(future, depends on 6a)*
 
 | Locale | Path | Holidays |
 |--------|------|----------|
 | 🇮🇹 Italian | `/it/` | Capodanno, Ferragosto, Natale, Pasquetta, Liberazione... |
 | 🇫🇷 French | `/fr/` | Jour de l'an, Fête nationale, Toussaint, Noël... |
-| 🇨🇳 Chinese | `/zh/` | 春节 (Spring Festival), 国庆节, 中秋节, 清明节... |
 | 🇪🇸 Spanish | `/es/` | Año Nuevo, Día de la Hispanidad, Navidad, Reyes... |
-| 🇦🇪 Arabic (UAE) | `/ar/` | عيد الفطر, عيد الأضحى, اليوم الوطني, رأس السنة الهجرية... |
-
-**Architecture:** Shared `calendar-core.js` with locale config objects (`MONTHS`, `WEEK_DAYS`, `getHolidays()`). Each locale = separate `index.html` + thin `calendar-{lang}.js` wrapper. Arabic requires RTL layout support. Chinese/Islamic holidays need lunar calendar computation.
+| 🇦🇪 Arabic (UAE) | `/ar/` | عيد الفطر, عيد الأضحى, اليوم الوطني... (RTL layout required) |
 
 **Why:** WallPlan is useful worldwide — calendars are universal. Italian/French/Spanish = EU market (400M people). Chinese = world's largest internet market. Arabic (Dubai) = high-value corporate market. Each locale = new SEO domain, new traffic source, new hreflang cluster.
 
