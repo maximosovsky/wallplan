@@ -1858,19 +1858,38 @@ function closeEntryModal() {
 
 function _parseDate(str) {
 	str = str.trim();
-	let match = str.match(/^(\d{1,2})[.,\/;\-:\s\\](\d{1,2})$/);
-	if (!match && /^\d{3,4}$/.test(str)) {
-		const d = str.slice(0, 2);
-		const m = str.length === 4 ? str.slice(2) : str.slice(2);
-		match = [null, d, m];
+	let day, month, year;
+
+	// ISO: YYYY-MM-DD (any separator)
+	let m = str.match(/^(\d{4})[.,\/;\-:\s\\](\d{1,2})[.,\/;\-:\s\\](\d{1,2})$/);
+	if (m) { year = parseInt(m[1]); month = parseInt(m[2]); day = parseInt(m[3]); }
+
+	// DD.MM.YYYY (any separator)
+	if (!m) {
+		m = str.match(/^(\d{1,2})[.,\/;\-:\s\\](\d{1,2})[.,\/;\-:\s\\](\d{4})$/);
+		if (m) { day = parseInt(m[1]); month = parseInt(m[2]); year = parseInt(m[3]); }
 	}
-	if (!match) return null;
-	const day = parseInt(match[1]);
-	const month = parseInt(match[2]);
+
+	// DD.MM (any separator) — original format
+	if (!m) {
+		m = str.match(/^(\d{1,2})[.,\/;\-:\s\\](\d{1,2})$/);
+		if (m) { day = parseInt(m[1]); month = parseInt(m[2]); }
+	}
+
+	// Pure digits: DDMM or DMM
+	if (!m && /^\d{3,4}$/.test(str)) {
+		day = parseInt(str.slice(0, 2));
+		month = parseInt(str.slice(2));
+		m = true;
+	}
+
+	if (!m) return null;
 	if (month < 1 || month > 12 || day < 1) return null;
-	const maxDay = new Date(2024, month, 0).getDate();
+	const maxDay = new Date(year || 2024, month, 0).getDate();
 	if (day > maxDay) return null;
-	return { day, month };
+	const result = { day, month };
+	if (year) result.year = year;
+	return result;
 }
 
 function addCustomEntries() {
@@ -1889,7 +1908,8 @@ function addCustomEntries() {
 		const parsed = _parseDate(dateStr);
 		if (!parsed) continue;
 		const entry = { month: parsed.month, day: parsed.day, text, yearly };
-		if (!yearly) entry.year = new Date().getFullYear();
+		if (parsed.year) entry.year = parsed.year;
+		else if (!yearly) entry.year = new Date().getFullYear();
 		customEntries.push(entry);
 		added++;
 	}
