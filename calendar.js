@@ -128,6 +128,7 @@ const MONTH_COLORS = [
 ];
 let useMonthColors = false;
 let weekendHL = 0; // 0=off, 1=Gantt, 2=+Box, 3=+Vertical
+let overlayRU = false; // RU/CN holiday overlay
 
 // ─── SVG Calendar Generator ───
 function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxMonthsPerPage = 0) {
@@ -151,6 +152,13 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	if (LOCALE.getWorkdayOverrides) {
 		for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
 			workdayOverrides[y] = LOCALE.getWorkdayOverrides(y);
+		}
+	}
+	// Overlay: Russian holidays for contrast
+	const overlayByYear = {};
+	if (overlayRU && LOCALE.getRussianHolidays) {
+		for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
+			overlayByYear[y] = LOCALE.getRussianHolidays(y);
 		}
 	}
 
@@ -203,6 +211,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			isFirstOfMonth: day === 1,
 			isWeekStart: adjustedDow === 0,
 			isWorkdayOverride,
+			overlayHoliday: overlayByYear[curDate.getFullYear()] ? (overlayByYear[curDate.getFullYear()][md] || '') : '',
 		});
 
 		curDate.setDate(curDate.getDate() + 1);
@@ -429,6 +438,24 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 							'text-anchor': 'start',
 							class: isWPDay ? 'wallplan-day' : '',
 						}, svg).textContent = dayData.holiday;
+					}
+
+					// Overlay: Russian holiday (gray, below main)
+					if (dayData.overlayHoliday && !dayData.holiday) {
+						svgEl('text', {
+							x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH - 3,
+							'font-size': is914s ? '3' : '4',
+							'text-anchor': 'start',
+							fill: '#999',
+						}, svg).textContent = dayData.overlayHoliday;
+					} else if (dayData.overlayHoliday && dayData.holiday) {
+						// Both CN and RU — show RU smaller underneath
+						svgEl('text', {
+							x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH + 3,
+							'font-size': is914s ? '2.5' : '3',
+							'text-anchor': 'start',
+							fill: '#999',
+						}, svg).textContent = dayData.overlayHoliday;
 					}
 				}
 			}
@@ -1359,6 +1386,16 @@ function toggleWeekendHL() {
 function _syncWeekendHLBtn() {
 	const btn = document.getElementById('weekend-hl-btn');
 	if (btn) btn.classList.toggle('active', weekendHL > 0);
+}
+
+// ─── RU/CN overlay toggle ───
+function toggleOverlay() {
+	overlayRU = !overlayRU;
+	const btn = document.getElementById('overlay-btn');
+	if (btn) btn.classList.toggle('active', overlayRU);
+	// Update tooltip with current language
+	if (btn && LOCALE.overlayTooltip) btn.setAttribute('data-tooltip', LOCALE.overlayTooltip);
+	updateCalendar();
 }
 
 // ─── Custom entries ───

@@ -239,4 +239,50 @@ window.LOCALE = {
 
         return h;
     },
+
+    // ─── Overlay: Russian holidays for RU/CN contrast ───
+    _overlayTooltip: { en: 'RU/CN holiday', ru: 'Праздники РФ/КНР', zh: '俄中假日' },
+    get overlayTooltip() { return this._overlayTooltip[this._lang]; },
+
+    _ruHolidayNames: {
+        newYear: { en: '🎄 New Year (RU)', ru: '🎄 Новый год', zh: '🎄 元旦 (俄)' },
+        newYearH: { en: '🎄 New Year Holiday (RU)', ru: '🎄 Новогодние каникулы', zh: '🎄 元旦假期 (俄)' },
+        christmas: { en: '⛪ Christmas (RU)', ru: '⛪ Рождество Христово', zh: '⛪ 圣诞节 (俄)' },
+        defender: { en: '🎖️ Defender Day (RU)', ru: '🎖️ День защитника Отечества', zh: '🎖️ 祖国保卫者日 (俄)' },
+        women: { en: '💐 Women\'s Day (RU)', ru: '💐 Международный женский день', zh: '💐 妇女节 (俄)' },
+        spring: { en: '🌸 Spring & Labour (RU)', ru: '🌸 Праздник Весны и Труда', zh: '🌸 劳动节 (俄)' },
+        victory: { en: '🎗️ Victory Day (RU)', ru: '🎗️ День Победы', zh: '🎗️ 胜利日 (俄)' },
+        russia: { en: '🏛️ Russia Day', ru: '🏛️ День России', zh: '🏛️ 俄罗斯日' },
+        unity: { en: '🤝 Unity Day (RU)', ru: '🤝 День народного единства', zh: '🤝 人民团结日 (俄)' },
+        transfer: { en: '🎄 Holiday (transfer)', ru: '🎄 Выходной (перенос)', zh: '🎄 假日 (调休/俄)' },
+    },
+
+    _rh(key) { return this._ruHolidayNames[key][this._lang]; },
+
+    getRussianHolidays(year) {
+        const h = {};
+        const pad2 = n => String(n).padStart(2, '0');
+        const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
+
+        // Новогодние каникулы 1-8 января
+        add(1, 1, this._rh('newYear'));
+        for (let d = 2; d <= 6; d++) add(1, d, this._rh('newYearH'));
+        add(1, 7, this._rh('christmas'));
+        add(1, 8, this._rh('newYearH'));
+
+        add(2, 23, this._rh('defender'));
+        add(3, 8, this._rh('women'));
+        add(5, 1, this._rh('spring'));
+        add(5, 9, this._rh('victory'));
+        add(6, 12, this._rh('russia'));
+        add(11, 4, this._rh('unity'));
+
+        // 2026 transfers
+        if (year === 2026) {
+            add(1, 9, this._rh('transfer'));
+            add(12, 31, this._rh('transfer'));
+        }
+
+        return h;
+    },
 };
