@@ -97,7 +97,7 @@ const LAYOUT = {
 	weekLineW: 0.2,
 
 	// Fonts
-	fontFamily: "IBM Plex Sans, FreeSans, sans-serif",
+	fontFamily: LOCALE._strings ? "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif" : "IBM Plex Sans, FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -1851,10 +1851,12 @@ async function _loadPDFFonts(doc) {
 			console.warn('Copper Penny DTP load failed:', e);
 		}
 
-		// Load CJK font for Chinese locale (Noto Sans SC from Google Fonts CDN)
+		// Load CJK font for Chinese locale (Noto Sans SC)
 		if (LOCALE._strings && LOCALE._strings.zh) {
 			try {
-				const cjkResp = await fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf');
+				// Try local path (works from root), fallback to parent path (works from /zh/)
+				let cjkResp = await fetch('fonts/NotoSansSC/NotoSansSC.ttf');
+				if (!cjkResp.ok) cjkResp = await fetch('../fonts/NotoSansSC/NotoSansSC.ttf');
 				if (cjkResp.ok) {
 					const cjkBuf = await cjkResp.arrayBuffer();
 					_fontCache.push({
@@ -1981,18 +1983,6 @@ async function printPDF() {
 			clone.removeAttribute('style');
 			clone.removeAttribute('class');
 			clone.setAttribute('xmlns', SVG_NS);
-
-			// For CJK locale: inject Noto Sans SC as primary font in SVG clone
-			if (LOCALE._strings && LOCALE._strings.zh) {
-				const styleEl = clone.querySelector('style');
-				if (styleEl) {
-					styleEl.textContent = styleEl.textContent.replace(
-						/font-family:\s*[^;]+;/,
-						"font-family: 'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif;"
-					);
-				}
-			}
-
 			// Temporarily add to DOM for svg2pdf
 			clone.style.position = 'absolute';
 			clone.style.left = '-9999px';
