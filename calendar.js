@@ -97,7 +97,7 @@ const LAYOUT = {
 	weekLineW: 0.2,
 
 	// Fonts
-	fontFamily: "IBM Plex Sans, FreeSans, sans-serif",
+	fontFamily: LOCALE._strings ? "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif" : "IBM Plex Sans, FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -1850,6 +1850,27 @@ async function _loadPDFFonts(doc) {
 		} catch (e) {
 			console.warn('Copper Penny DTP load failed:', e);
 		}
+
+		// Load CJK font for Chinese locale (Noto Sans SC from Google Fonts CDN)
+		if (LOCALE._strings && LOCALE._strings.zh) {
+			try {
+				const cjkResp = await fetch('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf');
+				if (cjkResp.ok) {
+					const cjkBuf = await cjkResp.arrayBuffer();
+					_fontCache.push({
+						id: 'NotoSansSC.ttf',
+						b64: _arrayBufferToBase64(cjkBuf),
+						name: 'Noto Sans SC',
+						style: 'normal',
+						weight: 400,
+					});
+					console.log('Noto Sans SC loaded for PDF CJK support');
+				}
+			} catch (e) {
+				console.warn('CJK font (Noto Sans SC) load failed:', e);
+			}
+		}
+
 		_fontsFetched = true;
 	}
 
