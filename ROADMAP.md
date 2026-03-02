@@ -135,6 +135,12 @@ Added `favicon.png` to all HTML files (EN, RU, ZH). Replaced inline SVG emoji fa
 ### ~~Welcome Carousel (always) 🎠~~ *(02 Mar 2026)*
 Welcome carousel now shows on every mobile visit (removed `localStorage` gate). Added Chinese carousel to `/zh/` with 4 slides in Chinese + philosopher quotes (陈澄, 中庸, 老子, 墨子). Chinese flag PNG on slide 2. Added Chinese SEO keywords to meta tags.
 
+### ~~Lighthouse & Service Worker 🚀~~ *(02 Mar 2026)*
+- **Accessibility**: Added `aria-label` to all icon-only buttons and interactive divs, `role="button"` to `<div class="tb-btn">` elements
+- **PWA**: Created `sw.js` with versioned cache (`wallplan-v1`), cache-first strategy, `skipWaiting()` + `clients.claim()`. Pre-caches HTML, CSS, JS, favicon, locale files
+- **Manifest**: Updated `manifest.json` with `favicon.png` icon (replaced SVG emoji)
+- Service Worker registered in all 4 HTML files (EN, RU×2, ZH)
+
 ---
 
 ## 🟢 Easy (1–2 days)
@@ -410,8 +416,6 @@ White-label version with company logo, brand colors, internal holidays. Self-hos
 - **Landing Page** — `/wallplan/about/` with SEO text targeting long-tail keywords
 
 ### Technical
-- **Lighthouse Audit** — aim for 90+ on Performance/Accessibility/SEO
-- **Service Worker** — offline PWA
 - **Error Tracking** — Sentry for JS errors
 - **Lazy Font Loading** — load fonts on demand
 - **A/B Testing** — experiment with title/description for better CTR

@@ -62,10 +62,12 @@
         <input type="hidden" id="months-input" value="12">
         <span id="months-label" style="display:none">mo</span>
         <div class="tb-sep"></div>
-        <div class="tb-btn" id="paper-cycle-btn" onclick="cyclePaperSize()" data-tooltip="Paper size">A4</div>
+        <div class="tb-btn" id="paper-cycle-btn" role="button" onclick="cyclePaperSize()" data-tooltip="Paper size"
+            aria-label="Paper size">A4</div>
         <span id="page-info" style="display:none"></span>
         <div class="tb-sep"></div>
-        <div class="tb-btn" onclick="confirmAction('Download SVG?', downloadSVG)" data-tooltip="Download SVG">
+        <div class="tb-btn" role="button" onclick="confirmAction('Download SVG?', downloadSVG)"
+            data-tooltip="Download SVG" aria-label="Download SVG">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -73,7 +75,8 @@
                 <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
         </div>
-        <div class="tb-btn" onclick="confirmAction('Download PDF?', printPDF)" data-tooltip="Download PDF">
+        <div class="tb-btn" role="button" onclick="confirmAction('Download PDF?', printPDF)" data-tooltip="Download PDF"
+            aria-label="Download PDF">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 9V2h12v7" />
@@ -81,7 +84,8 @@
                 <rect x="6" y="14" width="12" height="8" />
             </svg>
         </div>
-        <div class="tb-btn" id="color-toggle-btn" onclick="toggleMonthColors()" data-tooltip="Month colors">
+        <div class="tb-btn" id="color-toggle-btn" role="button" onclick="toggleMonthColors()"
+            data-tooltip="Month colors" aria-label="Toggle month colors">
             <svg id="icon-mono" width="23" height="23" viewBox="0 0 18 18">
                 <circle cx="9" cy="9" r="8" fill="none" stroke="#2C2C2C" stroke-width="1.8" />
                 <circle cx="9" cy="9" r="5" fill="none" stroke="#E53935" stroke-width="1.8" />
@@ -103,10 +107,10 @@
             </svg>
         </div>
         <div class="tb-sep"></div>
-        <div class="tb-btn" id="lang-toggle-btn" onclick="LOCALE.switchLang()" data-tooltip="Language"
-            style="font-size:13px; font-weight:600; letter-spacing:0.5px;">EN</div>
-        <div class="tb-btn" id="overlay-btn" onclick="toggleOverlay()" data-tooltip="RU/CN holiday"
-            style="position:relative;">
+        <div class="tb-btn" id="lang-toggle-btn" role="button" onclick="LOCALE.switchLang()" data-tooltip="Language"
+            aria-label="Switch language" style="font-size:13px; font-weight:600; letter-spacing:0.5px;">EN</div>
+        <div class="tb-btn" id="overlay-btn" role="button" onclick="toggleOverlay()" data-tooltip="RU/CN holiday"
+            aria-label="RU/CN holiday overlay" style="position:relative;">
             <svg width="16" height="16" viewBox="0 0 16 16">
                 <path d="M8 1 A7 7 0 0 0 8 15 Z" fill="#999" />
                 <path d="M8 1 A7 7 0 0 1 8 15 Z" fill="#FFB6C1" />
@@ -150,7 +154,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
             <span
                 style="font-family:'Copper Penny DTP',serif; font-size:20px; line-height:1; color:var(--mol-red);">W</span>
         </button>
-        <button id="hide-days-btn" data-tooltip="Hide days" onclick="toggleHideDays()">
+        <button id="hide-days-btn" data-tooltip="Hide days" aria-label="Hide days" onclick="toggleHideDays()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -165,7 +169,8 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
         <input type="hidden" id="rows-slider" value="10">
         <span id="rows-value" style="display:none">10</span>
         <button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Gantt rows" onclick="cycleRows()">10</button>
-        <button id="weekend-hl-btn" data-tooltip="Weekend highlight" onclick="toggleWeekendHL()">
+        <button id="weekend-hl-btn" data-tooltip="Weekend highlight" aria-label="Weekend highlight"
+            onclick="toggleWeekendHL()">
             <svg width="16" height="16" viewBox="0 0 16 16">
                 <circle cx="8" cy="8" r="7" fill="#FFB6C1" />
             </svg>
@@ -187,7 +192,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
 
     <!-- Mobile bottom toolbar -->
     <div id="mob-bar" class="mob-bar">
-        <button class="mob-val" onclick="openEntryModal()">
+        <button class="mob-val" onclick="openEntryModal()" aria-label="Add entry">
             <span
                 style="font-family:'Copper Penny DTP',serif; font-size:1.8rem; line-height:1; color:var(--mol-red);">W</span>
         </button>
@@ -203,7 +208,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
             <span id="mob-format">A4</span>
             <span class="mob-label" id="mob-format-label">format</span>
         </button>
-        <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Hide days">
+        <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" aria-label="Hide days">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -215,7 +220,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
             </svg>
         </button>
         <div class="mob-dl-group">
-            <button class="mob-icon" onclick="toggleMobDL()" title="Download">
+            <button class="mob-icon" onclick="toggleMobDL()" aria-label="Download">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -324,6 +329,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
     </div>
     <script src="../locales/zh.js"></script>
     <script src="../calendar.js"></script>
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
 
 </html>
