@@ -1,9 +1,9 @@
 // ─── WallPlan Calendar — SVG Renderer ───
 // Locale data loaded from locales/*.js via window.LOCALE
 
-const MONTHS = LOCALE.months;
-const WEEK_DAYS_BASE = LOCALE.weekDays;
-const WEEK_DAYS_NARROW_BASE = LOCALE.weekDaysNarrow;
+var MONTHS = LOCALE.months;
+var WEEK_DAYS_BASE = LOCALE.weekDays;
+var WEEK_DAYS_NARROW_BASE = LOCALE.weekDaysNarrow;
 
 function getOrderedDays(weekStart) {
 	const offset = (weekStart === 'mon') ? 1 : 0;
@@ -15,7 +15,7 @@ function getOrderedDays(weekStart) {
 	};
 }
 
-const _holidayCache = {};
+var _holidayCache = {};
 const customEntries = []; // {month, day, text, yearly}
 function getHolidays(year) {
 	if (_holidayCache[year]) return _holidayCache[year];
@@ -146,6 +146,13 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		holidaysByYear[y] = getHolidays(y);
 		entriesByYear[y] = getCustomEntries(y);
 	}
+	// Workday overrides (e.g. Chinese 补班 — weekends that are working days)
+	const workdayOverrides = {};
+	if (LOCALE.getWorkdayOverrides) {
+		for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
+			workdayOverrides[y] = LOCALE.getWorkdayOverrides(y);
+		}
+	}
 
 	// Collect per-month data
 	const monthsData = [];
@@ -163,6 +170,8 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		const holiday = yearHolidays[md] || yearEntries[md] || '';
 		const rawDow = getUSDayOfWeek(curDate);
 		const isWeekend = (rawDow === 0 || rawDow === 6);
+		const wo = workdayOverrides[curDate.getFullYear()];
+		const isWorkdayOverride = wo ? wo.has(md) : false;
 		const adjustedDow = (rawDow - wsOffset + 7) % 7;
 		const index = formatIndex(curDate);
 		const day = curDate.getDate();
@@ -193,6 +202,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			weekNum: getWeekNumber(curDate),
 			isFirstOfMonth: day === 1,
 			isWeekStart: adjustedDow === 0,
+			isWorkdayOverride,
 		});
 
 		curDate.setDate(curDate.getDate() + 1);
@@ -289,7 +299,6 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 
 	// ── Render each month column ──
 	let xCursor = L.spacerW;
-	let _zodiacPlaced = {};
 
 	for (let mi = 0; mi < numMonths; mi++) {
 		const m = monthsData[mi];
@@ -352,7 +361,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		if (!hideDays && weekendHL >= 3) {
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
-				if (d && (d.isWeekend || d.holiday)) {
+				if (d && !d.isWorkdayOverride && (d.isWeekend || d.holiday)) {
 					const rowY = yVer + di * L.verRowH;
 					const opacity = (d.holiday && !d.isWeekend) ? '0.35' : '0.22';
 					svgEl('rect', {
@@ -464,7 +473,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			const hlH = emptyRows * ganttRowH;
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
-				if (d.isWeekend || d.holiday) {
+				if (!d.isWorkdayOverride && (d.isWeekend || d.holiday)) {
 					const cx = xCursor + di * cellW;
 					const opacity = (d.holiday && !d.isWeekend) ? '0.4' : '0.3';
 					svgEl('rect', {
@@ -548,7 +557,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			const firstDayDowHL = (m.days[0].rawDow - wsOffset + 7) % 7;
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
-				if (d.isWeekend || d.holiday) {
+				if (!d.isWorkdayOverride && (d.isWeekend || d.holiday)) {
 					const gridPos = firstDayDowHL + di;
 					const row = Math.floor(gridPos / 7);
 					const col = gridPos % 7;
@@ -673,7 +682,9 @@ function _totalFromDials() {
 // ─── Page building ───
 let _cachedPages = [];
 let _cachedRollW = 0;
+let _zodiacPlaced = {};
 function buildPages(totalMonths, emptyRows, weekStart) {
+	_zodiacPlaced = {};
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const clampedRows = Math.max(6, Math.min(12, rows));
 	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
