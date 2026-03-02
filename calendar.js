@@ -440,8 +440,8 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						}, svg).textContent = dayData.holiday;
 					}
 
-					// Overlay: Russian holiday (gray text + gray highlight, only if no CN holiday)
-					if (dayData.overlayHoliday && !dayData.holiday && !dayData.isWeekend) {
+					// Overlay: Russian holiday (gray text + gray highlight, only if no CN holiday, not weekend)
+					if (weekendHL >= 3 && dayData.overlayHoliday && !dayData.holiday && !dayData.isWeekend) {
 						// Gray highlight background
 						svgEl('rect', {
 							x: xCursor, y: rowY, width: mW, height: L.verRowH,
@@ -504,6 +504,22 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					svgEl('rect', {
 						x: cx, y: hlY, width: cellW, height: hlH,
 						fill: COLORS.weekendHL, opacity: opacity,
+					}, svg);
+				}
+			}
+		}
+
+		// Overlay: Russian holidays gray highlight for Gantt (level 1+)
+		if (!hideDays && weekendHL >= 1 && overlayRU) {
+			const hlY = yGantt + ganttHeaderH;
+			const hlH = emptyRows * ganttRowH;
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				if (d.overlayHoliday && !d.holiday && !d.isWeekend) {
+					const cx = xCursor + di * cellW;
+					svgEl('rect', {
+						x: cx, y: hlY, width: cellW, height: hlH,
+						fill: '#999', opacity: '0.2',
 					}, svg);
 				}
 			}
@@ -592,6 +608,28 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					svgEl('rect', {
 						x: rx, y: ry, width: boxCellW, height: L.boxCellH,
 						fill: COLORS.weekendHL, opacity: opacity,
+					}, svg);
+				}
+			}
+		}
+
+		// Overlay: Russian holidays gray highlight for Box (level 2+)
+		if (weekendHL >= 2 && overlayRU) {
+			const boxGridW = mW * 0.85;
+			const boxCellW = boxGridW / 7;
+			const boxLeft = xCursor + 6;
+			const firstDayDowOv = (m.days[0].rawDow - wsOffset + 7) % 7;
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				if (d.overlayHoliday && !d.holiday && !d.isWeekend) {
+					const gridPos = firstDayDowOv + di;
+					const row = Math.floor(gridPos / 7);
+					const col = gridPos % 7;
+					const rx = boxLeft + col * boxCellW;
+					const ry = yBox + L.boxHeaderH + row * L.boxCellH;
+					svgEl('rect', {
+						x: rx, y: ry, width: boxCellW, height: L.boxCellH,
+						fill: '#999', opacity: '0.2',
 					}, svg);
 				}
 			}
