@@ -441,7 +441,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					}
 
 					// Overlay: Russian holiday (gray text + gray highlight, only if no CN holiday)
-					if (dayData.overlayHoliday && !dayData.holiday) {
+					if (dayData.overlayHoliday && !dayData.holiday && !dayData.isWeekend) {
 						// Gray highlight background
 						svgEl('rect', {
 							x: xCursor, y: rowY, width: mW, height: L.verRowH,
