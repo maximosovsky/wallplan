@@ -97,7 +97,7 @@ const LAYOUT = {
 	weekLineW: 0.2,
 
 	// Fonts
-	fontFamily: LOCALE._strings ? "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif" : "IBM Plex Sans, FreeSans, sans-serif",
+	fontFamily: "IBM Plex Sans, FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -433,7 +433,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					if (dayData.holiday) {
 						const isWPDay = dayData.holiday === 'WALLPLAN DAY';
 						svgEl('text', {
-							x: xCursor + (is914s ? 38 : 44), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
+							x: xCursor + (is914s ? 32 : 38), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
 							'font-size': is914s ? '3.5' : '4.5',
 							'text-anchor': 'start',
 							class: isWPDay ? 'wallplan-day' : '',
@@ -449,7 +449,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						}, svg);
 						// Gray text
 						svgEl('text', {
-							x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH - 3,
+							x: xCursor + (is914s ? 32 : 38), y: rowY + L.verRowH - 3,
 							'font-size': is914s ? '3' : '4',
 							'text-anchor': 'start',
 							fill: '#999',
@@ -466,7 +466,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 				if (dayData && dayData.holiday === 'WALLPLAN DAY') {
 					const rowY = yVer + di * L.verRowH;
 					svgEl('text', {
-						x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH / 2 + 2.5,
+						x: xCursor + (is914s ? 32 : 38), y: rowY + L.verRowH / 2 + 2.5,
 						'font-size': is914s ? '3.5' : '4.5',
 						'text-anchor': 'start',
 						class: 'wallplan-day',
@@ -1981,6 +1981,18 @@ async function printPDF() {
 			clone.removeAttribute('style');
 			clone.removeAttribute('class');
 			clone.setAttribute('xmlns', SVG_NS);
+
+			// For CJK locale: inject Noto Sans SC as primary font in SVG clone
+			if (LOCALE._strings && LOCALE._strings.zh) {
+				const styleEl = clone.querySelector('style');
+				if (styleEl) {
+					styleEl.textContent = styleEl.textContent.replace(
+						/font-family:\s*[^;]+;/,
+						"font-family: 'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif;"
+					);
+				}
+			}
+
 			// Temporarily add to DOM for svg2pdf
 			clone.style.position = 'absolute';
 			clone.style.left = '-9999px';
