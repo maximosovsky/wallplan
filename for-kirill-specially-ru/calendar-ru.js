@@ -129,6 +129,7 @@ const COLORS = {
 	red: '#C41E3A',
 	border: '#C8B89A',
 	cellLine: '#999999',
+	weekendHL: '#FFB6C1',
 };
 
 // Temperature-based month colors (index 0 unused, 1=Jan … 12=Dec)
@@ -148,6 +149,7 @@ const MONTH_COLORS = [
 	'#9E9E9E',    // 12 Dec — gray (coldest)
 ];
 let useMonthColors = false;
+let weekendHL = 0; // 0=off, 1=Gantt, 2=+Box, 3=+Vertical
 
 // ─── SVG Calendar Generator ───
 function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxMonthsPerPage = 0) {
@@ -348,6 +350,20 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		if (useMonthColors) monthNameEl.style.fill = monthColor;
 
 		// ── R3: Vertical calendar (31 rows) ──
+		// Weekend/holiday highlighting for Vertical (level 3)
+		if (!hideDays && weekendHL >= 3) {
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				if (d && (d.isWeekend || d.holiday)) {
+					const rowY = yVer + di * L.verRowH;
+					const opacity = (d.holiday && !d.isWeekend) ? '0.35' : '0.22';
+					svgEl('rect', {
+						x: xCursor, y: rowY, width: mW, height: L.verRowH,
+						fill: COLORS.weekendHL, opacity: opacity,
+					}, svg);
+				}
+			}
+		}
 		if (!hideDays) {
 			for (let di = 0; di < 31; di++) {
 				const rowY = yVer + di * L.verRowH;
@@ -425,6 +441,23 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}
 		}
 
+		// Weekend/holiday highlighting for Gantt rows (level 1+)
+		if (!hideDays && weekendHL >= 1) {
+			const hlY = yGantt + ganttHeaderH;
+			const hlH = emptyRows * ganttRowH;
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				if (d.isWeekend || d.holiday) {
+					const cx = xCursor + di * cellW;
+					const opacity = (d.holiday && !d.isWeekend) ? '0.4' : '0.3';
+					svgEl('rect', {
+						x: cx, y: hlY, width: cellW, height: hlH,
+						fill: COLORS.weekendHL, opacity: opacity,
+					}, svg);
+				}
+			}
+		}
+
 		if (!hideDays) {
 			// Header: day letters + day numbers
 			for (let di = 0; di < numDays; di++) {
@@ -490,6 +523,28 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		if (useMonthColors) boxMonthEl.style.fill = monthColor;
 
 		// ── R6: Box calendar grid ──
+		// Weekend/holiday highlighting for Box (level 2+)
+		if (weekendHL >= 2) {
+			const boxGridW = mW * 0.85;
+			const boxCellW = boxGridW / 7;
+			const boxLeft = xCursor + 6;
+			const firstDayDowHL = (m.days[0].rawDow - wsOffset + 7) % 7;
+			for (let di = 0; di < numDays; di++) {
+				const d = m.days[di];
+				if (d.isWeekend || d.holiday) {
+					const gridPos = firstDayDowHL + di;
+					const row = Math.floor(gridPos / 7);
+					const col = gridPos % 7;
+					const rx = boxLeft + col * boxCellW;
+					const ry = yBox + L.boxHeaderH + row * L.boxCellH;
+					const opacity = (d.holiday && !d.isWeekend) ? '0.4' : '0.28';
+					svgEl('rect', {
+						x: rx, y: ry, width: boxCellW, height: L.boxCellH,
+						fill: COLORS.weekendHL, opacity: opacity,
+					}, svg);
+				}
+			}
+		}
 		{
 			const boxGridW = mW * 0.85; // use 85% of month column
 			const boxCellW = boxGridW / 7;
@@ -644,8 +699,9 @@ function init() {
 	let weekStart = params.get('w') || 'mon';
 	yearsMode = params.get('u') === 'y';
 	hideDays = params.get('d') === '1';
-
 	useMonthColors = params.get('c') === '1';
+	weekendHL = parseInt(params.get('h')) || 0;
+	if (weekendHL < 0 || weekendHL > 3) weekendHL = 0;
 
 	if (emptyRows < 5 || emptyRows > 15) emptyRows = 10;
 	if (weekStart !== 'sun') weekStart = 'mon';
@@ -671,6 +727,7 @@ function init() {
 		const cBtn = document.getElementById('color-toggle-btn');
 		if (cBtn) cBtn.classList.add('active');
 	}
+	_syncWeekendHLBtn();
 	_syncColorIcons();
 
 	buildPages(totalMonths, emptyRows, weekStart);
@@ -697,6 +754,7 @@ function updateCalendar() {
 	url.searchParams.delete('u');
 	if (hideDays) url.searchParams.set('d', '1'); else url.searchParams.delete('d');
 	if (useMonthColors) url.searchParams.set('c', '1'); else url.searchParams.delete('c');
+	if (weekendHL) url.searchParams.set('h', weekendHL); else url.searchParams.delete('h');
 	window.history.replaceState({}, '', url);
 
 	buildPages(totalMonths, rows, weekStart);
@@ -1252,6 +1310,18 @@ function toggleHideDays() {
 	const mobBtn = document.getElementById('mob-hide-days-btn');
 	if (mobBtn) mobBtn.classList.toggle('active', hideDays);
 	updateCalendar();
+}
+
+// ─── Weekend highlight toggle ───
+function toggleWeekendHL() {
+	weekendHL = (weekendHL + 1) % 4;
+	_syncWeekendHLBtn();
+	updateCalendar();
+}
+
+function _syncWeekendHLBtn() {
+	const btn = document.getElementById('weekend-hl-btn');
+	if (btn) btn.classList.toggle('active', weekendHL > 0);
 }
 
 function openEntryModal() {

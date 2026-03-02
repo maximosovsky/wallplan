@@ -155,6 +155,11 @@
         <span id="rows-value" style="display:none">10</span>
         <button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Строки Ганта"
             onclick="cycleRows()">10</button>
+        <button id="weekend-hl-btn" data-tooltip="Выходные" onclick="toggleWeekendHL()">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="7" fill="#FFB6C1" />
+            </svg>
+        </button>
     </div>
     <canvas id="ruler-left" class="ruler ruler-left"></canvas>
     <canvas id="ruler-bottom" class="ruler ruler-bottom"></canvas>
