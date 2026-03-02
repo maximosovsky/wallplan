@@ -2008,6 +2008,14 @@ function addCustomEntries() {
 	updateCalendar();
 }
 
+function clearEntries() {
+	if (!customEntries.length) return;
+	customEntries.length = 0;
+	_saveEntries();
+	closeEntryModal();
+	updateCalendar();
+}
+
 // ─── Helpers ───
 function toggleWeekStart() {
 	const btn = document.getElementById('week-start-btn');
