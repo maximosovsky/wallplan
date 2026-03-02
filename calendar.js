@@ -517,24 +517,47 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		}
 
 		// Alternate year boundary: blue dashed vertical line at Rosh Hashana / 1 Muharram
-		{
+		if (useAltMonths) {
+			// For alt months: place boundary at column left edge if this is Tishrei (1st Hebrew month)
+			const altName = m.altName;
+			const isTishrei = altName && (altName === 'Tishrei' || altName === 'תשרי' || altName === 'Тишрей');
+			if (isTishrei) {
+				svgEl('line', {
+					x1: xCursor, y1: 0, x2: xCursor, y2: totalH,
+					class: 'year-boundary',
+				}, svg);
+				const gregYr = parseInt(m.year);
+				let altInfo = null;
+				if (LOCALE.getHebrewYear) altInfo = LOCALE.getHebrewYear(gregYr);
+				else if (LOCALE.getHijriYear) altInfo = LOCALE.getHijriYear(gregYr);
+				if (altInfo) {
+					const altYrKey = String(altInfo.yearAfter);
+					if (!_seenAltYear.has(altYrKey)) {
+						_seenAltYear.add(altYrKey);
+						svgEl('text', {
+							x: xCursor + 4, y: yYear + r1H - 2,
+							'font-size': '20', 'font-weight': '200',
+							'letter-spacing': '-0.03em',
+							class: 'alt-year',
+						}, svg).textContent = altInfo.yearAfter;
+					}
+				}
+			}
+		} else {
 			const gregYr = parseInt(m.year);
 			let altInfo = null;
 			if (LOCALE.getHebrewYear) altInfo = LOCALE.getHebrewYear(gregYr);
 			else if (LOCALE.getHijriYear) altInfo = LOCALE.getHijriYear(gregYr);
 			else if (LOCALE.getChineseYear) altInfo = LOCALE.getChineseYear(gregYr);
 			if (altInfo && altInfo.boundary && altInfo.boundary.month === m.monthNum) {
-				// Boundary day falls in this month
 				const bDay = altInfo.boundary.day;
-				const bDayIdx = bDay - 1; // 0-indexed
+				const bDayIdx = bDay - 1;
 				if (bDayIdx >= 0 && bDayIdx < numDays) {
 					const bx = xCursor + bDayIdx * cellW;
-					// Blue dashed vertical line spanning all sections
 					svgEl('line', {
 						x1: bx, y1: 0, x2: bx, y2: totalH,
 						class: 'year-boundary',
 					}, svg);
-					// Alternate year label at boundary — show only once
 					const altYrKey = String(altInfo.yearAfter);
 					if (!_seenAltYear.has(altYrKey)) {
 						_seenAltYear.add(altYrKey);
@@ -683,13 +706,16 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 							x: xCursor, y: rowY, width: segW, height: L.verRowH,
 							fill: '#999', opacity: '0.25',
 						}, svg);
-						// Gray text
-						svgEl('text', {
-							x: xCursor + (is914s ? 32 : 38), y: rowY + L.verRowH - 3,
-							'font-size': is914s ? '3' : '4',
-							'text-anchor': 'start',
-							fill: '#999',
-						}, svg).textContent = dayData.overlayHoliday;
+						// Gray text (show only on first day of multi-day overlay holidays)
+						const prevOverlay = di > 0 ? m.days[di - 1].overlayHoliday : null;
+						if (dayData.overlayHoliday !== prevOverlay) {
+							svgEl('text', {
+								x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH - 3,
+								'font-size': is914s ? '3' : '4',
+								'text-anchor': 'start',
+								fill: '#999',
+							}, svg).textContent = dayData.overlayHoliday;
+						}
 					}
 
 					// Overlay: Russian weekend (gray highlight for days that are RU weekends but not local weekends)
