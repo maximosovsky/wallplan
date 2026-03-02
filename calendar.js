@@ -100,7 +100,9 @@ const LAYOUT = {
 	fontFamily: LOCALE._strings
 		? (LOCALE._strings.he
 			? "'Noto Sans Hebrew', 'IBM Plex Sans', FreeSans, sans-serif"
-			: "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif")
+			: LOCALE._strings.ar
+				? "'Noto Sans Arabic', 'IBM Plex Sans', FreeSans, sans-serif"
+				: "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif")
 		: "IBM Plex Sans, FreeSans, sans-serif",
 };
 
@@ -518,10 +520,13 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 
 		// Alternate year boundary: blue dashed vertical line at Rosh Hashana / 1 Muharram
 		if (useAltMonths) {
-			// For alt months: place boundary at column left edge if this is Tishrei (1st Hebrew month)
+			// For alt months: place boundary at column left edge if this is Tishrei/Muharram (1st month of alt year)
 			const altName = m.altName;
-			const isTishrei = altName && (altName === 'Tishrei' || altName === 'תשרי' || altName === 'Тишрей');
-			if (isTishrei) {
+			const isNewYear = altName && (
+				altName === 'Tishrei' || altName === 'תשרי' || altName === 'Тишрей' ||
+				altName === 'Muharram' || altName === 'محرّم' || altName === 'Мухаррам'
+			);
+			if (isNewYear) {
 				svgEl('line', {
 					x1: xCursor, y1: 0, x2: xCursor, y2: totalH,
 					class: 'year-boundary',
@@ -595,7 +600,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			// Alt calendar month: big alt name + small Gregorian name
 			const altEl = svgEl('text', {
 				x: xCursor + 6, y: yMonth + r2H - 10,
-				'font-size': F.verMonth, 'font-weight': '200',
+				'font-size': F.boxMonth, 'font-weight': '200',
 				'letter-spacing': '-0.025em',
 			}, svg);
 			altEl.textContent = m.altName;
@@ -2243,6 +2248,30 @@ async function _loadPDFFonts(doc) {
 				}
 			} catch (e) {
 				console.warn('Hebrew font (Noto Sans Hebrew) load failed:', e);
+			}
+		}
+
+		// Load Arabic font for AR locale (Noto Sans Arabic)
+		if (LOCALE._strings && LOCALE._strings.ar) {
+			try {
+				let arResp = await fetch('fonts/NotoSansArabic/NotoSansArabic-Regular.ttf');
+				if (!arResp.ok) arResp = await fetch('../fonts/NotoSansArabic/NotoSansArabic-Regular.ttf');
+				if (arResp.ok) {
+					const arBuf = await arResp.arrayBuffer();
+					const arB64 = _arrayBufferToBase64(arBuf);
+					for (const w of [200, 300, 400, 500]) {
+						_fontCache.push({
+							id: 'NotoSansArabic-' + w + '.ttf',
+							b64: arB64,
+							name: 'Noto Sans Arabic',
+							style: 'normal',
+							weight: w,
+						});
+					}
+					console.log('Noto Sans Arabic loaded for PDF Arabic support');
+				}
+			} catch (e) {
+				console.warn('Arabic font (Noto Sans Arabic) load failed:', e);
 			}
 		}
 
