@@ -13,8 +13,11 @@ WallPlan is a browser-based calendar generator for long-term planning. It create
 Open [osovsky.com/wallplan](https://osovsky.com/wallplan/) in any modern browser. The calendar renders immediately with default settings (12 months, A4, 10 Gantt rows, Monday week start).
 
 **Other languages:**
-- 🇷🇺 Russian: [osovsky.com/wallplan/for-kirill-specially-ru](https://osovsky.com/wallplan/for-kirill-specially-ru/)
+- 🇷🇺 Russian: [osovsky.com/wallplan/ru](https://osovsky.com/wallplan/ru/)
 - 🇨🇳 Chinese: [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/)
+- 🇮🇱 Hebrew: [osovsky.com/wallplan/he](https://osovsky.com/wallplan/he/)
+- 🇦🇪 Arabic: [osovsky.com/wallplan/ar](https://osovsky.com/wallplan/ar/)
+- 🇮🇹 Italian (Venice): [osovsky.com/wallplan/it](https://osovsky.com/wallplan/it/)
 
 ### Local Development
 
@@ -270,8 +273,11 @@ Don't want to generate? Use the pre-built [2-Year Timeline Gantt Calendar 2026�
 | Language | URL | Holidays | Special features |
 |----------|-----|----------|------------------|
 | **English** | [osovsky.com/wallplan](https://osovsky.com/wallplan/) | US Federal | — |
-| **Русский** | [osovsky.com/wallplan/for-kirill-specially-ru](https://osovsky.com/wallplan/for-kirill-specially-ru/) | Russian + transferred days | — |
-| **中文 (Chinese)** | [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/) | 2026 State Council | Zodiac years, 补班 workdays, EN/RU/中 toggle, RU/CN overlay |
+| **Русский** | [osovsky.com/wallplan/ru](https://osovsky.com/wallplan/ru/) | Russian + transferred days | — |
+| **中文** | [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/) | 2026 State Council | Zodiac years, 补班 workdays, EN/RU/中 toggle, RU/CN overlay |
+| **עברית** | [osovsky.com/wallplan/he](https://osovsky.com/wallplan/he/) | Israeli + Jewish | Algorithmic Hebrew months, Tishrei boundary, HE/RU/EN toggle |
+| **العربية** | [osovsky.com/wallplan/ar](https://osovsky.com/wallplan/ar/) | Islamic (Hijri) | Algorithmic Hijri months, Muharram boundary, AR/RU/EN toggle |
+| **Italiano** | [osovsky.com/wallplan/it](https://osovsky.com/wallplan/it/) | Italian + Venice | Carnevale, Regata, Redentore, Salute, IT/RU/EN toggle |
 
 ### 🇨🇳 Chinese Calendar
 
@@ -290,7 +296,7 @@ The Chinese calendar at `/zh/` is designed for businesses planning around China�
 - Chinese Zodiac — animal + element label (e.g. `🐴 Fire Horse`) above the 2nd visible month of each year
 - WALLPLAN DAY (Jan 11)
 
-> 💡 **PDF note**: Chinese characters (months, zodiac) render correctly in PDF via Noto Sans SC font. Emoji (🧨🇨🇳) are not supported in PDF — use SVG export or `Ctrl+P` → "Save as PDF" for full emoji support.
+> 💡 **PDF note**: Non-Latin characters (Chinese, Hebrew, Arabic) render correctly in PDF via dedicated Noto Sans fonts. Emoji are auto-stripped from PDF — use SVG export or `Ctrl+P` → “Save as PDF” for full emoji support.
 
 ---
 
@@ -314,11 +320,11 @@ A: No. Everything runs locally in your browser. No server, no tracking (except a
 **Q: What are the month colors?**
 A: A temperature-based color palette (Material Design) that tints month names and day numbers by season — from black (January) through red (July) to gray (December). Toggle with the color button in the toolbar, or add `&c=1` to the URL. See [COLORS.md](./COLORS.md) for the full palette.
 
-**Q: What is the RU/CN Holiday Overlay?**
-A: On the Chinese calendar (`/zh/`), the half-circle button shows Russian holidays in gray alongside Chinese ones. Useful for businesses operating between Russia and China — see when each country is off.
+**Q: What is the Holiday Overlay?**
+A: On multi-language calendars (ZH, HE, AR, IT), the half-circle button shows comparison holidays. When switched to Russian language → shows Russian holidays in gray. When switched to English → shows US holidays. When on the native language (e.g., Italian), overlay is hidden — only local holidays shown.
 
 **Q: How do I get Chinese zodiac years?**
 A: Open the Chinese calendar at `/zh/`. Zodiac labels (animal + element, e.g. "🐴 Fire Horse") appear automatically above the second month of each year.
 
 **Q: Why don't emoji appear in PDF?**
-A: PDF is generated via jsPDF which doesn't support color emoji fonts. Emoji are visible in SVG export and in-browser. For PDF with emoji, use `Ctrl+P` → "Save as PDF" instead of the Download PDF button.
+A: PDF fonts don't support emoji. WallPlan auto-strips emoji from PDF output. Emoji are visible in SVG export and in-browser. For PDF with emoji, use `Ctrl+P` → "Save as PDF" instead of the Download PDF button.

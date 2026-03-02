@@ -1,12 +1,13 @@
 # Project Architecture: WallPlan Calendar Generator
 
 ## Overview
-Web-based tool generating printable SVG calendars with a Moleskine-inspired aesthetic. Precision layout for A4, A3, and engineering 914mm paper with three calendar types: Vertical, Gantt, and Box. Supports durations from 6 months to 20 years.
+Web-based tool generating printable SVG calendars with a Moleskine-inspired aesthetic. Precision layout for A4, A3, and engineering 914mm paper with three calendar types: Vertical, Gantt, and Box. Supports durations from 6 months to 20 years. Available in 6 locales: English (US), Russian, Chinese (zodiac, 补班), Hebrew (algorithmic, Tishrei boundary), Arabic (algorithmic Hijri), and Italian/Venice (Carnevale, Regata, Redentore).
 
 ## Technology Stack
 - **Frontend**: Vanilla JavaScript, CSS3, HTML5
 - **Rendering**: Pure SVG (no canvas/HTML tables)
-- **PDF Export**: `jspdf` + `svg2pdf.js` (CDN) with embedded IBM Plex Sans fonts
+- **Locale System**: `locales/*.js` files define `window.LOCALE` (months, weekdays, holidays, labels)
+- **PDF Export**: `jspdf` + `svg2pdf.js` (CDN) with embedded IBM Plex Sans + Noto Sans SC (CJK) + Noto Sans Hebrew + Noto Sans Arabic fonts. Emoji auto-stripped from PDF text nodes
 - **Mobile**: Touch pan/pinch-to-zoom, iOS-like bottom toolbar
 
 ## Core Components
@@ -76,7 +77,47 @@ Optional temperature-based color encoding for month names and day labels. See [C
 - **URL persistence**: `?c=1` enables colors
 - **CSS override**: uses `element.style.fill` (inline) to beat `text { fill: ... }` rule
 - **Weekend exception**: weekend days stay red (`#C41E3A`) regardless of month color
-- **Synced across**: EN, RU, and Miro app (always-on in Miro)
+- **Synced across**: EN, RU, ZH, and Miro app (always-on in Miro)
+
+#### Locale System
+Each locale is a standalone `locales/*.js` file that defines `window.LOCALE`:
+
+| Locale | File | `weekStart` | Holidays | Special |
+|--------|------|:-----------:|----------|--------|
+| English | `locales/en.js` | `sun` | US Federal | — |
+| Russian | `locales/ru.js` | `mon` | Russian + transferred (Gov Decree 1466) | — |
+| Chinese | `locales/zh.js` | `mon` | 2026 State Council + 补班 | Zodiac, lang toggle, RU overlay |
+| Hebrew | `locales/he.js` | `sun` | Israeli + Jewish (algorithmic 2024-2045) | HE/RU/EN toggle, alt Hebrew months, Tishrei boundary, RU/US overlay |
+| Arabic | `locales/ar.js` | `sat` | Islamic (algorithmic Hijri 2025-2034) | AR/RU/EN toggle, alt Hijri months, Muharram boundary, RU/US overlay |
+| Italian | `locales/it.js` | `mon` | 11 national + Easter + 5 Venice festivals | IT/RU/EN toggle, Carnevale/Regata/Redentore/Salute, RU/US overlay |
+
+`calendar.js` reads `LOCALE.months`, `LOCALE.weekDays`, `LOCALE.getHolidays(year)` etc. at init and in `updateCalendar()`. Multi-language locales use `get` accessors for dynamic language switching.
+
+#### Weekend & Holiday Highlighting
+Pink (`#FFB6C1`) semi-transparent `<rect>` elements drawn behind calendar content:
+
+| Level (`weekendHL`) | URL `&h=` | Sections highlighted |
+|:---:|:---:|---|
+| 0 | — | None |
+| 1 | `&h=1` | Gantt only (vertical columns) |
+| 2 | `&h=2` | Gantt + Box (cell backgrounds) |
+| 3 | `&h=3` | Gantt + Box + Vertical (horizontal rows) |
+
+- Toggle: pink circle SVG button in gantt-panel, cycles 0→1→2→3→0
+- Opacity: weekends `0.3`, holidays on weekdays `0.4` (Gantt), slightly higher in Box
+- **Workday overrides** (`LOCALE.getWorkdayOverrides`): 补班 dates excluded from highlighting even on Sat/Sun
+- Rects inserted before grid lines → lines render on top
+
+#### Holiday Overlay (ZH, HE, AR, IT)
+Button with half-gray / half-pink SVG circle in top-bar. Toggles `overlayRU` state:
+
+- **Language-dependent**: `_lang === 'en'` → US holidays (`getUSHolidays`), `_lang === 'ru'` → Russian holidays (`getRussianHolidays`), native language → overlay hidden (only local holidays shown)
+- **RU-only weekday holidays** → gray text + gray background (`#999`, 25% opacity)
+- **Local+RU overlapping** → shows only local, RU hidden
+- **RU holidays on weekends** → no gray highlight (already pink or weekend)
+- Tied to `weekendHL` level: overlay appears on the same sections as highlighting
+- URL parameter `&ov=1`
+- Stats popup: native lang shows only local stats; RU/EN shows full breakdown with overlay
 
 ### 2. Page Building & Copies
 
@@ -109,7 +150,13 @@ Optional temperature-based color encoding for month names and day labels. See [C
 
 **`printPDF()`** — Programmatic PDF generation:
 - Uses `jspdf` + `svg2pdf.js` for vector PDF
-- IBM Plex Sans fonts (Light/Regular/Medium) fetched from `fonts/`, cached as base64, registered on each new document
+- IBM Plex Sans fonts (Light/Regular/Medium) fetched from `fonts/` with `../fonts/` fallback for subdirectory locales, cached as base64
+- **CJK support**: Noto Sans SC loaded on demand for ZH locale
+- **Hebrew support**: Noto Sans Hebrew loaded for HE locale
+- **Arabic support**: Noto Sans Arabic loaded for AR locale
+- **IT/EN/RU**: standard IBM Plex Sans (no special font needed)
+- **Emoji stripping**: all emoji removed from SVG text nodes before svg2pdf rendering (emoji unsupported by PDF fonts)
+- **Copper Penny DTP**: loaded with `../fonts/` fallback for WALLPLAN DAY
 - Falls back to `window.print()` if libraries unavailable
 - Filename: `wallplan_{format}_{months}mo_{rows}rows_{DD-MM-YYYY}.pdf`
 
@@ -136,8 +183,9 @@ Optional temperature-based color encoding for month names and day labels. See [C
   - Paper format chips + roll length display (e.g. `· 1.5 m`) for 914mm formats
   - Gantt rows: chip buttons (6 / 8 / 10 / 12)
   - Week start toggle
-- Welcome carousel (first visit only, `localStorage: wallplan-welcome-seen`):
+- Welcome carousel (every mobile visit, no localStorage gate):
   - 4 horizontal swipe slides (scroll-snap), cherry-red **W** logo on slides 1 & 4
+  - ZH version: slides in Chinese with philosopher quotes (陈澄, 中庸, 老子, 墨子), Chinese flag PNG on slide 2
   - Dot indicators via IntersectionObserver, "Start planning" button appears on last slide
   - Skip button top-right, mouse drag for desktop emulator
   - Touch exclusion: added `.welcome-overlay` to global touchstart guard
@@ -166,13 +214,28 @@ Optional temperature-based color encoding for month names and day labels. See [C
 | `914x4` | ∞×914mm | all on 1 page | 4 (228mm each) |
 
 ## File Structure
-- `index.html` — Entry point, UI shell (desktop + mobile)
-- `calendar.js` — SVG renderer, viewport, export, touch, mobile UI logic
+- `index.html` — Entry point, UI shell (desktop + mobile) — EN
+- `ru/index.html` — RU version
+- `zh/index.html` — ZH version (Chinese calendar)
+- `he/index.html` — HE version (Hebrew/Israeli calendar)
+- `ar/index.html` — AR version (Arabic/Hijri calendar)
+- `it/index.html` — IT version (Italian/Venice calendar)
+- `calendar.js` — SVG renderer, viewport, export, touch, mobile UI logic (shared across all locales)
+- `sw.js` — Service Worker: versioned cache (`wallplan-v1`), cache-first strategy, offline PWA support
+- `locales/en.js` — English locale (months, weekdays, US holidays)
+- `locales/ru.js` — Russian locale (months, weekdays, Russian holidays + transferred days)
+- `locales/zh.js` — Chinese locale (holidays, zodiac, lang toggle, overlay, workday overrides)
+- `locales/he.js` — Hebrew locale (algorithmic Hebrew months 2024-2045, Israeli holidays, HE/RU/EN toggle)
+- `locales/ar.js` — Arabic locale (algorithmic Hijri months 2025-2034, Islamic holidays, AR/RU/EN toggle)
+- `locales/it.js` — Italian locale (national + Venice holidays, Easter 2024-2045, IT/RU/EN toggle)
 - `style.css` — Themes, mobile toolkit, print optimization
-- `fonts/` — Local font assets (IBM Plex Sans, 14 weights)
+- `fonts/` — IBM Plex Sans (14 weights), Copper Penny DTP
+- `fonts/NotoSansSC/` — Noto Sans SC CJK font for PDF
+- `fonts/NotoSansHebrew/` — Noto Sans Hebrew for PDF
+- `fonts/NotoSansArabic/` — Noto Sans Arabic for PDF
 - `og-image.png` — Social preview image (1200×630)
 - `robots.txt` — Crawler rules (Google, Bing, AI bots)
-- `sitemap.xml` — URL map with hreflang alternates
+- `sitemap.xml` — URL map with hreflang alternates (EN, RU, ZH, HE, AR, IT)
 - `llms.txt` — Concise site description for LLM models
 - `llms-full.txt` — Full documentation in Markdown for AI ingestion
 - `manifest.json` — PWA manifest (name, theme, icon)
@@ -190,10 +253,12 @@ Optional temperature-based color encoding for month names and day labels. See [C
 | `<meta keywords>` | 20 EN / 14 RU targeted search terms |
 | `<meta theme-color>` | Moleskine cream `#F5F0E8` in mobile address bar |
 | `<link canonical>` | Prevents duplicate content |
-| `<link hreflang>` | EN ↔ RU language linking + x-default |
-| `<link rel="icon">` | Inline SVG favicon 📅 |
-| `<link apple-touch-icon>` | iOS bookmark icon |
+| `<link hreflang>` | EN ↔ RU ↔ ZH ↔ HE ↔ AR ↔ IT language linking + x-default |
+| `<link rel="icon">` | PNG favicon (`favicon.png`) |
+| `<link apple-touch-icon>` | iOS bookmark icon (`favicon.png`) |
 | `<link manifest>` | PWA "Add to Home Screen" |
+| `aria-label` | All icon-only buttons and interactive divs for screen reader accessibility |
+| `role="button"` | `<div class="tb-btn">` elements acting as buttons |
 | `<noscript>` | Fallback text for non-JS browsers |
 
 ### Open Graph & Twitter Card
@@ -242,4 +307,9 @@ Root `/` redirects to `/wallplan/` via `<meta http-equiv="refresh">`.
 ### Analytics
 GA4 (`G-NW8NPGK3DY`) on all entry points:
 1. `osovsky.com/wallplan/` (EN)
-2. `osovsky.com` root landing page
+2. `osovsky.com/wallplan/ru/` (RU)
+3. `osovsky.com/wallplan/zh/` (ZH)
+4. `osovsky.com/wallplan/he/` (HE)
+5. `osovsky.com/wallplan/ar/` (AR)
+6. `osovsky.com/wallplan/it/` (IT)
+7. `osovsky.com` root landing page

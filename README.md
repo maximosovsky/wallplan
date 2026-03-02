@@ -1,6 +1,8 @@
 <div align="center">
 
-# 📅 WallPlan
+<img src="favicon.png" alt="WallPlan" width="80">
+
+# WallPlan
 
 **Print years on paper — plan decades ahead**
 
@@ -47,7 +49,7 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Format tuning** | Optimized cell widths per format — 4mm (single), 2.7mm (×2), 1.7mm (×4) |
 | **PDF & SVG export** | Embedded IBM Plex Sans fonts, parallel font loading |
 | **Custom entries** | Add annotations via **W** button: `DD.MM` format, yearly repeat, exported to SVG/PDF |
-| **Holidays** | US, Russian, and Chinese holidays. WallPlan Day (Jan 11) in Copper Penny DTP font |
+| **Holidays** | US, Russian, Chinese, Israeli, Islamic (Hijri), and Italian/Venice holidays. WallPlan Day (Jan 11) in Copper Penny DTP font |
 | **Weekend highlighting** | Pink background on weekends/holidays. 3 levels: Gantt → +Box → +Vertical. Toggle via pink circle button. URL: `&h=1/2/3` |
 | **Month colors** | Temperature-based [color palette](./COLORS.md) — toggle via toolbar button. URL: `&c=1` |
 | **Week start** | Monday or Sunday toggle |
@@ -61,8 +63,11 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Zero dependencies** | No npm, no framework, pure vanilla JS |
 | **Miro App** | Native Miro board elements via [wallplan-miro](https://github.com/maximosovsky/wallplan-miro) — progressive rendering, batch optimized |
 | **Miroverse** | [2-Year Timeline Gantt Calendar](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027/) — ready-to-use template |
-| **3 languages** | English, Russian (Русский), Chinese (中文) with locale-specific holidays |
-| **Chinese calendar** | Zodiac year labels, 补班 workday overrides, EN/RU/中 language toggle, RU/CN holiday overlay |
+| **6 languages** | English, Russian (Русский), Chinese (中文), Hebrew (עברית), Arabic (العربية), Italian (Italiano) |
+| **Hebrew calendar** | Algorithmic Hebrew months (2024-2045), Israeli holidays, Tishrei boundary, HE/RU/EN toggle |
+| **Arabic calendar** | Algorithmic Hijri months (2025-2034), Islamic holidays, Muharram boundary, AR/RU/EN toggle |
+| **Italian calendar** | 11 national + Easter + 5 Venice festivals (Carnevale, Sensa, Redentore, Regata, Salute), IT/RU/EN toggle |
+| **Holiday overlay** | RU/US holiday comparison on ZH/HE/AR/IT calendars. Language-dependent: RU lang → Russian holidays, EN lang → US holidays |
 
 ---
 
@@ -82,8 +87,11 @@ Or visit the live version:
 ## 🌐 Languages
 
 - **English**: [osovsky.com/wallplan](https://osovsky.com/wallplan/)
-- **Русский**: [osovsky.com/wallplan/for-kirill-specially-ru](https://osovsky.com/wallplan/for-kirill-specially-ru/)
-- **中文 (Chinese)**: [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/) — EN UI with Chinese holidays, zodiac years, 补班 workdays, RU/CN overlay
+- **Русский**: [osovsky.com/wallplan/ru](https://osovsky.com/wallplan/ru/)
+- **中文 (Chinese)**: [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/) — zodiac years, 补班 workdays, RU/CN overlay
+- **עברית (Hebrew)**: [osovsky.com/wallplan/he](https://osovsky.com/wallplan/he/) — Hebrew calendar months, Israeli holidays
+- **العربية (Arabic)**: [osovsky.com/wallplan/ar](https://osovsky.com/wallplan/ar/) — Hijri calendar months, Islamic holidays
+- **Italiano (Venice)**: [osovsky.com/wallplan/it](https://osovsky.com/wallplan/it/) — Italian + Venice holidays (Carnevale, Regata, Redentore)
 
 ---
 
@@ -135,14 +143,17 @@ Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in i
 ## 🏗️ Tech Stack
 
 | `calendar.js` | SVG renderer, viewport, pan/zoom, export (shared across all locales) |
-| `locales/` | Locale files: `en.js` (US), `ru.js` (Russian), `zh.js` (Chinese) |
+| `locales/` | Locale files: `en.js`, `ru.js`, `zh.js`, `he.js`, `ar.js`, `it.js` |
 | `style.css` | Miro-style UI, Moleskine palette, responsive layout |
 | `index.html` | Main app shell + GA4 tracking (EN) |
 | `zh/index.html` | Chinese calendar version |
+| `he/index.html` | Hebrew/Israeli calendar version |
+| `ar/index.html` | Arabic/Hijri calendar version |
+| `it/index.html` | Italian/Venice calendar version |
 | `sw.js` | Service Worker for offline PWA support (versioned cache) |
 | `favicon.png` | Site favicon (PNG, all HTML files) |
 | `manifest.json` | PWA manifest with favicon.png icon |
-| `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP + Noto Sans SC (CJK) |
+| `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP + Noto Sans SC/Hebrew/Arabic |
 | `og-image.jpg` | OG social preview image (1200×630) |
 | `USER_MANUAL.md` | Comprehensive user guide |
 | `COLORS.md` | Month color palette reference (hex, names, rationale) |
