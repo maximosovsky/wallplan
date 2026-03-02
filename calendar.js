@@ -1859,13 +1859,17 @@ async function _loadPDFFonts(doc) {
 				if (!cjkResp.ok) cjkResp = await fetch('../fonts/NotoSansSC/NotoSansSC.ttf');
 				if (cjkResp.ok) {
 					const cjkBuf = await cjkResp.arrayBuffer();
-					_fontCache.push({
-						id: 'NotoSansSC.ttf',
-						b64: _arrayBufferToBase64(cjkBuf),
-						name: 'Noto Sans SC',
-						style: 'normal',
-						weight: 400,
-					});
+					const cjkB64 = _arrayBufferToBase64(cjkBuf);
+					// Register at all weights used by the calendar (variable font supports all)
+					for (const w of [200, 300, 400, 500]) {
+						_fontCache.push({
+							id: 'NotoSansSC-' + w + '.ttf',
+							b64: cjkB64,
+							name: 'Noto Sans SC',
+							style: 'normal',
+							weight: w,
+						});
+					}
 					console.log('Noto Sans SC loaded for PDF CJK support');
 				}
 			} catch (e) {
