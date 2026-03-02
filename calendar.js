@@ -440,19 +440,17 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						}, svg).textContent = dayData.holiday;
 					}
 
-					// Overlay: Russian holiday (gray, below main)
+					// Overlay: Russian holiday (gray text + gray highlight, only if no CN holiday)
 					if (dayData.overlayHoliday && !dayData.holiday) {
+						// Gray highlight background
+						svgEl('rect', {
+							x: xCursor, y: rowY, width: mW, height: L.verRowH,
+							fill: '#999', opacity: '0.12',
+						}, svg);
+						// Gray text
 						svgEl('text', {
 							x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH - 3,
 							'font-size': is914s ? '3' : '4',
-							'text-anchor': 'start',
-							fill: '#999',
-						}, svg).textContent = dayData.overlayHoliday;
-					} else if (dayData.overlayHoliday && dayData.holiday) {
-						// Both CN and RU — show RU smaller underneath
-						svgEl('text', {
-							x: xCursor + (is914s ? 38 : 44), y: rowY + L.verRowH + 3,
-							'font-size': is914s ? '2.5' : '3',
 							'text-anchor': 'start',
 							fill: '#999',
 						}, svg).textContent = dayData.overlayHoliday;
