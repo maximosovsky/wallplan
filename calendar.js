@@ -1429,8 +1429,38 @@ function toggleOverlay() {
 	overlayRU = !overlayRU;
 	const btn = document.getElementById('overlay-btn');
 	if (btn) btn.classList.toggle('active', overlayRU);
-	// Update tooltip with current language
-	if (btn && LOCALE.overlayTooltip) btn.setAttribute('data-tooltip', LOCALE.overlayTooltip);
+
+	if (btn && overlayRU && LOCALE.getRussianHolidays) {
+		// Calculate combined stats for current year
+		const year = new Date().getFullYear();
+		const cnH = LOCALE.getHolidays(year);
+		const ruH = LOCALE.getRussianHolidays(year);
+		const wo = LOCALE.getWorkdayOverrides ? LOCALE.getWorkdayOverrides(year) : new Set();
+		let weekends = 0, cnOnly = 0, ruOnly = 0;
+		const daysInYear = ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 366 : 365;
+		for (let d = 0; d < daysInYear; d++) {
+			const dt = new Date(year, 0, 1 + d);
+			const dow = dt.getDay();
+			const md = String(dt.getMonth() + 1).padStart(2, '0') + String(dt.getDate()).padStart(2, '0');
+			const isWe = (dow === 0 || dow === 6) && !wo.has(md);
+			const isCn = !!cnH[md] && !wo.has(md);
+			const isRu = !!ruH[md];
+			if (isWe) { weekends++; }
+			else if (isCn) { cnOnly++; }
+			else if (isRu) { ruOnly++; }
+		}
+		const total = weekends + cnOnly + ruOnly;
+		btn.setAttribute('data-tooltip', `${total}/${daysInYear}`);
+		const stats = document.getElementById('overlay-stats');
+		if (stats) {
+			stats.innerHTML = `${cnOnly} — 🇨🇳 holidays<br>${ruOnly} — 🇷🇺 holidays<br>${weekends} — weekends − 补班<br><b>${total}/${daysInYear}</b>`;
+		}
+	} else if (btn) {
+		btn.setAttribute('data-tooltip', LOCALE.overlayTooltip || 'RU/CN holiday');
+		const stats = document.getElementById('overlay-stats');
+		if (stats) stats.innerHTML = '';
+	}
+
 	updateCalendar();
 }
 

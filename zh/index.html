@@ -107,11 +107,13 @@
         <div class="tb-sep"></div>
         <div class="tb-btn" id="lang-toggle-btn" onclick="LOCALE.switchLang()" data-tooltip="Language"
             style="font-size:13px; font-weight:600; letter-spacing:0.5px;">EN</div>
-        <div class="tb-btn" id="overlay-btn" onclick="toggleOverlay()" data-tooltip="RU/CN holiday">
+        <div class="tb-btn" id="overlay-btn" onclick="toggleOverlay()" data-tooltip="RU/CN holiday"
+            style="position:relative;">
             <svg width="16" height="16" viewBox="0 0 16 16">
                 <path d="M8 1 A7 7 0 0 0 8 15 Z" fill="#999" />
                 <path d="M8 1 A7 7 0 0 1 8 15 Z" fill="#FFB6C1" />
             </svg>
+            <div id="overlay-stats" class="overlay-stats"></div>
         </div>
     </div>
     <!-- Custom confirm modal -->
