@@ -102,8 +102,10 @@ const LAYOUT = {
 			? "'Noto Sans Hebrew', 'IBM Plex Sans', FreeSans, sans-serif"
 			: LOCALE._strings.ar
 				? "'Noto Sans Arabic', 'IBM Plex Sans', FreeSans, sans-serif"
-				: "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif")
-		: "IBM Plex Sans, FreeSans, sans-serif",
+				: LOCALE._strings.zh
+					? "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif"
+					: "'IBM Plex Sans', FreeSans, sans-serif")
+		: "'IBM Plex Sans', FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -227,7 +229,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	// Overlay: comparison holidays based on active language
 	const overlayByYear = {};
 	const overlayWeekendDays = [0, 6]; // US/RU both use Sat+Sun
-	if (overlayRU) {
+	if (overlayRU && (LOCALE._lang === 'en' || LOCALE._lang === 'ru')) {
 		for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
 			if (LOCALE._lang === 'en') {
 				overlayByYear[y] = getUSHolidays(y);
@@ -695,12 +697,14 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						const prevHoliday = di > 0 ? m.days[di - 1].holiday : null;
 						if (dayData.holiday !== prevHoliday) {
 							const isWPDay = dayData.holiday === 'WALLPLAN DAY';
-							svgEl('text', {
+							const hAttrs = {
 								x: xCursor + (is914s ? 38 : 44), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
 								'font-size': is914s ? '3.5' : '4.5',
 								'text-anchor': 'start',
 								class: isWPDay ? 'wallplan-day' : '',
-							}, svg).textContent = dayData.holiday;
+							};
+							if (isWPDay) hAttrs['font-family'] = "'Copper Penny DTP', serif";
+							svgEl('text', hAttrs, svg).textContent = dayData.holiday;
 						}
 					}
 
@@ -744,6 +748,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						x: xCursor + (is914s ? 32 : 38), y: rowY + L.verRowH / 2 + 2.5,
 						'font-size': is914s ? '3.5' : '4.5',
 						'text-anchor': 'start',
+						'font-family': "'Copper Penny DTP', serif",
 						class: 'wallplan-day',
 					}, svg).textContent = dayData.holiday;
 				}
@@ -1805,12 +1810,20 @@ function refreshOverlayStats() {
 		const localFlag = LOCALE._holidayNames ? (
 			LOCALE._holidayNames.newYear ? (
 				LOCALE._holidayNames.newYear.he ? '🇮🇱' :
-					LOCALE._holidayNames.newYear.ar ? '🇦🇪' : '🇨🇳'
+					LOCALE._holidayNames.newYear.ar ? '🇦🇪' :
+						LOCALE._holidayNames.newYear.it ? '🇮🇹' : '🇨🇳'
 			) : '🏠'
 		) : '🏠';
-		const compFlag = isEN ? '🇺🇸' : '🇷🇺';
-		const woLabel = wo.size > 0 ? ' − 补班' : '';
-		stats.innerHTML = `${localOnly} — ${localFlag} holidays<br>${compOnly} — ${compFlag} holidays<br>${weekends} — weekends${woLabel}<br>${overlayWe} — ${compFlag} weekends<br><b>${total}/${daysInYear}</b>`;
+		// When native language is active (not RU/EN), show only local stats
+		const isNativeLang = LOCALE._lang !== 'en' && LOCALE._lang !== 'ru';
+		if (isNativeLang) {
+			const localTotal = weekends + localOnly;
+			stats.innerHTML = `${localOnly} — ${localFlag} holidays<br>${weekends} — weekends<br><b>${localTotal}/${daysInYear}</b>`;
+		} else {
+			const compFlag = isEN ? '🇺🇸' : '🇷🇺';
+			const woLabel = wo.size > 0 ? ' − 补班' : '';
+			stats.innerHTML = `${localOnly} — ${localFlag} holidays<br>${compOnly} — ${compFlag} holidays<br>${weekends} — weekends${woLabel}<br>${overlayWe} — ${compFlag} weekends<br><b>${total}/${daysInYear}</b>`;
+		}
 	}
 }
 
@@ -2151,9 +2164,12 @@ let _copperPennyB64 = null;
 async function _loadCopperPennyB64() {
 	if (_copperPennyB64) return _copperPennyB64;
 	try {
-		const resp = await fetch('fonts/cooper/Copper Penny DTP.ttf');
-		const buf = await resp.arrayBuffer();
-		_copperPennyB64 = _arrayBufferToBase64(buf);
+		let resp = await fetch('fonts/cooper/Copper Penny DTP.ttf');
+		if (!resp.ok) resp = await fetch('../fonts/cooper/Copper Penny DTP.ttf');
+		if (resp.ok) {
+			const buf = await resp.arrayBuffer();
+			_copperPennyB64 = _arrayBufferToBase64(buf);
+		}
 	} catch (e) {
 		console.warn('Copper Penny DTP load failed:', e);
 	}
@@ -2173,30 +2189,36 @@ async function _loadPDFFonts(doc) {
 		];
 		for (const w of weights) {
 			try {
-				const resp = await fetch('fonts/IBMPlexSans/' + w.file);
-				const buf = await resp.arrayBuffer();
-				_fontCache.push({
-					id: 'IBMPlexSans-' + w.weight + '.ttf',
-					b64: _arrayBufferToBase64(buf),
-					name: fontName,
-					style: w.style,
-					weight: w.weight,
-				});
+				let resp = await fetch('fonts/IBMPlexSans/' + w.file);
+				if (!resp.ok) resp = await fetch('../fonts/IBMPlexSans/' + w.file);
+				if (resp.ok) {
+					const buf = await resp.arrayBuffer();
+					_fontCache.push({
+						id: 'IBMPlexSans-' + w.weight + '.ttf',
+						b64: _arrayBufferToBase64(buf),
+						name: fontName,
+						style: w.style,
+						weight: w.weight,
+					});
+				}
 			} catch (e) {
 				console.warn('Font load failed:', w.file, e);
 			}
 		}
 		// Also load Copper Penny DTP
 		try {
-			const resp = await fetch('fonts/cooper/Copper Penny DTP.ttf');
-			const buf = await resp.arrayBuffer();
-			_fontCache.push({
-				id: 'CopperPennyDTP.ttf',
-				b64: _arrayBufferToBase64(buf),
-				name: 'Copper Penny DTP',
-				style: 'normal',
-				weight: 400,
-			});
+			let resp = await fetch('fonts/cooper/Copper Penny DTP.ttf');
+			if (!resp.ok) resp = await fetch('../fonts/cooper/Copper Penny DTP.ttf');
+			if (resp.ok) {
+				const buf = await resp.arrayBuffer();
+				_fontCache.push({
+					id: 'CopperPennyDTP.ttf',
+					b64: _arrayBufferToBase64(buf),
+					name: 'Copper Penny DTP',
+					style: 'normal',
+					weight: 400,
+				});
+			}
 		} catch (e) {
 			console.warn('Copper Penny DTP load failed:', e);
 		}
@@ -2388,6 +2410,10 @@ async function printPDF() {
 			// Temporarily add to DOM for svg2pdf
 			clone.style.position = 'absolute';
 			clone.style.left = '-9999px';
+			// Strip emoji from text nodes (not supported by PDF fonts)
+			clone.querySelectorAll('text').forEach(el => {
+				el.textContent = el.textContent.replace(/[\u{1F300}-\u{1FAD6}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim();
+			});
 			document.body.appendChild(clone);
 
 			const yOffset = MARGIN + c * (pdfH / copies);

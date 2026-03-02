@@ -188,56 +188,41 @@ window.LOCALE = {
     _overlayTooltip: { it: 'Festività 🇷🇺/🇺🇸', ru: 'Праздники РU/US', en: 'RU/US holidays' },
     get overlayTooltip() { return this._overlayTooltip[this._lang]; },
 
-    getOverlayHolidays(year) {
+    _ruHolidayNames: {
+        newYear: { it: '🎄 Capodanno (Russia)', ru: '🎄 Новый год', en: '🎄 New Year (RU)' },
+        newYearH: { it: '🎄 Vacanze di Capodanno', ru: '🎄 Новогодние каникулы', en: '🎄 New Year Holiday (RU)' },
+        christmas: { it: '⛪ Natale ortodosso', ru: '⛪ Рождество Христово', en: '⛪ Christmas (RU)' },
+        defender: { it: '🎖️ Giorno del Difensore', ru: '🎖️ День защитника Отечества', en: '🎖️ Defender Day (RU)' },
+        women: { it: '💐 Giornata della Donna', ru: '💐 Международный женский день', en: "💐 Women's Day (RU)" },
+        spring: { it: '🌸 Festa del Lavoro (RU)', ru: '🌸 Праздник Весны и Труда', en: '🌸 Spring & Labour (RU)' },
+        victory: { it: '🎗️ Giorno della Vittoria', ru: '🎗️ День Победы', en: '🎗️ Victory Day (RU)' },
+        russia: { it: '🏛️ Giorno della Russia', ru: '🏛️ День России', en: '🏛️ Russia Day' },
+        unity: { it: '🤝 Giorno dell\'Unità (RU)', ru: '🤝 День народного единства', en: '🤝 Unity Day (RU)' },
+        transfer: { it: '🎄 Festivo (trasferimento)', ru: '🎄 Выходной (перенос)', en: '🎄 Holiday (transfer)' },
+    },
+
+    _rh(key) { return this._ruHolidayNames[key][this._lang]; },
+
+    getRussianHolidays(year) {
         const h = {};
         const pad2 = n => String(n).padStart(2, '0');
         const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
 
-        const lang = this._lang;
+        add(1, 1, this._rh('newYear'));
+        for (let d = 2; d <= 6; d++) add(1, d, this._rh('newYearH'));
+        add(1, 7, this._rh('christmas'));
+        add(1, 8, this._rh('newYearH'));
 
-        // ── Russian holidays ──
-        const ruName = (it, ru, en) => lang === 'it' ? it : lang === 'ru' ? ru : en;
+        add(2, 23, this._rh('defender'));
+        add(3, 8, this._rh('women'));
+        add(5, 1, this._rh('spring'));
+        add(5, 9, this._rh('victory'));
+        add(6, 12, this._rh('russia'));
+        add(11, 4, this._rh('unity'));
 
-        // New Year holidays (1-8 Jan)
-        for (let d = 1; d <= 8; d++) add(1, d, ruName('🎄 Vacanze di Capodanno', '🎄 Новогодние каникулы', '🎄 New Year Holidays'));
-        add(2, 23, ruName('🇷🇺 Giorno del Difensore', '🇷🇺 День защитника Отечества', '🇷🇺 Defender Day'));
-        add(3, 8, ruName('🌷 Giornata della Donna', '🌷 Международный женский день', "🌷 Int'l Women's Day"));
-        add(5, 1, ruName('🇷🇺 Festa del Lavoro', '🇷🇺 Праздник Весны и Труда', '🇷🇺 Spring & Labour Day'));
-        add(5, 9, ruName('🇷🇺 Giorno della Vittoria', '🇷🇺 День Победы', '🇷🇺 Victory Day'));
-        add(6, 12, ruName('🇷🇺 Giorno della Russia', '🇷🇺 День России', '🇷🇺 Russia Day'));
-        add(11, 4, ruName('🇷🇺 Giorno dell\'Unità', '🇷🇺 День народного единства', '🇷🇺 Unity Day'));
-
-        // ── US holidays ──
-        const usName = (it, ru, en) => lang === 'it' ? it : lang === 'ru' ? ru : en;
-
-        add(7, 4, usName('🇺🇸 Giorno dell\'Indipendenza', '🇺🇸 День Независимости', '🇺🇸 Independence Day'));
-        add(11, 11, usName('🇺🇸 Giorno dei Veterani', '🇺🇸 День ветеранов', '🇺🇸 Veterans Day'));
-        add(12, 25, usName('🇺🇸 Natale', '🇺🇸 Рождество', '🇺🇸 Christmas'));
-
-        // MLK Day: 3rd Monday of January
-        {
-            const d = new Date(year, 0, 1); const dow = d.getDay(); const firstMon = dow <= 1 ? 2 - dow : 9 - dow;
-            add(1, firstMon + 14, usName('🇺🇸 Martin Luther King Jr.', '🇺🇸 День М.Л. Кинга', '🇺🇸 MLK Day'));
-        }
-        // Presidents Day: 3rd Monday of February
-        {
-            const d = new Date(year, 1, 1); const dow = d.getDay(); const firstMon = dow <= 1 ? 2 - dow : 9 - dow;
-            add(2, firstMon + 14, usName('🇺🇸 Giorno dei Presidenti', '🇺🇸 День Президентов', "🇺🇸 Presidents' Day"));
-        }
-        // Memorial Day: last Monday of May
-        {
-            const d = new Date(year, 4, 31); const dow = d.getDay(); const lastMon = 31 - ((dow + 6) % 7);
-            add(5, lastMon, usName('🇺🇸 Memorial Day', '🇺🇸 День памяти', '🇺🇸 Memorial Day'));
-        }
-        // Labor Day: 1st Monday of September
-        {
-            const d = new Date(year, 8, 1); const dow = d.getDay(); const firstMon = dow <= 1 ? 2 - dow : 9 - dow;
-            add(9, firstMon, usName('🇺🇸 Festa del Lavoro', '🇺🇸 День Труда', '🇺🇸 Labor Day'));
-        }
-        // Thanksgiving: 4th Thursday of November
-        {
-            const d = new Date(year, 10, 1); const dow = d.getDay(); const firstThu = dow <= 4 ? 5 - dow : 12 - dow;
-            add(11, firstThu + 21, usName('🇺🇸 Ringraziamento', '🇺🇸 День благодарения', '🇺🇸 Thanksgiving'));
+        if (year === 2026) {
+            add(1, 9, this._rh('transfer'));
+            add(12, 31, this._rh('transfer'));
         }
 
         return h;
