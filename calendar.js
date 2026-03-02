@@ -97,7 +97,11 @@ const LAYOUT = {
 	weekLineW: 0.2,
 
 	// Fonts
-	fontFamily: LOCALE._strings ? "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif" : "IBM Plex Sans, FreeSans, sans-serif",
+	fontFamily: LOCALE._strings
+		? (LOCALE._strings.he
+			? "'Noto Sans Hebrew', 'IBM Plex Sans', FreeSans, sans-serif"
+			: "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif")
+		: "IBM Plex Sans, FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -452,12 +456,15 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 
 	// Track seen weeks for week number labels
 	const seenWeeks = new Set();
+	const _seenGregYear = new Set();
+	const _seenAltYear = new Set();
 
 	// ── Batch path collectors (P3 optimization) ──
 	let pathVerGray = '';   // vertical calendar thin gray horizontals (0.25pt cellLine)
 	let pathVerWeek = '';   // vertical calendar week separators (weekLineW ink)
 	let pathGanttGray = ''; // Gantt cell borders h+v (0.15pt cellLine)
 	let pathGanttWeek = ''; // Gantt week separator verticals (weekLineW ink)
+	let pathGanttGregMonth = ''; // Gantt Gregorian month separators (alt months only)
 
 	// ── Render each month column ──
 	let xCursor = L.spacerW;
@@ -469,7 +476,9 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		const cellW = segW / numDays;
 		const isYear = mi > 0
 			? monthsData[mi - 1].year !== m.year
-			: (startOffset === 0 || new Date(now.getFullYear(), now.getMonth() + startOffset - 1, 1).getFullYear() !== parseInt(m.year));
+			: (altPagination && altPagination.altOffset > 0)
+				? false  // alt month continuation page — don't repeat year
+				: (startOffset === 0 || new Date(now.getFullYear(), now.getMonth() + startOffset - 1, 1).getFullYear() !== parseInt(m.year));
 		const isQuarter = [1, 4, 7, 10].includes(m.monthNum);
 
 		// ── Month left border ──
@@ -484,7 +493,22 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		}, svg);
 
 		// ── R1: Year label ──
-		if (isYear) {
+		if (useAltMonths) {
+			// Alt months: show Gregorian year on the column containing January 1st
+			const hasJan1 = m.days.some(d => d.day === 1 && d.gregMonth === 1);
+			if (hasJan1) {
+				const jan1Year = m.days.find(d => d.day === 1 && d.gregMonth === 1).gregYear;
+				if (!_seenGregYear.has(String(jan1Year))) {
+					_seenGregYear.add(String(jan1Year));
+					svgEl('text', {
+						x: xCursor + 10, y: yYear + r1H - 2,
+						'font-size': '20', 'font-weight': '200',
+						'letter-spacing': '-0.03em', class: 'year',
+					}, svg).textContent = jan1Year;
+				}
+			}
+		} else if (isYear && !_seenGregYear.has(m.year)) {
+			_seenGregYear.add(m.year);
 			svgEl('text', {
 				x: xCursor + 10, y: yYear + r1H - 2,
 				'font-size': '20', 'font-weight': '200',
@@ -510,13 +534,17 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						x1: bx, y1: 0, x2: bx, y2: totalH,
 						class: 'year-boundary',
 					}, svg);
-					// Alternate year label at boundary — same style as main year
-					svgEl('text', {
-						x: bx + 4, y: yYear + r1H - 2,
-						'font-size': '20', 'font-weight': '200',
-						'letter-spacing': '-0.03em',
-						class: 'alt-year',
-					}, svg).textContent = altInfo.yearAfter;
+					// Alternate year label at boundary — show only once
+					const altYrKey = String(altInfo.yearAfter);
+					if (!_seenAltYear.has(altYrKey)) {
+						_seenAltYear.add(altYrKey);
+						svgEl('text', {
+							x: bx + 4, y: yYear + r1H - 2,
+							'font-size': '20', 'font-weight': '200',
+							'letter-spacing': '-0.03em',
+							class: 'alt-year',
+						}, svg).textContent = altInfo.yearAfter;
+					}
 				}
 			}
 		}
@@ -549,13 +577,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}, svg);
 			altEl.textContent = m.altName;
 			if (useMonthColors) altEl.style.fill = monthColor;
-			// Small Gregorian month name next to it
-			const gregEl = svgEl('text', {
-				x: xCursor + 6, y: yMonth + r2H - 1,
-				'font-size': '6', 'font-weight': '300',
-				class: 'ink-light',
-			}, svg);
-			gregEl.textContent = m.gregName;
+
 		} else {
 			const monthNameEl = svgEl('text', {
 				x: xCursor + 10, y: yMonth + r2H - 10,
@@ -606,7 +628,11 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					}, svg);
 					if (dayData.altDay) {
 						if (dayData.rawDow === 6) dowEl.textContent = 'ש׳';
-						else if (dayData.day === 1) dowEl.textContent = LOCALE.months[dayData.gregMonth];
+						else if (dayData.day === 1) {
+							dowEl.textContent = LOCALE.months[dayData.gregMonth];
+							dowEl.setAttribute('font-weight', '500');
+							dowEl.style.fill = '#000';
+						}
 						else dowEl.textContent = dayData.day;
 					} else {
 						dowEl.textContent = WEEK_DAYS_BASE[dayData.rawDow];
@@ -642,7 +668,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						if (dayData.holiday !== prevHoliday) {
 							const isWPDay = dayData.holiday === 'WALLPLAN DAY';
 							svgEl('text', {
-								x: xCursor + (is914s ? 32 : 38), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
+								x: xCursor + (is914s ? 38 : 44), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
 								'font-size': is914s ? '3.5' : '4.5',
 								'text-anchor': 'start',
 								class: isWPDay ? 'wallplan-day' : '',
@@ -786,6 +812,10 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					pathGanttGray += `M${cx} ${rowY}V${by}`;
 					if (d.isWeekStart && !d.isFirstOfMonth) {
 						pathGanttWeek += `M${cx} ${rowY}V${by}`;
+					}
+					// Gregorian month boundary in alt months
+					if (d.altDay && d.day === 1 && di > 0) {
+						pathGanttGregMonth += `M${cx} ${rowY}V${by}`;
 					}
 				}
 			}
@@ -942,6 +972,9 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	}, svg);
 	if (pathGanttWeek) svgEl('path', {
 		d: pathGanttWeek, fill: 'none', 'stroke-width': L.weekLineW, stroke: COLORS.ink,
+	}, svg);
+	if (pathGanttGregMonth) svgEl('path', {
+		d: pathGanttGregMonth, fill: 'none', 'stroke-width': '0.5', stroke: '#000',
 	}, svg);
 
 	// ── Right border ──
@@ -2160,6 +2193,30 @@ async function _loadPDFFonts(doc) {
 				}
 			} catch (e) {
 				console.warn('CJK font (Noto Sans SC) load failed:', e);
+			}
+		}
+
+		// Load Hebrew font for HE locale (Noto Sans Hebrew)
+		if (LOCALE._strings && LOCALE._strings.he) {
+			try {
+				let heResp = await fetch('fonts/NotoSansHebrew/NotoSansHebrew-Regular.ttf');
+				if (!heResp.ok) heResp = await fetch('../fonts/NotoSansHebrew/NotoSansHebrew-Regular.ttf');
+				if (heResp.ok) {
+					const heBuf = await heResp.arrayBuffer();
+					const heB64 = _arrayBufferToBase64(heBuf);
+					for (const w of [200, 300, 400, 500]) {
+						_fontCache.push({
+							id: 'NotoSansHebrew-' + w + '.ttf',
+							b64: heB64,
+							name: 'Noto Sans Hebrew',
+							style: 'normal',
+							weight: w,
+						});
+					}
+					console.log('Noto Sans Hebrew loaded for PDF Hebrew support');
+				}
+			} catch (e) {
+				console.warn('Hebrew font (Noto Sans Hebrew) load failed:', e);
 			}
 		}
 

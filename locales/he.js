@@ -300,7 +300,9 @@ window.LOCALE = {
         const h = {};
         const pad2 = n => String(n).padStart(2, '0');
         const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
-        const addDate = (date, name) => { add(date.getMonth() + 1, date.getDate(), name); };
+        const addDate = (date, name) => {
+            if (date.getFullYear() === year) add(date.getMonth() + 1, date.getDate(), name);
+        };
 
         add(1, 1, this._h('newYear'));
         add(1, 11, 'WALLPLAN DAY');
