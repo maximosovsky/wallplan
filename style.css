@@ -279,6 +279,18 @@ body {
 	background: var(--mol-border-light);
 }
 
+.confirm-clear {
+	background: rgba(255, 182, 193, 0.25);
+	color: var(--mol-ink-light);
+	padding: 0 10px;
+	font-size: 16px;
+	min-width: 35px;
+}
+
+.confirm-clear:hover {
+	background: rgba(255, 182, 193, 0.45);
+}
+
 .tb-info {
 	font-size: 11px;
 	color: var(--mol-ink-light);
