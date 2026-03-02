@@ -10,15 +10,15 @@ window.LOCALE = {
         en: {
             months: ['', 'January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'],
-            weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            weekDaysNarrow: ['U', 'M', 'T', 'W', 'R', 'F', 'S'],
+            weekDays: ['Ris', 'She', 'Shl', 'Rev', 'Cha', 'Shi', 'ש׳'],
+            weekDaysNarrow: ['R', 'S', 'L', 'V', 'C', 'I', 'B'],
             monLabel: 'MO', sunLabel: 'SU',
         },
         ru: {
             months: ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
                 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
-            weekDays: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-            weekDaysNarrow: ['В', 'П', 'В', 'С', 'Ч', 'П', 'С'],
+            weekDays: ['Риш', 'Шен', 'Шли', 'Рев', 'Хам', 'Шиш', 'ש׳'],
+            weekDaysNarrow: ['Р', 'Ш', 'Л', 'В', 'Х', 'И', 'Б'],
             monLabel: 'ПН', sunLabel: 'ВС',
         },
         he: {
@@ -62,6 +62,66 @@ window.LOCALE = {
         2040: { month: 9, day: 8 }, 2041: { month: 9, day: 26 },
         2042: { month: 9, day: 15 }, 2043: { month: 10, day: 5 },
         2044: { month: 9, day: 22 }, 2045: { month: 9, day: 11 },
+    },
+
+    // ─── Hebrew month start dates in Gregorian (1st of each Hebrew month) ───
+    // Key = Gregorian year; Value = array of {gregMonth, gregDay, name:{he,en,ru}}
+    // Months listed in Hebrew calendar order (Tishrei→Elul) for the Hebrew year
+    // that BEGIN during this Gregorian year.
+    // Note: a Gregorian year spans parts of TWO Hebrew years.
+    _hebrewMonthStarts: {
+        2026: [
+            // 5786 months continuing from 2025:
+            // Tevet 5786 started Dec 21, 2025 → continues to Jan 18, 2026
+            { m: 1, d: 1, name: { he: 'טבת', en: 'Tevet', ru: 'Тевет' }, continues: true },
+            { m: 1, d: 19, name: { he: 'שבט', en: 'Shevat', ru: 'Шват' } },
+            { m: 2, d: 18, name: { he: 'אדר', en: 'Adar', ru: 'Адар' } },
+            { m: 3, d: 19, name: { he: 'ניסן', en: 'Nisan', ru: 'Нисан' } },
+            { m: 4, d: 18, name: { he: 'אייר', en: 'Iyar', ru: 'Ияр' } },
+            { m: 5, d: 17, name: { he: 'סיוון', en: 'Sivan', ru: 'Сиван' } },
+            { m: 6, d: 16, name: { he: 'תמוז', en: 'Tammuz', ru: 'Таммуз' } },
+            { m: 7, d: 15, name: { he: 'אב', en: 'Av', ru: 'Ав' } },
+            { m: 8, d: 14, name: { he: 'אלול', en: 'Elul', ru: 'Элуль' } },
+            // 5787 starts:
+            { m: 9, d: 12, name: { he: 'תשרי', en: 'Tishrei', ru: 'Тишрей' } },
+            { m: 10, d: 12, name: { he: 'חשוון', en: 'Cheshvan', ru: 'Хешван' } },
+            { m: 11, d: 11, name: { he: 'כסלו', en: 'Kislev', ru: 'Кислев' } },
+            { m: 12, d: 11, name: { he: 'טבת', en: 'Tevet', ru: 'Тевет' } },
+        ],
+    },
+
+    // ─── Full Hebrew months as calendar columns ───
+    // Returns array of full Hebrew months with Gregorian date ranges.
+    // Each month = one column (29-30 days), crossing Gregorian month boundaries.
+    getAlternateMonths(year) {
+        const starts = this._hebrewMonthStarts[year];
+        if (!starts) return null;
+
+        const months = [];
+        for (let i = 0; i < starts.length; i++) {
+            const cur = starts[i];
+            // Calculate end date: day before next month starts (or Dec 31)
+            let endDate;
+            if (i + 1 < starts.length) {
+                endDate = new Date(year, starts[i + 1].m - 1, starts[i + 1].d - 1);
+            } else {
+                endDate = new Date(year, 11, 31); // Dec 31
+            }
+            const startDate = new Date(year, cur.m - 1, cur.d);
+            // Count days
+            const numDays = Math.round((endDate - startDate) / 86400000) + 1;
+
+            months.push({
+                name: cur.name,               // {he, en, ru}
+                startYear: year,
+                startMonth: cur.m,            // 1-indexed Gregorian month
+                startDay: cur.d,              // Gregorian day
+                endMonth: endDate.getMonth() + 1,
+                endDay: endDate.getDate(),
+                numDays: numDays,
+            });
+        }
+        return months;
     },
 
     // ─── Holiday names in 3 languages ───

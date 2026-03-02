@@ -60,6 +60,58 @@ window.LOCALE = {
         2034: { month: 3, day: 22 }, 2035: { month: 3, day: 12 },
     },
 
+    // ─── Hijri month start dates in Gregorian (1st of each Hijri month) ───
+    // Covers parts of both Hijri years that fall within the Gregorian year.
+    _hijriMonthStarts: {
+        2026: [
+            // Rajab 1447 started Dec 21, 2025 → continues in Jan 2026
+            { m: 1, d: 1, name: { ar: 'رجب', en: 'Rajab', ru: 'Раджаб' }, continues: true },
+            { m: 1, d: 20, name: { ar: 'شعبان', en: "Sha'ban", ru: 'Шаабан' } },
+            { m: 2, d: 18, name: { ar: 'رمضان', en: 'Ramadan', ru: 'Рамадан' } },
+            { m: 3, d: 20, name: { ar: 'شوّال', en: 'Shawwal', ru: 'Шавваль' } },
+            { m: 4, d: 18, name: { ar: 'ذو القعدة', en: 'Dhul Qi\'dah', ru: 'Зуль-Каада' } },
+            { m: 5, d: 18, name: { ar: 'ذو الحجة', en: 'Dhul Hijjah', ru: 'Зуль-Хиджа' } },
+            // 1448 starts:
+            { m: 6, d: 16, name: { ar: 'محرّم', en: 'Muharram', ru: 'Мухаррам' } },
+            { m: 7, d: 16, name: { ar: 'صفر', en: 'Safar', ru: 'Сафар' } },
+            { m: 8, d: 14, name: { ar: 'ربيع الأول', en: "Rabi' al-Awwal", ru: 'Раби аль-Авваль' } },
+            { m: 9, d: 12, name: { ar: 'ربيع الثاني', en: "Rabi' al-Thani", ru: 'Раби ас-Сани' } },
+            { m: 10, d: 12, name: { ar: 'جمادى الأولى', en: "Jumada al-Ula", ru: 'Джумада аль-Уля' } },
+            { m: 11, d: 11, name: { ar: 'جمادى الثانية', en: "Jumada al-Thani", ru: 'Джумада ас-Сани' } },
+            { m: 12, d: 10, name: { ar: 'رجب', en: 'Rajab', ru: 'Раджаб' } },
+        ],
+    },
+
+    // ─── Full Hijri months as calendar columns ───
+    getAlternateMonths(year) {
+        const starts = this._hijriMonthStarts[year];
+        if (!starts) return null;
+
+        const months = [];
+        for (let i = 0; i < starts.length; i++) {
+            const cur = starts[i];
+            let endDate;
+            if (i + 1 < starts.length) {
+                endDate = new Date(year, starts[i + 1].m - 1, starts[i + 1].d - 1);
+            } else {
+                endDate = new Date(year, 11, 31);
+            }
+            const startDate = new Date(year, cur.m - 1, cur.d);
+            const numDays = Math.round((endDate - startDate) / 86400000) + 1;
+
+            months.push({
+                name: cur.name,
+                startYear: year,
+                startMonth: cur.m,
+                startDay: cur.d,
+                endMonth: endDate.getMonth() + 1,
+                endDay: endDate.getDate(),
+                numDays: numDays,
+            });
+        }
+        return months;
+    },
+
     // ─── Holiday names in 3 languages ───
     _holidayNames: {
         newYear: { ar: '🎆 رأس السنة الميلادية', ru: '🎆 Новый год', en: "🎆 New Year's Day" },
