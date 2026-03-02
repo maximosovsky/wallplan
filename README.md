@@ -47,7 +47,8 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Format tuning** | Optimized cell widths per format — 4mm (single), 2.7mm (×2), 1.7mm (×4) |
 | **PDF & SVG export** | Embedded IBM Plex Sans fonts, parallel font loading |
 | **Custom entries** | Add annotations via **W** button: `DD.MM` format, yearly repeat, exported to SVG/PDF |
-| **Holidays** | US Federal Holidays, WallPlan Day (Jan 11) in Copper Penny DTP font |
+| **Holidays** | US, Russian, and Chinese holidays. WallPlan Day (Jan 11) in Copper Penny DTP font |
+| **Weekend highlighting** | Pink background on weekends/holidays. 3 levels: Gantt → +Box → +Vertical. Toggle via pink circle button. URL: `&h=1/2/3` |
 | **Month colors** | Temperature-based [color palette](./COLORS.md) — toggle via toolbar button. URL: `&c=1` |
 | **Week start** | Monday or Sunday toggle |
 | **Gantt rows** | 6, 8, 10, or 12 configurable rows |
@@ -60,6 +61,8 @@ A browser-based multi-year calendar generator with Gantt-style grid, vertical da
 | **Zero dependencies** | No npm, no framework, pure vanilla JS |
 | **Miro App** | Native Miro board elements via [wallplan-miro](https://github.com/maximosovsky/wallplan-miro) — progressive rendering, batch optimized |
 | **Miroverse** | [2-Year Timeline Gantt Calendar](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027/) — ready-to-use template |
+| **3 languages** | English, Russian (Русский), Chinese (中文) with locale-specific holidays |
+| **Chinese calendar** | Zodiac year labels, 补班 workday overrides, EN/RU/中 language toggle, RU/CN holiday overlay |
 
 ---
 
@@ -73,6 +76,14 @@ npx -y serve -l 3456
 Or visit the live version:
 - [osovsky.com/wallplan](https://osovsky.com/wallplan/) — primary
 - [wallplan on GitHub Pages](https://maximosovsky.github.io/wallplan/) — mirror
+
+---
+
+## 🌐 Languages
+
+- **English**: [osovsky.com/wallplan](https://osovsky.com/wallplan/)
+- **Русский**: [osovsky.com/wallplan/for-kirill-specially-ru](https://osovsky.com/wallplan/for-kirill-specially-ru/)
+- **中文 (Chinese)**: [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/) — EN UI with Chinese holidays, zodiac years, 补班 workdays, RU/CN overlay
 
 ---
 
@@ -92,6 +103,7 @@ Or visit the live version:
 | **⬇ SVG / 🖨 PDF** | Export |
 | **Mouse wheel** | Zoom in/out |
 | **Click + drag** | Pan canvas |
+| **🩷 Weekend HL** | Pink circle button — cycle highlight level (Gantt → +Box → +Vertical → off) |
 
 ### Mobile
 
@@ -122,12 +134,15 @@ Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in i
 
 ## 🏗️ Tech Stack
 
-| File | Purpose |
-|------|---------|
-| `calendar.js` | SVG renderer, viewport, pan/zoom, export (EN) |
+| `calendar.js` | SVG renderer, viewport, pan/zoom, export (shared across all locales) |
+| `locales/` | Locale files: `en.js` (US), `ru.js` (Russian), `zh.js` (Chinese) |
 | `style.css` | Miro-style UI, Moleskine palette, responsive layout |
-| `index.html` | Main app shell + GA4 tracking |
-| `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP |
+| `index.html` | Main app shell + GA4 tracking (EN) |
+| `zh/index.html` | Chinese calendar version |
+| `sw.js` | Service Worker for offline PWA support (versioned cache) |
+| `favicon.png` | Site favicon (PNG, all HTML files) |
+| `manifest.json` | PWA manifest with favicon.png icon |
+| `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP + Noto Sans SC (CJK) |
 | `og-image.jpg` | OG social preview image (1200×630) |
 | `USER_MANUAL.md` | Comprehensive user guide |
 | `COLORS.md` | Month color palette reference (hex, names, rationale) |

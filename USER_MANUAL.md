@@ -12,6 +12,10 @@ WallPlan is a browser-based calendar generator for long-term planning. It create
 
 Open [osovsky.com/wallplan](https://osovsky.com/wallplan/) in any modern browser. The calendar renders immediately with default settings (12 months, A4, 10 Gantt rows, Monday week start).
 
+**Other languages:**
+- 🇷🇺 Russian: [osovsky.com/wallplan/for-kirill-specially-ru](https://osovsky.com/wallplan/for-kirill-specially-ru/)
+- 🇨🇳 Chinese: [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/)
+
 ### Local Development
 
 ```bash
@@ -41,8 +45,8 @@ The desktop interface has two control panels at the top:
 | **W** | Cherry-red logo button — opens the custom entry modal to add text annotations on any date |
 | **Hide Days** | Toggle to hide day-level details, leaving only year/quarter/month divisions |
 | **🎨 Colors** | Toggle month color palette — concentric circles (off) / Itten wheel (on). See [COLORS.md](./COLORS.md) |
-| **⬇ SVG** | Download calendar as SVG file(s) |
-| **🖨 PDF** | Generate and download PDF with embedded fonts |
+| **🩷 Weekend HL** | Pink circle button — cycle pink highlighting: off → Gantt → +Box → +Vertical → off |
+| **⬇ SVG / 🖨 PDF** | Export calendar as SVG or PDF |
 
 ### Navigation
 
@@ -185,8 +189,13 @@ Share a specific configuration by adding parameters to the URL:
 | `w` | `?w=sun` | Week start day |
 | `d` | `?d=1` | Hide days mode (1 = on) |
 | `c` | `?c=1` | Month color palette (1 = on) |
+| `h` | `?h=3` | Weekend/holiday highlighting level (1=Gantt, 2=+Box, 3=+Vertical) |
+| `lang` | `?lang=ru` | Language on `/zh/` page (en, ru, zh) |
+| `ov` | `?ov=1` | RU/CN holiday overlay (1 = on, `/zh/` only) |
 
 **Example**: `osovsky.com/wallplan/?m=120&r=10&p=914mm` — 10-year calendar on roll paper.
+
+**Chinese calendar example**: `osovsky.com/wallplan/zh/?l=24&g=10&h=3&lang=ru&ov=1` — 2 years, 10 rows, full highlighting, Russian language, RU overlay.
 
 ---
 
@@ -210,6 +219,9 @@ Each month column contains three sections, top to bottom:
 | Holidays | Red text with holiday name |
 | Custom entries | Alongside holidays |
 | Month colors | Temperature-based palette when enabled — names and day numbers tinted by season |
+| Weekend highlighting | Pink background on weekends/holidays (3 levels) |
+| RU overlay (ZH only) | Gray background and text for Russian holidays |
+| Zodiac label (ZH only) | Animal + element label (e.g. 🐴 Fire Horse) above 2nd month of each year |
 
 ---
 
@@ -255,7 +267,30 @@ Don't want to generate? Use the pre-built [2-Year Timeline Gantt Calendar 2026�
 
 ## 🌐 Languages
 
-- **English**: [osovsky.com/wallplan](https://osovsky.com/wallplan/)
+| Language | URL | Holidays | Special features |
+|----------|-----|----------|------------------|
+| **English** | [osovsky.com/wallplan](https://osovsky.com/wallplan/) | US Federal | — |
+| **Русский** | [osovsky.com/wallplan/for-kirill-specially-ru](https://osovsky.com/wallplan/for-kirill-specially-ru/) | Russian + transferred days | — |
+| **中文 (Chinese)** | [osovsky.com/wallplan/zh](https://osovsky.com/wallplan/zh/) | 2026 State Council | Zodiac years, 补班 workdays, EN/RU/中 toggle, RU/CN overlay |
+
+### 🇨🇳 Chinese Calendar
+
+The Chinese calendar at `/zh/` is designed for businesses planning around China’s work schedule.
+
+**Unique controls (top-bar on `/zh/` only):**
+
+| Button | What it does |
+|--------|--------------|
+| **EN / RU / 中** | Language toggle — switches month names, weekdays, and holiday names between English, Russian, and Chinese |
+| **⚪🩷 (half-circle)** | RU/CN Holiday Overlay — shows Russian holidays in gray over the Chinese calendar. Hover for stats (`137/365`) |
+
+**What’s shown:**
+- Chinese public holidays (Spring Festival, Qingming, Labour Day, Dragon Boat, Mid-Autumn, National Day)
+- 补班 (makeup workdays) — marked as `⚠️ Workday 补班`, not highlighted pink on weekends
+- Chinese Zodiac — animal + element label (e.g. `🐴 Fire Horse`) above the 2nd visible month of each year
+- WALLPLAN DAY (Jan 11)
+
+> 💡 **PDF note**: Chinese characters (months, zodiac) render correctly in PDF via Noto Sans SC font. Emoji (🧨🇨🇳) are not supported in PDF — use SVG export or `Ctrl+P` → "Save as PDF" for full emoji support.
 
 ---
 
@@ -271,10 +306,19 @@ A: Yes, use the **W** button. Entries exist only during your session — export 
 A: 240 months (20 years).
 
 **Q: Can I use it offline?**
-A: Once loaded, the calendar works offline. PDF export requires font files that need internet on first use.
+A: Yes. WallPlan has a Service Worker that caches all files for offline use. After your first visit, the app works without internet. PDF export requires font files that are cached on first use.
 
 **Q: Is my data sent anywhere?**
 A: No. Everything runs locally in your browser. No server, no tracking (except anonymous GA4 page views).
 
 **Q: What are the month colors?**
 A: A temperature-based color palette (Material Design) that tints month names and day numbers by season — from black (January) through red (July) to gray (December). Toggle with the color button in the toolbar, or add `&c=1` to the URL. See [COLORS.md](./COLORS.md) for the full palette.
+
+**Q: What is the RU/CN Holiday Overlay?**
+A: On the Chinese calendar (`/zh/`), the half-circle button shows Russian holidays in gray alongside Chinese ones. Useful for businesses operating between Russia and China — see when each country is off.
+
+**Q: How do I get Chinese zodiac years?**
+A: Open the Chinese calendar at `/zh/`. Zodiac labels (animal + element, e.g. "🐴 Fire Horse") appear automatically above the second month of each year.
+
+**Q: Why don't emoji appear in PDF?**
+A: PDF is generated via jsPDF which doesn't support color emoji fonts. Emoji are visible in SVG export and in-browser. For PDF with emoji, use `Ctrl+P` → "Save as PDF" instead of the Download PDF button.

@@ -39,8 +39,26 @@ Download as vector SVG or PDF with embedded IBM Plex Sans fonts. Free, no login 
 
 ### Customizable
 - Week start: Monday or Sunday
-- US Federal Holidays display
+- US, Russian, and Chinese holidays display
 - Adjustable Gantt rows: 6, 8, 10, or 12
+- Weekend/holiday highlighting: pink background, 3 levels (Gantt → +Box → +Vertical). URL: `&h=1/2/3`
+
+### Locale System
+Three locales via `locales/*.js` files:
+- English (`locales/en.js`): US Federal holidays
+- Russian (`locales/ru.js`): Russian holidays + transferred days (Gov Decree 1466)
+- Chinese (`locales/zh.js`): 2026 State Council holidays, zodiac, 补班 workday overrides
+
+Single shared `calendar.js` reads `window.LOCALE` at runtime.
+
+### Chinese Calendar (`/zh/`)
+English UI with Chinese public holidays and zodiac year labels. Designed for businesses planning around China's work schedule.
+- **Holidays**: Spring Festival, Qingming, Labour Day, Dragon Boat, Mid-Autumn, National Day (2026 State Council decree)
+- **补班 workday overrides**: Makeup workdays excluded from weekend highlighting
+- **Chinese Zodiac**: Animal + element/color label (e.g. "🐴 Fire Horse") above 2nd month of each year
+- **EN/RU/中 language toggle**: Switch month names, weekdays, and holiday names between 3 languages
+- **RU/CN Holiday Overlay**: Shows Russian holidays in gray over Chinese calendar, with stats popup (`137/365`)
+- **URL params**: `&lang=ru`, `&ov=1` for shareable links
 
 ### Custom Entries
 Add session-only text annotations on any date via the W button (Copper Penny DTP font). Supports DD.MM date input with auto-formatting (all delimiters supported). Yearly repeat option. Entries render alongside holidays and export to SVG/PDF. Not persisted — cleared on page reload.
@@ -81,10 +99,14 @@ Long multi-year calendars can be printed at copy centers on engineering paper up
 
 | File | Purpose |
 |------|---------|
-| calendar.js | SVG renderer, viewport, pan/zoom, export (EN) |
+| calendar.js | SVG renderer, viewport, pan/zoom, export (shared across all locales) |
+| locales/en.js | English locale (months, weekdays, US holidays) |
+| locales/ru.js | Russian locale (months, weekdays, Russian holidays + transferred days) |
+| locales/zh.js | Chinese locale (holidays, zodiac, lang toggle, overlay, workday overrides) |
 | style.css | Miro-style UI, Moleskine palette, responsive layout |
-| index.html | Main app shell + GA4 tracking |
-| fonts/ | IBM Plex Sans (7 weights) + Copper Penny DTP |
+| index.html | Main app shell + GA4 tracking (EN) |
+| zh/index.html | Chinese calendar version |
+| fonts/ | IBM Plex Sans (7 weights) + Copper Penny DTP + Noto Sans SC (CJK for PDF) |
 | og-image.jpg | Social preview image (1200×630) |
 | COLORS.md | Month color palette reference (hex values, climate rationale) |
 
@@ -134,11 +156,14 @@ A sidebar plugin for Miro boards (separate repo: https://github.com/maximosovsky
 Planned features (in order of complexity):
 1. Stickers — yellow/pink SVG stickers on calendar, drag to move, double-click to edit
 2. Unified Overlay System — shared rendering for stickers and images
-3. Shareable Timeline Links — persist custom entries in URL params for zero-server sharing
-4. Image Upload — embed photos/logos on calendar canvas
-5. Google Authentication — cloud sync of configurations
-6. Internationalization — Italian, French, Chinese, Spanish, Arabic (UAE) locales with national holidays
-7. GA4 → Telegram Alerts — real-time analytics notifications
-8. Google Calendar Import — auto-import birthdays and events
-9. Custom Sticker Packs — create and share themed SVG sticker sets
-10. ~~Miro App — publish as Miro Marketplace plugin~~ ✓ Done (native elements, Phase 7)
+3. Image Upload — embed photos/logos on calendar canvas
+4. Additional Locales — Italian, French, Spanish, Arabic (UAE)
+5. GA4 → Telegram Alerts — real-time analytics notifications
+6. Google Calendar Import — auto-import birthdays and events
+7. ~~Miro App — publish as Miro Marketplace plugin~~ ✓ Done (native elements, Phase 7)
+8. ~~Locale Refactoring (6a)~~ ✓ Done (locales/*.js)
+9. ~~Chinese Calendar (6b)~~ ✓ Done (zodiac, 补班, overlay, CJK PDF)
+10. ~~Weekend/Holiday Highlighting~~ ✓ Done (pink toggle, 3 levels)
+11. ~~Favicon~~ ✓ Done (favicon.png, all HTML files)
+12. ~~Welcome Carousel (always)~~ ✓ Done (every mobile visit, ZH with Chinese quotes)
+13. ~~Service Worker & Lighthouse~~ ✓ Done (offline PWA, aria-labels, manifest)

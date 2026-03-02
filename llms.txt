@@ -4,7 +4,7 @@
 
 ## About
 
-WallPlan generates multi-year wall calendars with Gantt charts for strategic planning. Duration from 1 month to 20 years. Paper sizes: A4, A3, 914mm roll. Export to vector SVG or PDF. Temperature-based month color palette (Material Design). Also available as a Miro plugin generating native board elements. Free, no login required.
+WallPlan generates multi-year wall calendars with Gantt charts for strategic planning. Duration from 1 month to 20 years. Paper sizes: A4, A3, 914mm roll. Export to vector SVG or PDF. Temperature-based month color palette (Material Design). Weekend/holiday highlighting. Available in 3 languages: English (US holidays), Russian, Chinese (zodiac years, 补班 workday overrides, RU/CN overlay). Offline PWA with Service Worker. Also available as a Miro plugin generating native board elements. Free, no login required.
 
 - Author: [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449)
 - URL: https://osovsky.com/wallplan/
