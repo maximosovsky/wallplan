@@ -830,6 +830,19 @@ function init() {
 	_syncWeekendHLBtn();
 	_syncColorIcons();
 
+	// Sync language (zh locale only)
+	const langParam = params.get('lang');
+	if (langParam && LOCALE.switchLang && ['ru', 'zh'].includes(langParam)) {
+		const target = langParam;
+		while (LOCALE._lang !== target) LOCALE.switchLang();
+	}
+
+	// Sync overlay
+	if (params.get('ov') === '1' && LOCALE.getRussianHolidays) {
+		overlayRU = false; // toggleOverlay will flip to true
+		toggleOverlay();
+	}
+
 	buildPages(totalMonths, emptyRows, weekStart);
 	// Cache static UI elements for repeated use
 	_ui.sizeChips = Array.from(document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]'));
@@ -855,6 +868,8 @@ function updateCalendar() {
 	if (hideDays) url.searchParams.set('d', '1'); else url.searchParams.delete('d');
 	if (useMonthColors) url.searchParams.set('c', '1'); else url.searchParams.delete('c');
 	if (weekendHL) url.searchParams.set('h', weekendHL); else url.searchParams.delete('h');
+	if (LOCALE._lang && LOCALE._lang !== 'en') url.searchParams.set('lang', LOCALE._lang); else url.searchParams.delete('lang');
+	if (overlayRU) url.searchParams.set('ov', '1'); else url.searchParams.delete('ov');
 	window.history.replaceState({}, '', url);
 
 	buildPages(totalMonths, rows, weekStart);
