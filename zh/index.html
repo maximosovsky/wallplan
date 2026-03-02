@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -12,33 +12,34 @@
         gtag('config', 'G-NW8NPGK3DY');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
-    <title>WallPlan — Генератор календарей для долгосрочного планирования</title>
+    <title>WallPlan — China Business Calendar with Public Holidays</title>
     <meta name="description"
-        content="Бесплатный онлайн генератор многолетних настенных календарей с диаграммами Ганта. Экспорт в SVG и PDF. Печать на A4, A3, рулонной бумаге 914мм. От 1 месяца до 20 лет.">
+        content="Free wall calendar generator with official Chinese public holidays (Spring Festival, National Day, Mid-Autumn). Gantt charts for business planning around China's work schedule. SVG & PDF export.">
     <meta name="keywords"
-        content="генератор календарей, настенный календарь, большой настенный календарь, многолетний календарь, диаграмма Ганта, Гантт календарь, печатный календарь, SVG календарь, PDF календарь, планирование, долгосрочный план, рулонная бумага, стратегическое планирование, планер на стену, календарь на несколько лет, бесплатный календарь, календарь на 2 года, календарь на 3 года, календарь для планирования, Максим Осовский, Maxim Osovsky">
+        content="china calendar, chinese holidays, spring festival, national day, chinese new year, business calendar china, gantt chart, wall calendar, china public holidays 2026, china work schedule, golden week, dragon boat festival, mid-autumn festival, qingming, labour day china, WallPlan">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="WallPlan — Генератор календарей для планирования">
-    <meta property="og:description" content="Многолетние настенные календари с диаграммами Ганта. Экспорт в SVG и PDF.">
+    <meta property="og:title" content="WallPlan — China Business Calendar">
+    <meta property="og:description"
+        content="Wall calendar with Chinese public holidays and Gantt charts. SVG & PDF export.">
     <meta property="og:image" content="https://osovsky.com/wallplan/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://osovsky.com/wallplan/@yka_yka">
+    <meta property="og:url" content="https://osovsky.com/wallplan/zh/">
     <meta property="og:site_name" content="WallPlan">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="WallPlan — Генератор календарей">
-    <meta name="twitter:description" content="Многолетние настенные календари с диаграммами Ганта. SVG и PDF.">
+    <meta name="twitter:title" content="WallPlan — China Business Calendar">
+    <meta name="twitter:description" content="Wall calendar with Chinese public holidays. SVG & PDF.">
     <meta name="twitter:image" content="https://osovsky.com/wallplan/og-image.jpg">
 
     <!-- SEO -->
-    <link rel="canonical" href="https://osovsky.com/wallplan/@yka_yka">
+    <link rel="canonical" href="https://osovsky.com/wallplan/zh/">
     <link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/">
-    <link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/@yka_yka">
+    <link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/for-kirill-specially-ru/">
+    <link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/">
     <link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/">
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
@@ -52,21 +53,21 @@
 
 <body>
     <div class="controls top-bar" id="top-bar">
-        <div class="tb-dial" id="tb-dial-yr" data-tooltip="Годы">
+        <div class="tb-dial" id="tb-dial-yr" data-tooltip="Years">
             <div class="tb-dial-value" id="tb-val-yr">1</div>
-            <div class="tb-dial-label">г</div>
+            <div class="tb-dial-label">yr</div>
         </div>
-        <div class="tb-dial" id="tb-dial-mo" data-tooltip="Месяцы">
+        <div class="tb-dial" id="tb-dial-mo" data-tooltip="Months">
             <div class="tb-dial-value" id="tb-val-mo">0</div>
-            <div class="tb-dial-label">м</div>
+            <div class="tb-dial-label">mo</div>
         </div>
         <input type="hidden" id="months-input" value="12">
-        <span id="months-label" style="display:none">м</span>
+        <span id="months-label" style="display:none">mo</span>
         <div class="tb-sep"></div>
-        <div class="tb-btn" id="paper-cycle-btn" onclick="cyclePaperSize()" data-tooltip="Формат бумаги">A4</div>
+        <div class="tb-btn" id="paper-cycle-btn" onclick="cyclePaperSize()" data-tooltip="Paper size">A4</div>
         <span id="page-info" style="display:none"></span>
         <div class="tb-sep"></div>
-        <div class="tb-btn" onclick="confirmAction('Скачать SVG?', downloadSVG)" data-tooltip="Скачать SVG">
+        <div class="tb-btn" onclick="confirmAction('Download SVG?', downloadSVG)" data-tooltip="Download SVG">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -74,7 +75,7 @@
                 <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
         </div>
-        <div class="tb-btn" onclick="confirmAction('Скачать PDF?', printPDF)" data-tooltip="Скачать PDF">
+        <div class="tb-btn" onclick="confirmAction('Download PDF?', printPDF)" data-tooltip="Download PDF">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 9V2h12v7" />
@@ -82,7 +83,7 @@
                 <rect x="6" y="14" width="12" height="8" />
             </svg>
         </div>
-        <div class="tb-btn" id="color-toggle-btn" onclick="toggleMonthColors()" data-tooltip="Цвета месяцев">
+        <div class="tb-btn" id="color-toggle-btn" onclick="toggleMonthColors()" data-tooltip="Month colors">
             <svg id="icon-mono" width="23" height="23" viewBox="0 0 18 18">
                 <circle cx="9" cy="9" r="8" fill="none" stroke="#2C2C2C" stroke-width="1.8" />
                 <circle cx="9" cy="9" r="5" fill="none" stroke="#E53935" stroke-width="1.8" />
@@ -107,39 +108,40 @@
     <!-- Custom confirm modal -->
     <div id="confirm-overlay" class="confirm-overlay" style="display:none">
         <div class="confirm-box">
-            <div class="confirm-msg" id="confirm-msg">Скачать?</div>
+            <div class="confirm-msg" id="confirm-msg">Download?</div>
             <div class="confirm-btns">
-                <button class="confirm-btn confirm-yes" id="confirm-yes">Да</button>
-                <button class="confirm-btn confirm-cancel" id="confirm-cancel">Отмена</button>
+                <button class="confirm-btn confirm-yes" id="confirm-yes">Yes</button>
+                <button class="confirm-btn confirm-cancel" id="confirm-cancel">Cancel</button>
             </div>
         </div>
     </div>
     <!-- Entry modal -->
     <div id="entry-overlay" class="confirm-overlay" style="display:none">
         <div class="confirm-box entry-box">
-            <div class="confirm-msg">Добавить записи</div>
+            <div class="confirm-msg">Add Entries</div>
             <div class="entry-form">
-                <textarea id="entry-bulk" rows="6" placeholder="Запуск продукта, 19.12
-Новый год, 01.01
-День рождения, 14.02" autocomplete="off" style="width:100%; box-sizing:border-box; resize:vertical;"></textarea>
-                <div class="entry-row">
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                        <input type="checkbox" id="entry-yearly" checked> Каждый год
+                <textarea id="entry-bulk" rows="6" placeholder="Product launch, 19.12
+New Year, 01.01
+Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-box; resize:vertical;"></textarea>
+                <div class="entry-row entry-check-row">
+                    <label>
+                        <input type="checkbox" id="entry-yearly" checked>
+                        Repeat every year
                     </label>
                 </div>
-                <div class="confirm-btns">
-                    <button class="confirm-btn confirm-yes" onclick="addCustomEntries()">Добавить</button>
-                    <button class="confirm-btn confirm-cancel" onclick="closeEntryModal()">Отмена</button>
-                </div>
+            </div>
+            <div class="confirm-btns">
+                <button class="confirm-btn confirm-yes" onclick="addCustomEntries()">Add</button>
+                <button class="confirm-btn confirm-cancel" onclick="closeEntryModal()">Cancel</button>
             </div>
         </div>
     </div>
     <div class="controls gantt-panel" id="gantt-panel">
-        <button id="entry-btn" data-tooltip="Добавить запись" onclick="openEntryModal()">
+        <button id="entry-btn" data-tooltip="Add entry" onclick="openEntryModal()">
             <span
                 style="font-family:'Copper Penny DTP',serif; font-size:20px; line-height:1; color:var(--mol-red);">W</span>
         </button>
-        <button id="hide-days-btn" data-tooltip="Скрыть дни" onclick="toggleHideDays()">
+        <button id="hide-days-btn" data-tooltip="Hide days" onclick="toggleHideDays()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -150,12 +152,11 @@
                 <line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
             </svg>
         </button>
-        <button id="week-start-btn" data-tooltip="Начало недели" onclick="toggleWeekStart()">ПН</button>
+        <button id="week-start-btn" data-tooltip="Week start day" onclick="toggleWeekStart()">MO</button>
         <input type="hidden" id="rows-slider" value="10">
         <span id="rows-value" style="display:none">10</span>
-        <button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Строки Ганта"
-            onclick="cycleRows()">10</button>
-        <button id="weekend-hl-btn" data-tooltip="Выходные" onclick="toggleWeekendHL()">
+        <button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Gantt rows" onclick="cycleRows()">10</button>
+        <button id="weekend-hl-btn" data-tooltip="Weekend highlight" onclick="toggleWeekendHL()">
             <svg width="16" height="16" viewBox="0 0 16 16">
                 <circle cx="8" cy="8" r="7" fill="#FFB6C1" />
             </svg>
@@ -183,17 +184,17 @@
         </button>
         <button class="mob-val" onclick="toggleMobSheet()">
             <span id="mob-months">12</span>
-            <span class="mob-label" id="mob-months-label">м</span>
+            <span class="mob-label" id="mob-months-label">mo</span>
         </button>
         <button class="mob-val" onclick="cycleRows()">
             <span id="mob-rows">10</span>
-            <span class="mob-label">строк</span>
+            <span class="mob-label">rows</span>
         </button>
         <button class="mob-val" onclick="cyclePaperSize()">
             <span id="mob-format">A4</span>
-            <span class="mob-label" id="mob-format-label">формат</span>
+            <span class="mob-label" id="mob-format-label">format</span>
         </button>
-        <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Скрыть дни">
+        <button class="mob-icon" id="mob-hide-days-btn" onclick="toggleHideDays()" title="Hide days">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -205,7 +206,7 @@
             </svg>
         </button>
         <div class="mob-dl-group">
-            <button class="mob-icon" onclick="toggleMobDL()" title="Скачать">
+            <button class="mob-icon" onclick="toggleMobDL()" title="Download">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -220,69 +221,25 @@
         </div>
     </div>
 
-    <!-- Welcome carousel (mobile only, first visit) -->
-    <div id="welcome-overlay" class="welcome-overlay" style="display:none">
-        <button class="welcome-skip" onclick="closeWelcome()">Пропустить</button>
-        <div class="welcome-carousel" id="welcome-carousel">
-            <div class="welcome-slide">
-                <span class="welcome-logo"
-                    style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
-                <h2>Планируйте десятилетия на стене</h2>
-                <p>Многолетний календарь с Ганта-сеткой, вертикальным списком дней и мини-месяцами — на одном листе.</p>
-                <p>Распечатайте. Повесьте. Посмотрите на картину целиком.</p>
-                <p class="welcome-hint">Листайте дальше →</p>
-            </div>
-            <div class="welcome-slide">
-                <div class="welcome-emoji">⚙️</div>
-                <h2>Как это работает</h2>
-                <p>Задайте длительность — от 1 месяца до 20 лет.</p>
-                <p>Выберите бумагу — A4, A3 или рулон 914мм.</p>
-                <p>Настройте строки Ганта, начало недели, скачайте SVG или PDF.</p>
-                <p>Все настройки — в панели внизу.</p>
-            </div>
-            <div class="welcome-slide">
-                <div class="welcome-emoji">🖨️</div>
-                <h2>Распечатайте на стену</h2>
-                <p>Скачайте PDF и напечатайте дома на A4 — или в копицентре на рулоне шириной 1 метр.</p>
-                <p>Ваши планы — видны с одного взгляда. Бесконечная длина.</p>
-            </div>
-            <div class="welcome-slide">
-                <span class="welcome-logo"
-                    style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
-                <h2>Начните планировать</h2>
-                <p>Бесплатно навсегда. Без регистрации. Данные не покидают ваш браузер.</p>
-            </div>
-        </div>
-        <div class="welcome-bottom">
-            <div class="welcome-dots" id="welcome-dots">
-                <div class="welcome-dot active"></div>
-                <div class="welcome-dot"></div>
-                <div class="welcome-dot"></div>
-                <div class="welcome-dot"></div>
-            </div>
-            <button class="welcome-start" id="welcome-start-btn" onclick="closeWelcome()">Начать</button>
-        </div>
-    </div>
-
     <!-- Mobile bottom sheet -->
     <div id="mob-overlay" class="mob-overlay" onclick="toggleMobSheet()"></div>
     <div id="mob-sheet" class="mob-sheet">
         <div class="mob-sheet-handle"></div>
         <div class="mob-sheet-section">
-            <div class="mob-sheet-label">Период</div>
+            <div class="mob-sheet-label">Duration</div>
             <div class="mob-wheels">
                 <div class="mob-wheel-col">
                     <div class="mob-wheel" id="mob-wheel-yr"></div>
-                    <div class="mob-wheel-unit">г</div>
+                    <div class="mob-wheel-unit">yr</div>
                 </div>
                 <div class="mob-wheel-col">
                     <div class="mob-wheel" id="mob-wheel-mo"></div>
-                    <div class="mob-wheel-unit">м</div>
+                    <div class="mob-wheel-unit">mo</div>
                 </div>
             </div>
         </div>
         <div class="mob-sheet-section">
-            <div class="mob-sheet-label">Формат бумаги <span id="mob-roll-len" class="mob-roll-len"></span></div>
+            <div class="mob-sheet-label">Paper format <span id="mob-roll-len" class="mob-roll-len"></span></div>
             <div class="mob-chips" id="mob-paper-chips">
                 <button class="mob-chip-opt active" data-size="a4" onclick="mobSetPaper('a4')">A4</button>
                 <button class="mob-chip-opt" data-size="a3" onclick="mobSetPaper('a3')">A3</button>
@@ -292,7 +249,7 @@
             </div>
         </div>
         <div class="mob-sheet-section">
-            <div class="mob-sheet-label">Строки Ганта</div>
+            <div class="mob-sheet-label">Gantt rows</div>
             <div class="mob-chips">
                 <button class="mob-chip-opt" data-rows="6" onclick="mobSetRows(6)">6</button>
                 <button class="mob-chip-opt" data-rows="8" onclick="mobSetRows(8)">8</button>
@@ -301,14 +258,14 @@
             </div>
         </div>
         <div class="mob-sheet-section">
-            <div class="mob-sheet-label">Начало недели</div>
+            <div class="mob-sheet-label">Week start</div>
             <div class="mob-toggle-group">
-                <button class="mob-toggle active" id="mob-week-mon" onclick="mobSetWeek('mon')">Пн</button>
-                <button class="mob-toggle" id="mob-week-sun" onclick="mobSetWeek('sun')">Вс</button>
+                <button class="mob-toggle active" id="mob-week-mon" onclick="mobSetWeek('mon')">Mon</button>
+                <button class="mob-toggle" id="mob-week-sun" onclick="mobSetWeek('sun')">Sun</button>
             </div>
         </div>
     </div>
-    <script src="../locales/ru.js"></script>
+    <script src="../locales/zh.js"></script>
     <script src="../calendar.js"></script>
 </body>
 

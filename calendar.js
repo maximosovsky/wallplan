@@ -1,13 +1,9 @@
 // ─── WallPlan Calendar — SVG Renderer ───
+// Locale data loaded from locales/*.js via window.LOCALE
 
-// Справочники
-const MONTHS = [
-	'', 'January', 'February', 'March', 'April', 'May', 'June',
-	'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-const WEEK_DAYS_BASE = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const WEEK_DAYS_NARROW_BASE = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
+const MONTHS = LOCALE.months;
+const WEEK_DAYS_BASE = LOCALE.weekDays;
+const WEEK_DAYS_NARROW_BASE = LOCALE.weekDaysNarrow;
 
 function getOrderedDays(weekStart) {
 	const offset = (weekStart === 'mon') ? 1 : 0;
@@ -19,40 +15,11 @@ function getOrderedDays(weekStart) {
 	};
 }
 
-// US Federal Holidays — динамическое вычисление
-function getNthWeekday(year, month, weekday, n) {
-	const first = new Date(year, month, 1);
-	let day = ((weekday - first.getDay()) + 7) % 7 + 1;
-	day += (n - 1) * 7;
-	return day;
-}
-
-function getLastWeekday(year, month, weekday) {
-	const last = new Date(year, month + 1, 0);
-	const lastDate = last.getDate();
-	const lastDow = last.getDay();
-	let diff = ((lastDow - weekday) + 7) % 7;
-	return lastDate - diff;
-}
-
 const _holidayCache = {};
 const customEntries = []; // {month, day, text, yearly}
 function getHolidays(year) {
 	if (_holidayCache[year]) return _holidayCache[year];
-	const h = {};
-	const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
-	add(1, 1, "New Year's Day");
-	add(1, 11, 'WALLPLAN DAY');
-	add(6, 19, 'Juneteenth');
-	add(7, 4, 'Independence Day');
-	add(11, 11, 'Veterans Day');
-	add(12, 25, 'Christmas Day');
-	add(1, getNthWeekday(year, 0, 1, 3), 'Martin Luther King Jr. Day');
-	add(2, getNthWeekday(year, 1, 1, 3), "Presidents' Day");
-	add(5, getLastWeekday(year, 4, 1), 'Memorial Day');
-	add(9, getNthWeekday(year, 8, 1, 1), 'Labor Day');
-	add(10, getNthWeekday(year, 9, 1, 2), 'Columbus Day');
-	add(11, getNthWeekday(year, 10, 4, 4), 'Thanksgiving Day');
+	const h = LOCALE.getHolidays(year);
 	_holidayCache[year] = h;
 	return h;
 }
@@ -322,6 +289,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 
 	// ── Render each month column ──
 	let xCursor = L.spacerW;
+	let _zodiacPlaced = {};
 
 	for (let mi = 0; mi < numMonths; mi++) {
 		const m = monthsData[mi];
@@ -350,6 +318,23 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 				'font-size': '20', 'font-weight': '200',
 				'letter-spacing': '-0.03em', class: 'year',
 			}, svg).textContent = m.year;
+		}
+
+		// Zodiac annotation: place on 2nd visible month of each year
+		if (LOCALE.getZodiac) {
+			const yr = m.year;
+			if (_zodiacPlaced[yr] === 1) {
+				// This is the 2nd month of this year — place zodiac here
+				const z = LOCALE.getZodiac(parseInt(yr));
+				svgEl('text', {
+					x: xCursor + 10, y: yYear + r1H - 2,
+					'font-size': '7', 'font-weight': '300',
+					fill: '#999',
+				}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
+				_zodiacPlaced[yr] = 2;
+			} else if (!_zodiacPlaced[yr]) {
+				_zodiacPlaced[yr] = 1; // mark 1st month seen
+			}
 		}
 
 		// ── R2: Month name (colored by temperature) ──
@@ -728,7 +713,7 @@ function init() {
 	const params = new URLSearchParams(window.location.search);
 	let months = parseInt(params.get('l')) || 12;
 	let emptyRows = parseInt(params.get('g')) || 10;
-	let weekStart = params.get('w') || 'sun';
+	let weekStart = params.get('w') || LOCALE.defaultWeekStart;
 	yearsMode = params.get('u') === 'y';
 	hideDays = params.get('d') === '1';
 	useMonthColors = params.get('c') === '1';
@@ -736,7 +721,7 @@ function init() {
 	if (weekendHL < 0 || weekendHL > 3) weekendHL = 0;
 
 	if (emptyRows < 5 || emptyRows > 15) emptyRows = 10;
-	if (weekStart !== 'mon') weekStart = 'sun';
+	if (weekStart !== 'mon') weekStart = LOCALE.defaultWeekStart;
 
 	const monthsInput = document.getElementById('months-input');
 	const rowsSlider = document.getElementById('rows-slider');
@@ -750,7 +735,7 @@ function init() {
 	if (rowsSlider) rowsSlider.value = emptyRows;
 	if (rowsValue) rowsValue.textContent = emptyRows;
 	if (weekBtn) {
-		weekBtn.textContent = weekStart === 'mon' ? 'MO' : 'SU';
+		weekBtn.textContent = weekStart === 'mon' ? LOCALE.monLabel : LOCALE.sunLabel;
 		weekBtn.style.color = weekStart === 'mon' ? '' : '#C41E3A';
 	}
 
@@ -787,7 +772,7 @@ function updateCalendar() {
 	const totalMonths = parseInt(document.getElementById('months-input').value) || 2;
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const weekBtn = document.getElementById('week-start-btn');
-	const weekStart = (weekBtn && weekBtn.textContent === 'MO') ? 'mon' : 'sun';
+	const weekStart = (weekBtn && weekBtn.textContent === LOCALE.monLabel) ? 'mon' : 'sun';
 	const url = new URL(window.location);
 	url.searchParams.set('l', totalMonths);
 	url.searchParams.set('g', rows);
@@ -1424,8 +1409,8 @@ function addCustomEntries() {
 // ─── Helpers ───
 function toggleWeekStart() {
 	const btn = document.getElementById('week-start-btn');
-	const isSun = btn.textContent === 'SU';
-	btn.textContent = isSun ? 'MO' : 'SU';
+	const isSun = btn.textContent === LOCALE.sunLabel;
+	btn.textContent = isSun ? LOCALE.monLabel : LOCALE.sunLabel;
 	btn.style.color = isSun ? '' : '#C41E3A';
 	// Sync mobile
 	const monBtn = document.getElementById('mob-week-mon');
@@ -1589,10 +1574,10 @@ function mobSetRows(val) {
 function mobSetWeek(day) {
 	const btn = document.getElementById('week-start-btn');
 	if (day === 'mon') {
-		btn.textContent = 'Mon';
+		btn.textContent = LOCALE.monLabel;
 		btn.style.color = '';
 	} else {
-		btn.textContent = 'Sun';
+		btn.textContent = LOCALE.sunLabel;
 		btn.style.color = '#C41E3A';
 	}
 	document.getElementById('mob-week-mon').classList.toggle('active', day === 'mon');

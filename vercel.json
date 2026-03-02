@@ -35,7 +35,15 @@
       "destination": "/for-kirill-specially-ru/index.html"
     },
     {
-      "source": "/((?!for-kirill-specially-ru|@yka_yka).*)",
+      "source": "/zh",
+      "destination": "/zh/index.html"
+    },
+    {
+      "source": "/zh/",
+      "destination": "/zh/index.html"
+    },
+    {
+      "source": "/((?!for-kirill-specially-ru|@yka_yka|zh).*)",
       "destination": "/index.html"
     }
   ]
