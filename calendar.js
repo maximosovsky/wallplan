@@ -445,7 +445,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						// Gray highlight background
 						svgEl('rect', {
 							x: xCursor, y: rowY, width: mW, height: L.verRowH,
-							fill: '#999', opacity: '0.12',
+							fill: '#999', opacity: '0.25',
 						}, svg);
 						// Gray text
 						svgEl('text', {
