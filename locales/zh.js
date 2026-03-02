@@ -92,6 +92,7 @@ window.LOCALE = {
 
         // Re-render
         if (typeof updateCalendar === 'function') updateCalendar();
+        if (typeof refreshOverlayStats === 'function') refreshOverlayStats();
     },
 
     // ─── Chinese Zodiac ───
@@ -255,7 +256,7 @@ window.LOCALE = {
     },
 
     // ─── Overlay: Russian holidays for RU/CN contrast ───
-    _overlayTooltip: { en: 'RU/CN holiday', ru: 'Праздники РФ/КНР', zh: '俄中假日' },
+    _overlayTooltip: { en: 'US/CN holiday', ru: 'Праздники РФ/КНР', zh: '俄中假日' },
     get overlayTooltip() { return this._overlayTooltip[this._lang]; },
 
     _ruHolidayNames: {

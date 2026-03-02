@@ -64,60 +64,154 @@ window.LOCALE = {
         2044: { month: 9, day: 22 }, 2045: { month: 9, day: 11 },
     },
 
-    // ─── Hebrew month start dates in Gregorian (1st of each Hebrew month) ───
-    // Key = Gregorian year; Value = array of {gregMonth, gregDay, name:{he,en,ru}}
-    // Months listed in Hebrew calendar order (Tishrei→Elul) for the Hebrew year
-    // that BEGIN during this Gregorian year.
-    // Note: a Gregorian year spans parts of TWO Hebrew years.
-    _hebrewMonthStarts: {
-        2026: [
-            // 5786 months continuing from 2025:
-            // Tevet 5786 started Dec 21, 2025 → continues to Jan 18, 2026
-            { m: 1, d: 1, name: { he: 'טבת', en: 'Tevet', ru: 'Тевет' }, continues: true },
-            { m: 1, d: 19, name: { he: 'שבט', en: 'Shevat', ru: 'Шват' } },
-            { m: 2, d: 18, name: { he: 'אדר', en: 'Adar', ru: 'Адар' } },
-            { m: 3, d: 19, name: { he: 'ניסן', en: 'Nisan', ru: 'Нисан' } },
-            { m: 4, d: 18, name: { he: 'אייר', en: 'Iyar', ru: 'Ияр' } },
-            { m: 5, d: 17, name: { he: 'סיוון', en: 'Sivan', ru: 'Сиван' } },
-            { m: 6, d: 16, name: { he: 'תמוז', en: 'Tammuz', ru: 'Таммуз' } },
-            { m: 7, d: 15, name: { he: 'אב', en: 'Av', ru: 'Ав' } },
-            { m: 8, d: 14, name: { he: 'אלול', en: 'Elul', ru: 'Элуль' } },
-            // 5787 starts:
-            { m: 9, d: 12, name: { he: 'תשרי', en: 'Tishrei', ru: 'Тишрей' } },
-            { m: 10, d: 12, name: { he: 'חשוון', en: 'Cheshvan', ru: 'Хешван' } },
-            { m: 11, d: 11, name: { he: 'כסלו', en: 'Kislev', ru: 'Кислев' } },
-            { m: 12, d: 11, name: { he: 'טבת', en: 'Tevet', ru: 'Тевет' } },
-        ],
+    // Hebrew month names in order (Tishrei → Elul)
+    _hebrewMonthNames: [
+        { he: 'תשרי', en: 'Tishrei', ru: 'Тишрей' },
+        { he: 'חשוון', en: 'Cheshvan', ru: 'Хешван' },
+        { he: 'כסלו', en: 'Kislev', ru: 'Кислев' },
+        { he: 'טבת', en: 'Tevet', ru: 'Тевет' },
+        { he: 'שבט', en: 'Shevat', ru: 'Шват' },
+        { he: 'אדר', en: 'Adar', ru: 'Адар' },
+        { he: 'אדר א׳', en: 'Adar I', ru: 'Адар I' },
+        { he: 'אדר ב׳', en: 'Adar II', ru: 'Адар II' },
+        { he: 'ניסן', en: 'Nisan', ru: 'Нисан' },
+        { he: 'אייר', en: 'Iyar', ru: 'Ияр' },
+        { he: 'סיוון', en: 'Sivan', ru: 'Сиван' },
+        { he: 'תמוז', en: 'Tammuz', ru: 'Таммуз' },
+        { he: 'אב', en: 'Av', ru: 'Ав' },
+        { he: 'אלול', en: 'Elul', ru: 'Элуль' },
+    ],
+
+    // Compute Hebrew month lengths for a Hebrew year starting at rh1 and ending before rh2
+    _getHebrewMonthLengths(rh1, rh2) {
+        // Total days in this Hebrew year
+        const totalDays = Math.round((rh2 - rh1) / 86400000);
+        // Determine year type from total days:
+        // Non-leap: 353 (deficient), 354 (regular), 355 (complete)
+        // Leap:     383 (deficient), 384 (regular), 385 (complete)
+        const isLeap = totalDays >= 383;
+        const yearType = totalDays - (isLeap ? 383 : 353); // 0=deficient, 1=regular, 2=complete
+
+        // Month lengths: Tishrei(30), Cheshvan(29/30), Kislev(30/29), Tevet(29),
+        // Shevat(30), Adar(29)/AdarI(30)+AdarII(29), Nisan(30), Iyar(29),
+        // Sivan(30), Tammuz(29), Av(30), Elul(29)
+        const months = [];
+        const names = this._hebrewMonthNames;
+
+        months.push({ name: names[0], days: 30 }); // Tishrei
+        months.push({ name: names[1], days: yearType >= 2 ? 30 : 29 }); // Cheshvan
+        months.push({ name: names[2], days: yearType >= 1 ? 30 : 29 }); // Kislev
+        months.push({ name: names[3], days: 29 }); // Tevet
+        months.push({ name: names[4], days: 30 }); // Shevat
+        if (isLeap) {
+            months.push({ name: names[6], days: 30 }); // Adar I
+            months.push({ name: names[7], days: 29 }); // Adar II
+        } else {
+            months.push({ name: names[5], days: 29 }); // Adar
+        }
+        months.push({ name: names[8], days: 30 });  // Nisan
+        months.push({ name: names[9], days: 29 });  // Iyar
+        months.push({ name: names[10], days: 30 }); // Sivan
+        months.push({ name: names[11], days: 29 }); // Tammuz
+        months.push({ name: names[12], days: 30 }); // Av
+        months.push({ name: names[13], days: 29 }); // Elul
+
+        return months;
+    },
+
+    // Compute all Hebrew month start dates that fall within a Gregorian year
+    _computeHebrewMonthsForGregYear(gregYear) {
+        // We need Rosh Hashana of the year before and the year itself
+        const rh_prev_prev = this._roshHashanaDates[gregYear - 2];
+        const rh_prev = this._roshHashanaDates[gregYear - 1];
+        const rh_cur = this._roshHashanaDates[gregYear];
+        const rh_next = this._roshHashanaDates[gregYear + 1];
+        if (!rh_prev || !rh_cur) return null;
+
+        const result = [];
+        const gregStart = new Date(gregYear, 0, 1);
+        const gregEnd = new Date(gregYear, 11, 31);
+
+        // Hebrew year starting in gregYear-1, continuing into gregYear
+        // Only include months that START within gregYear (no clipping)
+        {
+            const rhDate = new Date(gregYear - 1, rh_prev.month - 1, rh_prev.day);
+            const rhNext = new Date(gregYear, rh_cur.month - 1, rh_cur.day);
+            const months = this._getHebrewMonthLengths(rhDate, rhNext);
+            let cursor = new Date(rhDate);
+            for (const m of months) {
+                const mEnd = new Date(cursor);
+                mEnd.setDate(mEnd.getDate() + m.days - 1);
+                // Only include if month STARTS within gregYear
+                if (cursor >= gregStart && cursor <= gregEnd) {
+                    result.push({
+                        m: cursor.getMonth() + 1,
+                        d: cursor.getDate(),
+                        name: m.name,
+                        endM: mEnd.getMonth() + 1,
+                        endD: mEnd.getDate(),
+                        numDays: m.days,
+                    });
+                }
+                cursor = new Date(mEnd);
+                cursor.setDate(cursor.getDate() + 1);
+            }
+        }
+
+        // Hebrew year starting in gregYear
+        if (rh_next) {
+            const rhDate = new Date(gregYear, rh_cur.month - 1, rh_cur.day);
+            const rhNext = new Date(gregYear + 1, rh_next.month - 1, rh_next.day);
+            const months = this._getHebrewMonthLengths(rhDate, rhNext);
+            let cursor = new Date(rhDate);
+            for (const m of months) {
+                const mEnd = new Date(cursor);
+                mEnd.setDate(mEnd.getDate() + m.days - 1);
+                if (cursor > gregEnd) break;
+                if (mEnd >= gregStart && cursor <= gregEnd) {
+                    result.push({
+                        m: cursor.getMonth() + 1,
+                        d: cursor.getDate(),
+                        name: m.name,
+                        endM: mEnd.getMonth() + 1,
+                        endD: mEnd.getDate(),
+                        numDays: m.days,
+                    });
+                }
+                cursor = new Date(mEnd);
+                cursor.setDate(cursor.getDate() + 1);
+            }
+        }
+
+        return result;
     },
 
     // ─── Full Hebrew months as calendar columns ───
     // Returns array of full Hebrew months with Gregorian date ranges.
     // Each month = one column (29-30 days), crossing Gregorian month boundaries.
     getAlternateMonths(year) {
-        const starts = this._hebrewMonthStarts[year];
-        if (!starts) return null;
+        const starts = this._computeHebrewMonthsForGregYear(year);
+        if (!starts || starts.length === 0) return null;
 
         const months = [];
         for (let i = 0; i < starts.length; i++) {
             const cur = starts[i];
-            // Calculate end date: day before next month starts (or Dec 31)
-            let endDate;
-            if (i + 1 < starts.length) {
-                endDate = new Date(year, starts[i + 1].m - 1, starts[i + 1].d - 1);
-            } else {
-                endDate = new Date(year, 11, 31); // Dec 31
-            }
             const startDate = new Date(year, cur.m - 1, cur.d);
-            // Count days
-            const numDays = Math.round((endDate - startDate) / 86400000) + 1;
+            // Use precomputed end date (handles cross-year months like Tevet Dec→Jan)
+            const endM = cur.endM || (i + 1 < starts.length ? starts[i + 1].m : 12);
+            const endD = cur.endD || (i + 1 < starts.length ? starts[i + 1].d - 1 : 31);
+            const numDays = cur.numDays || 30;
+
+            // Compute endYear — if endMonth < startMonth, it crosses into next year
+            const endYear = endM < cur.m ? year + 1 : year;
 
             months.push({
-                name: cur.name,               // {he, en, ru}
+                name: cur.name,
                 startYear: year,
-                startMonth: cur.m,            // 1-indexed Gregorian month
-                startDay: cur.d,              // Gregorian day
-                endMonth: endDate.getMonth() + 1,
-                endDay: endDate.getDate(),
+                startMonth: cur.m,
+                startDay: cur.d,
+                endMonth: endM,
+                endDay: endD,
                 numDays: numDays,
             });
         }
@@ -179,6 +273,7 @@ window.LOCALE = {
         }
 
         if (typeof updateCalendar === 'function') updateCalendar();
+        if (typeof refreshOverlayStats === 'function') refreshOverlayStats();
     },
 
     // ─── Pesach dates (15 Nisan in Gregorian) — precomputed ───
@@ -327,7 +422,7 @@ window.LOCALE = {
     },
 
     // ─── Overlay: Russian holidays for RU/IL contrast ───
-    _overlayTooltip: { he: 'חגים רוסיים', ru: 'Праздники РФ/IL', en: 'RU/IL holidays' },
+    _overlayTooltip: { he: 'חגים רוסיים/אמריקאיים', ru: 'Праздники РФ/IL', en: 'US/IL holidays' },
     get overlayTooltip() { return this._overlayTooltip[this._lang]; },
 
     _ruHolidayNames: {

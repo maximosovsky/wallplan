@@ -158,6 +158,7 @@ window.LOCALE = {
         }
 
         if (typeof updateCalendar === 'function') updateCalendar();
+        if (typeof refreshOverlayStats === 'function') refreshOverlayStats();
     },
 
     // ─── Ramadan & Islamic holiday dates (Gregorian) — precomputed ───
@@ -275,7 +276,7 @@ window.LOCALE = {
     },
 
     // ─── Overlay: Russian holidays for RU/AE contrast ───
-    _overlayTooltip: { ar: 'أعياد روسية', ru: 'Праздники РФ/ОАЭ', en: 'RU/AE holidays' },
+    _overlayTooltip: { ar: 'أعياد روسية/أمريكية', ru: 'Праздники РФ/ОАЭ', en: 'US/AE holidays' },
     get overlayTooltip() { return this._overlayTooltip[this._lang]; },
 
     _ruHolidayNames: {
