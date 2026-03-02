@@ -17,6 +17,91 @@ function getOrderedDays(weekStart) {
 
 var _holidayCache = {};
 const customEntries = []; // {month, day, text, yearly}
+
+// ─── Entry persistence (localStorage + hash) ───
+const _ENTRY_STORAGE_KEY = 'wp-entries';
+
+function _encodeEntries(arr) {
+	if (!arr.length) return '';
+	const compact = arr.map(e => {
+		const o = { d: e.day, m: e.month, t: e.text };
+		if (e.yearly) o.y = 1;
+		if (e.year) o.yr = e.year;
+		return o;
+	});
+	return btoa(unescape(encodeURIComponent(JSON.stringify(compact))));
+}
+
+function _decodeEntries(str) {
+	try {
+		const json = decodeURIComponent(escape(atob(str)));
+		const arr = JSON.parse(json);
+		if (!Array.isArray(arr)) return [];
+		return arr.map(o => ({
+			day: o.d, month: o.m, text: o.t,
+			yearly: !!o.y,
+			...(o.yr ? { year: o.yr } : {})
+		})).filter(e => e.day && e.month && e.text);
+	} catch (e) {
+		return [];
+	}
+}
+
+function _saveEntries() {
+	// localStorage
+	try {
+		if (customEntries.length) {
+			localStorage.setItem(_ENTRY_STORAGE_KEY, JSON.stringify(customEntries));
+		} else {
+			localStorage.removeItem(_ENTRY_STORAGE_KEY);
+		}
+	} catch (e) { /* quota exceeded or private mode */ }
+
+	// Hash-fragment (auto-update URL)
+	const encoded = _encodeEntries(customEntries);
+	const base = window.location.pathname + window.location.search;
+	if (encoded) {
+		history.replaceState(null, '', base + '#e=' + encoded);
+	} else {
+		history.replaceState(null, '', base);
+	}
+}
+
+function _loadEntries() {
+	let loaded = [];
+
+	// Priority 1: hash-fragment
+	const hash = window.location.hash;
+	if (hash.startsWith('#e=')) {
+		loaded = _decodeEntries(hash.slice(3));
+	}
+
+	// Priority 2: localStorage
+	if (!loaded.length) {
+		try {
+			const raw = localStorage.getItem(_ENTRY_STORAGE_KEY);
+			if (raw) {
+				const arr = JSON.parse(raw);
+				if (Array.isArray(arr)) loaded = arr.filter(e => e.day && e.month && e.text);
+			}
+		} catch (e) { /* corrupted data */ }
+	}
+
+	if (loaded.length) {
+		customEntries.push(...loaded);
+		_saveEntries(); // sync hash ↔ localStorage
+	}
+}
+
+// Export helpers (ready for future JSON/ICS export)
+function _getEntriesForExport() {
+	return customEntries.map(e => ({
+		date: (e.year || new Date().getFullYear()) + '-' + String(e.month).padStart(2, '0') + '-' + String(e.day).padStart(2, '0'),
+		text: e.text,
+		yearly: e.yearly
+	}));
+}
+
 function getHolidays(year) {
 	if (_holidayCache[year]) return _holidayCache[year];
 	const h = LOCALE.getHolidays(year);
@@ -1181,6 +1266,9 @@ function init() {
 		toggleOverlay();
 	}
 
+	// Load persisted custom entries (hash > localStorage)
+	_loadEntries();
+
 	buildPages(totalMonths, emptyRows, weekStart);
 	// Cache static UI elements for repeated use
 	_ui.sizeChips = Array.from(document.querySelectorAll('.tb-btn[data-size], .pm-item[data-size]'));
@@ -1915,6 +2003,7 @@ function addCustomEntries() {
 	}
 
 	if (added === 0) { bulkEl.focus(); return; }
+	_saveEntries();
 	closeEntryModal();
 	updateCalendar();
 }

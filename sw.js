@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wallplan-v1';
+const CACHE_NAME = 'wallplan-v2';
 const ASSETS = [
     '/',
     '/index.html',
