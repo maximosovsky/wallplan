@@ -3,10 +3,62 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://osovsky.com/wallplan/</loc>
-    <lastmod>2026-02-14</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/for-kirill-specially-ru/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/ru/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/" />
+    <xhtml:link rel="alternate" hreflang="he" href="https://osovsky.com/wallplan/he/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://osovsky.com/wallplan/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/" />
+  </url>
+  <url>
+    <loc>https://osovsky.com/wallplan/ru/</loc>
+    <lastmod>2026-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/ru/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/" />
+    <xhtml:link rel="alternate" hreflang="he" href="https://osovsky.com/wallplan/he/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://osovsky.com/wallplan/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/" />
+  </url>
+  <url>
+    <loc>https://osovsky.com/wallplan/zh/</loc>
+    <lastmod>2026-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/ru/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/" />
+    <xhtml:link rel="alternate" hreflang="he" href="https://osovsky.com/wallplan/he/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://osovsky.com/wallplan/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/" />
+  </url>
+  <url>
+    <loc>https://osovsky.com/wallplan/he/</loc>
+    <lastmod>2026-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/ru/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/" />
+    <xhtml:link rel="alternate" hreflang="he" href="https://osovsky.com/wallplan/he/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://osovsky.com/wallplan/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/" />
+  </url>
+  <url>
+    <loc>https://osovsky.com/wallplan/ar/</loc>
+    <lastmod>2026-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/ru/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/" />
+    <xhtml:link rel="alternate" hreflang="he" href="https://osovsky.com/wallplan/he/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://osovsky.com/wallplan/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/" />
   </url>
 </urlset>

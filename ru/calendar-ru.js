@@ -1,9 +1,13 @@
 // ─── WallPlan Calendar — SVG Renderer ───
-// Locale data loaded from locales/*.js via window.LOCALE
 
-var MONTHS = LOCALE.months;
-var WEEK_DAYS_BASE = LOCALE.weekDays;
-var WEEK_DAYS_NARROW_BASE = LOCALE.weekDaysNarrow;
+// Справочники
+const MONTHS = [
+	'', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+	'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
+
+const WEEK_DAYS_BASE = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const WEEK_DAYS_NARROW_BASE = ['В', 'П', 'В', 'С', 'Ч', 'П', 'С'];
 
 function getOrderedDays(weekStart) {
 	const offset = (weekStart === 'mon') ? 1 : 0;
@@ -15,15 +19,9 @@ function getOrderedDays(weekStart) {
 	};
 }
 
-var _holidayCache = {};
-const customEntries = []; // {month, day, text, yearly}
-function getHolidays(year) {
-	if (_holidayCache[year]) return _holidayCache[year];
-	const h = LOCALE.getHolidays(year);
-	_holidayCache[year] = h;
-	return h;
-}
-
+// Российские государственные праздники
+const _holidayCache = {};
+const customEntries = [];
 function getCustomEntries(year) {
 	const h = {};
 	for (const e of customEntries) {
@@ -32,6 +30,30 @@ function getCustomEntries(year) {
 			h[key] = e.text;
 		}
 	}
+	return h;
+}
+function getHolidays(year) {
+	if (_holidayCache[year]) return _holidayCache[year];
+	const h = {};
+	const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
+	// Новогодние каникулы
+	add(1, 1, '🎄 Новый год');
+	add(1, 2, '🎄 Новогодние каникулы');
+	add(1, 3, '🎄 Новогодние каникулы');
+	add(1, 4, '🎄 Новогодние каникулы');
+	add(1, 5, '🎄 Новогодние каникулы');
+	add(1, 6, '🎄 Новогодние каникулы');
+	add(1, 7, '⛪ Рождество Христово');
+	add(1, 8, '🎄 Новогодние каникулы');
+	add(1, 11, '🎂 Максим Осовский д/р');
+	// Остальные праздники
+	add(2, 23, '🎖️ День защитника Отечества');
+	add(3, 8, '💐 Международный женский день');
+	add(5, 1, '🌸 Праздник Весны и Труда');
+	add(5, 9, '🎗️ День Победы');
+	add(6, 12, '🏛️ День России');
+	add(11, 4, '🤝 День народного единства');
+	_holidayCache[year] = h;
 	return h;
 }
 
@@ -97,7 +119,7 @@ const LAYOUT = {
 	weekLineW: 0.2,
 
 	// Fonts
-	fontFamily: LOCALE._strings ? "'Noto Sans SC', 'IBM Plex Sans', FreeSans, sans-serif" : "IBM Plex Sans, FreeSans, sans-serif",
+	fontFamily: "IBM Plex Sans, FreeSans, sans-serif",
 };
 
 // ─── Colors ───
@@ -128,7 +150,6 @@ const MONTH_COLORS = [
 ];
 let useMonthColors = false;
 let weekendHL = 0; // 0=off, 1=Gantt, 2=+Box, 3=+Vertical
-let overlayRU = false; // RU/CN holiday overlay
 
 // ─── SVG Calendar Generator ───
 function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxMonthsPerPage = 0) {
@@ -142,24 +163,10 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + totalLength + 1, 0);
 
 	const holidaysByYear = {};
-	const entriesByYear = {};
 	for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
 		holidaysByYear[y] = getHolidays(y);
-		entriesByYear[y] = getCustomEntries(y);
-	}
-	// Workday overrides (e.g. Chinese 补班 — weekends that are working days)
-	const workdayOverrides = {};
-	if (LOCALE.getWorkdayOverrides) {
-		for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
-			workdayOverrides[y] = LOCALE.getWorkdayOverrides(y);
-		}
-	}
-	// Overlay: Russian holidays for contrast
-	const overlayByYear = {};
-	if (overlayRU && LOCALE.getRussianHolidays) {
-		for (let y = startDate.getFullYear(); y <= endDate.getFullYear(); y++) {
-			overlayByYear[y] = LOCALE.getRussianHolidays(y);
-		}
+		const ce = getCustomEntries(y);
+		for (const k of Object.keys(ce)) holidaysByYear[y][k] = ce[k];
 	}
 
 	// Collect per-month data
@@ -171,17 +178,12 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	let currentMonthDays = [];
 	let currentIndex = null;
 
-	const _weekendDays = LOCALE.getWeekendDays ? LOCALE.getWeekendDays() : [0, 6];
-
 	while (curDate < loopEnd) {
 		const md = pad2(curDate.getMonth() + 1) + pad2(curDate.getDate());
 		const yearHolidays = holidaysByYear[curDate.getFullYear()];
-		const yearEntries = entriesByYear[curDate.getFullYear()] || {};
-		const holiday = yearHolidays[md] || yearEntries[md] || '';
+		const holiday = yearHolidays[md] || '';
 		const rawDow = getUSDayOfWeek(curDate);
-		const isWeekend = _weekendDays.includes(rawDow);
-		const wo = workdayOverrides[curDate.getFullYear()];
-		const isWorkdayOverride = wo ? wo.has(md) : false;
+		const isWeekend = (rawDow === 0 || rawDow === 6);
 		const adjustedDow = (rawDow - wsOffset + 7) % 7;
 		const index = formatIndex(curDate);
 		const day = curDate.getDate();
@@ -212,8 +214,6 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			weekNum: getWeekNumber(curDate),
 			isFirstOfMonth: day === 1,
 			isWeekStart: adjustedDow === 0,
-			isWorkdayOverride,
-			overlayHoliday: overlayByYear[curDate.getFullYear()] ? (overlayByYear[curDate.getFullYear()][md] || '') : '',
 		});
 
 		curDate.setDate(curDate.getDate() + 1);
@@ -281,16 +281,13 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 	svg.setAttribute('height', totalH);
 	svg.style.overflow = 'visible';
 
-	// Embedded style for exported SVG (Copper Penny DTP @font-face injected on export)
+	// Embedded style for exported SVG
 	const styleEl = svgEl('style', {}, svg);
 	styleEl.textContent = `
 		text { font-family: ${L.fontFamily}; fill: ${COLORS.ink}; }
 		.red { fill: ${COLORS.red}; }
 		.ink-light { fill: ${COLORS.inkLight}; }
 		.year { fill: #999999; }
-		.alt-year { fill: #1565C0; }
-		.year-boundary { stroke: #1565C0; stroke-width: 0.8; stroke-dasharray: 2,1; }
-		.wallplan-day { font-family: 'Copper Penny DTP', serif; fill: #6B2332; }
 	`;
 
 	// ── Section Y offsets ──
@@ -342,52 +339,6 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}, svg).textContent = m.year;
 		}
 
-		// Alternate year boundary: blue dashed vertical line at Rosh Hashana / 1 Muharram
-		{
-			const gregYr = parseInt(m.year);
-			let altInfo = null;
-			if (LOCALE.getHebrewYear) altInfo = LOCALE.getHebrewYear(gregYr);
-			else if (LOCALE.getHijriYear) altInfo = LOCALE.getHijriYear(gregYr);
-			else if (LOCALE.getChineseYear) altInfo = LOCALE.getChineseYear(gregYr);
-			if (altInfo && altInfo.boundary && altInfo.boundary.month === m.monthNum) {
-				// Boundary day falls in this month
-				const bDay = altInfo.boundary.day;
-				const bDayIdx = bDay - 1; // 0-indexed
-				if (bDayIdx >= 0 && bDayIdx < numDays) {
-					const bx = xCursor + bDayIdx * cellW;
-					// Blue dashed vertical line spanning all sections
-					svgEl('line', {
-						x1: bx, y1: 0, x2: bx, y2: totalH,
-						class: 'year-boundary',
-					}, svg);
-					// Alternate year label at boundary — same style as main year
-					svgEl('text', {
-						x: bx + 4, y: yYear + r1H - 2,
-						'font-size': '20', 'font-weight': '200',
-						'letter-spacing': '-0.03em',
-						class: 'alt-year',
-					}, svg).textContent = altInfo.yearAfter;
-				}
-			}
-		}
-
-		// Zodiac annotation: place on 2nd visible month of each year
-		if (LOCALE.getZodiac) {
-			const yr = m.year;
-			if (_zodiacPlaced[yr] === 1) {
-				// This is the 2nd month of this year — place zodiac here
-				const z = LOCALE.getZodiac(parseInt(yr));
-				svgEl('text', {
-					x: xCursor + 10, y: yYear + r1H - 2,
-					'font-size': '7', 'font-weight': '300',
-					fill: '#999',
-				}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
-				_zodiacPlaced[yr] = 2;
-			} else if (!_zodiacPlaced[yr]) {
-				_zodiacPlaced[yr] = 1; // mark 1st month seen
-			}
-		}
-
 		// ── R2: Month name (colored by temperature) ──
 		const monthColor = useMonthColors ? (MONTH_COLORS[m.monthNum] || COLORS.ink) : COLORS.ink;
 		const monthNameEl = svgEl('text', {
@@ -403,7 +354,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 		if (!hideDays && weekendHL >= 3) {
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
-				if (d && !d.isWorkdayOverride && (d.isWeekend || d.holiday)) {
+				if (d && (d.isWeekend || d.holiday)) {
 					const rowY = yVer + di * L.verRowH;
 					const opacity = (d.holiday && !d.isWeekend) ? '0.35' : '0.22';
 					svgEl('rect', {
@@ -421,7 +372,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 				if (dayData) {
 					const textClass = dayData.isWeekend ? 'red' : '';
 
-					// Day number (month color for weekdays, red for weekends)
+					// Day number
 					const dayEl = svgEl('text', {
 						x: xCursor + 6, y: rowY + L.verRowH - 2,
 						'font-size': '9',
@@ -430,7 +381,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 					dayEl.textContent = dayData.day;
 					if (useMonthColors && !dayData.isWeekend) dayEl.style.fill = monthColor;
 
-					// Day of week (month color for weekdays)
+					// Day of week
 					const dowEl = svgEl('text', {
 						x: xCursor + 22, y: rowY + L.verRowH - 3,
 						'font-size': '5.5', 'letter-spacing': '0.05em',
@@ -464,49 +415,14 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 
 					// Holiday name
 					if (dayData.holiday) {
-						const isWPDay = dayData.holiday === 'WALLPLAN DAY';
 						svgEl('text', {
-							x: xCursor + (is914s ? 32 : 38), y: rowY + (isWPDay ? L.verRowH / 2 + 2.5 : L.verRowH - 3),
-							'font-size': is914s ? '3.5' : '4.5',
-							'text-anchor': 'start',
-							class: isWPDay ? 'wallplan-day' : '',
+							x: xCursor + (is914s ? 30 : 36), y: rowY + L.verRowH - 3,
+							'font-size': is914s ? '3.5' : '4.5', 'text-anchor': 'start',
 						}, svg).textContent = dayData.holiday;
-					}
-
-					// Overlay: Russian holiday (gray text + gray highlight, only if no CN holiday, not weekend)
-					if (weekendHL >= 3 && dayData.overlayHoliday && !dayData.holiday && !dayData.isWeekend) {
-						// Gray highlight background
-						svgEl('rect', {
-							x: xCursor, y: rowY, width: mW, height: L.verRowH,
-							fill: '#999', opacity: '0.25',
-						}, svg);
-						// Gray text
-						svgEl('text', {
-							x: xCursor + (is914s ? 32 : 38), y: rowY + L.verRowH - 3,
-							'font-size': is914s ? '3' : '4',
-							'text-anchor': 'start',
-							fill: '#999',
-						}, svg).textContent = dayData.overlayHoliday;
 					}
 				}
 			}
 		} // end if (!hideDays) R3
-
-		// WallPlan Day — always visible even with hideDays
-		if (hideDays) {
-			for (let di = 0; di < 31; di++) {
-				const dayData = m.days[di];
-				if (dayData && dayData.holiday === 'WALLPLAN DAY') {
-					const rowY = yVer + di * L.verRowH;
-					svgEl('text', {
-						x: xCursor + (is914s ? 32 : 38), y: rowY + L.verRowH / 2 + 2.5,
-						'font-size': is914s ? '3.5' : '4.5',
-						'text-anchor': 'start',
-						class: 'wallplan-day',
-					}, svg).textContent = dayData.holiday;
-				}
-			}
-		}
 
 		// ── R4: Gantt horizontal grid ──
 		// Gantt row horizontal borders — always visible (even with hideDays)
@@ -531,28 +447,12 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			const hlH = emptyRows * ganttRowH;
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
-				if (!d.isWorkdayOverride && (d.isWeekend || d.holiday)) {
+				if (d.isWeekend || d.holiday) {
 					const cx = xCursor + di * cellW;
 					const opacity = (d.holiday && !d.isWeekend) ? '0.4' : '0.3';
 					svgEl('rect', {
 						x: cx, y: hlY, width: cellW, height: hlH,
 						fill: COLORS.weekendHL, opacity: opacity,
-					}, svg);
-				}
-			}
-		}
-
-		// Overlay: Russian holidays gray highlight for Gantt (level 1+)
-		if (!hideDays && weekendHL >= 1 && overlayRU) {
-			const hlY = yGantt + ganttHeaderH;
-			const hlH = emptyRows * ganttRowH;
-			for (let di = 0; di < numDays; di++) {
-				const d = m.days[di];
-				if (d.overlayHoliday && !d.holiday && !d.isWeekend) {
-					const cx = xCursor + di * cellW;
-					svgEl('rect', {
-						x: cx, y: hlY, width: cellW, height: hlH,
-						fill: '#999', opacity: '0.2',
 					}, svg);
 				}
 			}
@@ -631,7 +531,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			const firstDayDowHL = (m.days[0].rawDow - wsOffset + 7) % 7;
 			for (let di = 0; di < numDays; di++) {
 				const d = m.days[di];
-				if (!d.isWorkdayOverride && (d.isWeekend || d.holiday)) {
+				if (d.isWeekend || d.holiday) {
 					const gridPos = firstDayDowHL + di;
 					const row = Math.floor(gridPos / 7);
 					const col = gridPos % 7;
@@ -645,28 +545,6 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 				}
 			}
 		}
-
-		// Overlay: Russian holidays gray highlight for Box (level 2+)
-		if (weekendHL >= 2 && overlayRU) {
-			const boxGridW = mW * 0.85;
-			const boxCellW = boxGridW / 7;
-			const boxLeft = xCursor + 6;
-			const firstDayDowOv = (m.days[0].rawDow - wsOffset + 7) % 7;
-			for (let di = 0; di < numDays; di++) {
-				const d = m.days[di];
-				if (d.overlayHoliday && !d.holiday && !d.isWeekend) {
-					const gridPos = firstDayDowOv + di;
-					const row = Math.floor(gridPos / 7);
-					const col = gridPos % 7;
-					const rx = boxLeft + col * boxCellW;
-					const ry = yBox + L.boxHeaderH + row * L.boxCellH;
-					svgEl('rect', {
-						x: rx, y: ry, width: boxCellW, height: L.boxCellH,
-						fill: '#999', opacity: '0.2',
-					}, svg);
-				}
-			}
-		}
 		{
 			const boxGridW = mW * 0.85; // use 85% of month column
 			const boxCellW = boxGridW / 7;
@@ -676,8 +554,7 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			for (let dow = 0; dow < 7; dow++) {
 				const hx = boxLeft + dow * boxCellW + boxCellW / 2;
 				const rawDow = (dow + wsOffset) % 7;
-				const _weDays = LOCALE.getWeekendDays ? LOCALE.getWeekendDays() : [0, 6];
-				const isWE = _weDays.includes(rawDow);
+				const isWE = rawDow === 0 || rawDow === 6;
 				svgEl('text', {
 					x: hx, y: yBox + L.boxHeaderH - 2,
 					'font-size': F.boxDow, 'text-anchor': 'middle',
@@ -779,9 +656,7 @@ function _totalFromDials() {
 // ─── Page building ───
 let _cachedPages = [];
 let _cachedRollW = 0;
-let _zodiacPlaced = {};
 function buildPages(totalMonths, emptyRows, weekStart) {
-	_zodiacPlaced = {};
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const clampedRows = Math.max(6, Math.min(12, rows));
 	const mpp = (currentPaper.w !== null && rows >= 12) ? 8 : (currentPaper.w !== null ? 7 : 999);
@@ -821,7 +696,7 @@ function init() {
 	const params = new URLSearchParams(window.location.search);
 	let months = parseInt(params.get('l')) || 12;
 	let emptyRows = parseInt(params.get('g')) || 10;
-	let weekStart = params.get('w') || LOCALE.defaultWeekStart;
+	let weekStart = params.get('w') || 'mon';
 	yearsMode = params.get('u') === 'y';
 	hideDays = params.get('d') === '1';
 	useMonthColors = params.get('c') === '1';
@@ -829,7 +704,7 @@ function init() {
 	if (weekendHL < 0 || weekendHL > 3) weekendHL = 0;
 
 	if (emptyRows < 5 || emptyRows > 15) emptyRows = 10;
-	if (weekStart !== 'mon') weekStart = LOCALE.defaultWeekStart;
+	if (weekStart !== 'sun') weekStart = 'mon';
 
 	const monthsInput = document.getElementById('months-input');
 	const rowsSlider = document.getElementById('rows-slider');
@@ -843,16 +718,8 @@ function init() {
 	if (rowsSlider) rowsSlider.value = emptyRows;
 	if (rowsValue) rowsValue.textContent = emptyRows;
 	if (weekBtn) {
-		weekBtn.textContent = weekStart === 'mon' ? LOCALE.monLabel : LOCALE.sunLabel;
+		weekBtn.textContent = weekStart === 'mon' ? 'ПН' : 'ВС';
 		weekBtn.style.color = weekStart === 'mon' ? '' : '#C41E3A';
-	}
-
-	// Sync hide-days buttons
-	if (hideDays) {
-		const hBtn = document.getElementById('hide-days-btn');
-		if (hBtn) hBtn.classList.add('active');
-		const mhBtn = document.getElementById('mob-hide-days-btn');
-		if (mhBtn) mhBtn.classList.add('active');
 	}
 
 	// Sync color toggle button
@@ -860,22 +727,8 @@ function init() {
 		const cBtn = document.getElementById('color-toggle-btn');
 		if (cBtn) cBtn.classList.add('active');
 	}
-	// Sync weekend highlight button
 	_syncWeekendHLBtn();
 	_syncColorIcons();
-
-	// Sync language (zh locale only)
-	const langParam = params.get('lang');
-	if (langParam && LOCALE.switchLang && ['ru', 'zh'].includes(langParam)) {
-		const target = langParam;
-		while (LOCALE._lang !== target) LOCALE.switchLang();
-	}
-
-	// Sync overlay
-	if (params.get('ov') === '1' && LOCALE.getRussianHolidays) {
-		overlayRU = false; // toggleOverlay will flip to true
-		toggleOverlay();
-	}
 
 	buildPages(totalMonths, emptyRows, weekStart);
 	// Cache static UI elements for repeated use
@@ -893,7 +746,7 @@ function updateCalendar() {
 	const totalMonths = parseInt(document.getElementById('months-input').value) || 2;
 	const rows = parseInt(document.getElementById('rows-slider').value) || 10;
 	const weekBtn = document.getElementById('week-start-btn');
-	const weekStart = (weekBtn && weekBtn.textContent === LOCALE.monLabel) ? 'mon' : 'sun';
+	const weekStart = (weekBtn && weekBtn.textContent === 'ПН') ? 'mon' : 'sun';
 	const url = new URL(window.location);
 	url.searchParams.set('l', totalMonths);
 	url.searchParams.set('g', rows);
@@ -902,8 +755,6 @@ function updateCalendar() {
 	if (hideDays) url.searchParams.set('d', '1'); else url.searchParams.delete('d');
 	if (useMonthColors) url.searchParams.set('c', '1'); else url.searchParams.delete('c');
 	if (weekendHL) url.searchParams.set('h', weekendHL); else url.searchParams.delete('h');
-	if (LOCALE._lang && LOCALE._lang !== 'en') url.searchParams.set('lang', LOCALE._lang); else url.searchParams.delete('lang');
-	if (overlayRU) url.searchParams.set('ov', '1'); else url.searchParams.delete('ov');
 	window.history.replaceState({}, '', url);
 
 	buildPages(totalMonths, rows, weekStart);
@@ -1056,7 +907,7 @@ function updatePageInfo() {
 		let tip = '';
 		if (paper.w !== null) {
 			const p = _pagesFor(paper);
-			tip = p > 1 ? p + ' pages' : '1 page';
+			tip = p > 1 ? p + ' стр.' : '1 стр.';
 		} else {
 			tip = _rollLen(paper);
 		}
@@ -1077,7 +928,7 @@ function updatePageInfo() {
 		let tip = '';
 		if (currentPaper.w !== null) {
 			const p = _pagesFor(currentPaper);
-			tip = p > 1 ? p + ' pages' : '1 page';
+			tip = p > 1 ? p + ' стр.' : '1 стр.';
 		} else {
 			tip = _rollLen(currentPaper);
 		}
@@ -1089,7 +940,7 @@ function updatePageInfo() {
 	if (mobFmtLabel) {
 		if (currentPaper.w !== null) {
 			const p = _pagesFor(currentPaper);
-			mobFmtLabel.textContent = p + ' pg';
+			mobFmtLabel.textContent = p + ' стр';
 		} else {
 			mobFmtLabel.textContent = _rollLen(currentPaper);
 		}
@@ -1473,47 +1324,6 @@ function _syncWeekendHLBtn() {
 	if (btn) btn.classList.toggle('active', weekendHL > 0);
 }
 
-// ─── RU/CN overlay toggle ───
-function toggleOverlay() {
-	overlayRU = !overlayRU;
-	const btn = document.getElementById('overlay-btn');
-	if (btn) btn.classList.toggle('active', overlayRU);
-
-	if (btn && overlayRU && LOCALE.getRussianHolidays) {
-		// Calculate combined stats for current year
-		const year = new Date().getFullYear();
-		const cnH = LOCALE.getHolidays(year);
-		const ruH = LOCALE.getRussianHolidays(year);
-		const wo = LOCALE.getWorkdayOverrides ? LOCALE.getWorkdayOverrides(year) : new Set();
-		let weekends = 0, cnOnly = 0, ruOnly = 0;
-		const daysInYear = ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 366 : 365;
-		for (let d = 0; d < daysInYear; d++) {
-			const dt = new Date(year, 0, 1 + d);
-			const dow = dt.getDay();
-			const md = String(dt.getMonth() + 1).padStart(2, '0') + String(dt.getDate()).padStart(2, '0');
-			const isWe = (dow === 0 || dow === 6) && !wo.has(md);
-			const isCn = !!cnH[md] && !wo.has(md);
-			const isRu = !!ruH[md];
-			if (isWe) { weekends++; }
-			else if (isCn) { cnOnly++; }
-			else if (isRu) { ruOnly++; }
-		}
-		const total = weekends + cnOnly + ruOnly;
-		btn.setAttribute('data-tooltip', `${total}/${daysInYear}`);
-		const stats = document.getElementById('overlay-stats');
-		if (stats) {
-			stats.innerHTML = `${cnOnly} — 🇨🇳 holidays<br>${ruOnly} — 🇷🇺 holidays<br>${weekends} — weekends − 补班<br><b>${total}/${daysInYear}</b>`;
-		}
-	} else if (btn) {
-		btn.setAttribute('data-tooltip', LOCALE.overlayTooltip || 'RU/CN holiday');
-		const stats = document.getElementById('overlay-stats');
-		if (stats) stats.innerHTML = '';
-	}
-
-	updateCalendar();
-}
-
-// ─── Custom entries ───
 function openEntryModal() {
 	const bulkEl = document.getElementById('entry-bulk');
 	bulkEl.value = '';
@@ -1550,7 +1360,6 @@ function addCustomEntries() {
 
 	let added = 0;
 	for (const line of lines) {
-		// Find last comma — split into text and date
 		const lastComma = line.lastIndexOf(',');
 		if (lastComma < 0) continue;
 		const text = line.substring(0, lastComma).trim();
@@ -1565,6 +1374,7 @@ function addCustomEntries() {
 	}
 
 	if (added === 0) { bulkEl.focus(); return; }
+	for (const k of Object.keys(_holidayCache)) delete _holidayCache[k];
 	closeEntryModal();
 	updateCalendar();
 }
@@ -1572,8 +1382,8 @@ function addCustomEntries() {
 // ─── Helpers ───
 function toggleWeekStart() {
 	const btn = document.getElementById('week-start-btn');
-	const isSun = btn.textContent === LOCALE.sunLabel;
-	btn.textContent = isSun ? LOCALE.monLabel : LOCALE.sunLabel;
+	const isSun = btn.textContent === 'ВС';
+	btn.textContent = isSun ? 'ПН' : 'ВС';
 	btn.style.color = isSun ? '' : '#C41E3A';
 	// Sync mobile
 	const monBtn = document.getElementById('mob-week-mon');
@@ -1589,6 +1399,7 @@ function toggleWeekStart() {
 function closeWelcome() {
 	const overlay = document.getElementById('welcome-overlay');
 	if (overlay) overlay.style.display = 'none';
+
 }
 
 // ─── Mobile toolbar functions ───
@@ -1736,10 +1547,10 @@ function mobSetRows(val) {
 function mobSetWeek(day) {
 	const btn = document.getElementById('week-start-btn');
 	if (day === 'mon') {
-		btn.textContent = LOCALE.monLabel;
+		btn.textContent = 'Пн';
 		btn.style.color = '';
 	} else {
-		btn.textContent = LOCALE.sunLabel;
+		btn.textContent = 'Вс';
 		btn.style.color = '#C41E3A';
 	}
 	document.getElementById('mob-week-mon').classList.toggle('active', day === 'mon');
@@ -1774,10 +1585,10 @@ function _updateMobMonthsLabel(months) {
 	if (!mobMonths || !mobLabel) return;
 	if (months >= 12 && months % 12 === 0) {
 		mobMonths.textContent = months / 12;
-		mobLabel.textContent = 'yr';
+		mobLabel.textContent = 'г';
 	} else {
 		mobMonths.textContent = months;
-		mobLabel.textContent = 'mo';
+		mobLabel.textContent = 'м';
 	}
 }
 
@@ -1834,7 +1645,7 @@ let _copperPennyB64 = null;
 async function _loadCopperPennyB64() {
 	if (_copperPennyB64) return _copperPennyB64;
 	try {
-		const resp = await fetch('fonts/cooper/Copper Penny DTP.ttf');
+		const resp = await fetch('../fonts/cooper/Copper Penny DTP.ttf');
 		const buf = await resp.arrayBuffer();
 		_copperPennyB64 = _arrayBufferToBase64(buf);
 	} catch (e) {
@@ -1856,7 +1667,7 @@ async function _loadPDFFonts(doc) {
 		];
 		for (const w of weights) {
 			try {
-				const resp = await fetch('fonts/IBMPlexSans/' + w.file);
+				const resp = await fetch('../fonts/IBMPlexSans/' + w.file);
 				const buf = await resp.arrayBuffer();
 				_fontCache.push({
 					id: 'IBMPlexSans-' + w.weight + '.ttf',
@@ -1871,7 +1682,7 @@ async function _loadPDFFonts(doc) {
 		}
 		// Also load Copper Penny DTP
 		try {
-			const resp = await fetch('fonts/cooper/Copper Penny DTP.ttf');
+			const resp = await fetch('../fonts/cooper/Copper Penny DTP.ttf');
 			const buf = await resp.arrayBuffer();
 			_fontCache.push({
 				id: 'CopperPennyDTP.ttf',
@@ -1883,33 +1694,6 @@ async function _loadPDFFonts(doc) {
 		} catch (e) {
 			console.warn('Copper Penny DTP load failed:', e);
 		}
-
-		// Load CJK font for Chinese locale (Noto Sans SC)
-		if (LOCALE._strings && LOCALE._strings.zh) {
-			try {
-				// Try local path (works from root), fallback to parent path (works from /zh/)
-				let cjkResp = await fetch('fonts/NotoSansSC/NotoSansSC.ttf');
-				if (!cjkResp.ok) cjkResp = await fetch('../fonts/NotoSansSC/NotoSansSC.ttf');
-				if (cjkResp.ok) {
-					const cjkBuf = await cjkResp.arrayBuffer();
-					const cjkB64 = _arrayBufferToBase64(cjkBuf);
-					// Register at all weights used by the calendar (variable font supports all)
-					for (const w of [200, 300, 400, 500]) {
-						_fontCache.push({
-							id: 'NotoSansSC-' + w + '.ttf',
-							b64: cjkB64,
-							name: 'Noto Sans SC',
-							style: 'normal',
-							weight: w,
-						});
-					}
-					console.log('Noto Sans SC loaded for PDF CJK support');
-				}
-			} catch (e) {
-				console.warn('CJK font (Noto Sans SC) load failed:', e);
-			}
-		}
-
 		_fontsFetched = true;
 	}
 
@@ -2352,7 +2136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	});
 
-	// ─── Welcome carousel (mobile only, every visit) ───
+	// ─── Welcome carousel (mobile only) ───
 	if (window.innerWidth <= 768) {
 		const overlay = document.getElementById('welcome-overlay');
 		if (overlay) {
@@ -2363,13 +2147,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			const startBtn = document.getElementById('welcome-start-btn');
 			const slides = carousel.querySelectorAll('.welcome-slide');
 
-			// IntersectionObserver for dot indicators
 			const observer = new IntersectionObserver((entries) => {
 				entries.forEach(entry => {
 					if (entry.isIntersecting) {
 						const idx = Array.from(slides).indexOf(entry.target);
 						dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-						// Show Start button on last slide
 						if (idx === slides.length - 1) {
 							startBtn.classList.add('visible');
 						} else {
@@ -2381,7 +2163,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			slides.forEach(s => observer.observe(s));
 
-			// Mouse drag for desktop/emulator
 			let _wDrag = false, _wStartX = 0, _wScrollL = 0;
 			carousel.addEventListener('mousedown', (e) => {
 				_wDrag = true;
@@ -2400,7 +2181,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				_wDrag = false;
 				carousel.style.cursor = 'grab';
 				carousel.style.scrollSnapType = 'x mandatory';
-				// Snap to nearest slide
 				const slideW = carousel.offsetWidth;
 				const idx = Math.round(carousel.scrollLeft / slideW);
 				carousel.scrollTo({ left: idx * slideW, behavior: 'smooth' });

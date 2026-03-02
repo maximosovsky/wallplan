@@ -23,6 +23,16 @@
       "source": "/@yka_yka",
       "destination": "/wallplan/@yka_yka/",
       "statusCode": 308
+    },
+    {
+      "source": "/for-kirill-specially-ru",
+      "destination": "/ru/",
+      "statusCode": 308
+    },
+    {
+      "source": "/for-kirill-specially-ru/",
+      "destination": "/ru/",
+      "statusCode": 308
     }
   ],
   "rewrites": [
@@ -43,7 +53,31 @@
       "destination": "/zh/index.html"
     },
     {
-      "source": "/((?!for-kirill-specially-ru|@yka_yka|zh).*)",
+      "source": "/ru",
+      "destination": "/ru/index.html"
+    },
+    {
+      "source": "/ru/",
+      "destination": "/ru/index.html"
+    },
+    {
+      "source": "/he",
+      "destination": "/he/index.html"
+    },
+    {
+      "source": "/he/",
+      "destination": "/he/index.html"
+    },
+    {
+      "source": "/ar",
+      "destination": "/ar/index.html"
+    },
+    {
+      "source": "/ar/",
+      "destination": "/ar/index.html"
+    },
+    {
+      "source": "/((?!for-kirill-specially-ru|@yka_yka|zh|ru|he|ar).*)",
       "destination": "/index.html"
     }
   ]

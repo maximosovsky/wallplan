@@ -142,10 +142,24 @@ window.LOCALE = {
         2032: [2, 11], 2033: [1, 31], 2034: [2, 19], 2035: [2, 8],
     },
 
+    // ─── Chinese year (Huangdi era: Gregorian + 2697) ───
+    // Year changes at Spring Festival (Lunar Jan 1), not Jan 1
+    getChineseYear(gregYear) {
+        const sf = this._springFestivalDates[gregYear];
+        const yearAfter = gregYear + 2697;
+        return {
+            yearBefore: yearAfter - 1,  // Jan 1 → Spring Festival
+            yearAfter: yearAfter,        // Spring Festival → Dec 31
+            boundary: sf ? { month: sf[0], day: sf[1] } : null,
+        };
+    },
+
     getHolidays(year) {
         const h = {};
         const pad2 = n => String(n).padStart(2, '0');
         const add = (m, d, name) => { h[pad2(m) + pad2(d)] = name; };
+
+        add(1, 11, 'WALLPLAN DAY');
 
         // ── 2026 Official State Council Schedule ──
         if (year === 2026) {

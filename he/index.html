@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="ltr">
 
 <head>
     <meta charset="utf-8">
@@ -12,31 +12,30 @@
         gtag('config', 'G-NW8NPGK3DY');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WallPlan — China Business Calendar with Public Holidays</title>
+    <title>WallPlan — לוח שנה עסקי לישראל עם חגים</title>
     <meta name="description"
-        content="Free wall calendar generator with official Chinese public holidays (Spring Festival, National Day, Mid-Autumn). Gantt charts for business planning around China's work schedule. SVG & PDF export.">
+        content="לוח שנה רב-שנתי חינמי עם חגי ישראל (ראש השנה, יום כיפור, פסח, סוכות, חנוכה). תרשים גנט לתכנון עסקי. ייצוא SVG ו-PDF.">
     <meta name="keywords"
-        content="挂历, 墙历, 甘特图, 时间轴, 多年日历, 日历生成器, 战略规划, 长期规划, 可打印日历, 导出PDF, 导出SVG, 法定节假日, 春节, 国庆节, 黄金周, 周末高亮, 补班, 生肖, 年度计划表, 商务日历, 项目管理, 免费在线工具, 无需注册, 卷纸, 工程纸, china calendar, chinese holidays, spring festival, national day, chinese new year, business calendar china, gantt chart, wall calendar, china public holidays 2026, china work schedule, golden week, dragon boat festival, mid-autumn festival, qingming, labour day china, WallPlan">
+        content="לוח שנה, תכנון, חגי ישראל, ראש השנה, יום כיפור, פסח, סוכות, חנוכה, שבועות, יום העצמאות, לוח עברי, שנה עברית, גנט, תכנון אסטרטגי, calendar, Israel holidays, Jewish calendar, Hebrew year, Gantt chart, business calendar, wall calendar, WallPlan">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="WallPlan — China Business Calendar">
-    <meta property="og:description"
-        content="Wall calendar with Chinese public holidays and Gantt charts. SVG & PDF export.">
+    <meta property="og:title" content="WallPlan — לוח שנה עסקי לישראל">
+    <meta property="og:description" content="לוח שנה עם חגי ישראל ותרשים גנט. ייצוא SVG ו-PDF.">
     <meta property="og:image" content="https://osovsky.com/wallplan/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://osovsky.com/wallplan/zh/">
+    <meta property="og:url" content="https://osovsky.com/wallplan/he/">
     <meta property="og:site_name" content="WallPlan">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="WallPlan — China Business Calendar">
-    <meta name="twitter:description" content="Wall calendar with Chinese public holidays. SVG & PDF.">
+    <meta name="twitter:title" content="WallPlan — Israel Business Calendar">
+    <meta name="twitter:description" content="Wall calendar with Israeli holidays. SVG & PDF.">
     <meta name="twitter:image" content="https://osovsky.com/wallplan/og-image.jpg">
 
     <!-- SEO -->
-    <link rel="canonical" href="https://osovsky.com/wallplan/zh/">
+    <link rel="canonical" href="https://osovsky.com/wallplan/he/">
     <link rel="alternate" hreflang="en" href="https://osovsky.com/wallplan/">
     <link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/ru/">
     <link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/">
@@ -111,8 +110,8 @@
         <div class="tb-sep"></div>
         <div class="tb-btn" id="lang-toggle-btn" role="button" onclick="LOCALE.switchLang()" data-tooltip="Language"
             aria-label="Switch language" style="font-size:13px; font-weight:600; letter-spacing:0.5px;">EN</div>
-        <div class="tb-btn" id="overlay-btn" role="button" onclick="toggleOverlay()" data-tooltip="RU/CN holiday"
-            aria-label="RU/CN holiday overlay" style="position:relative;">
+        <div class="tb-btn" id="overlay-btn" role="button" onclick="toggleOverlay()" data-tooltip="RU/IL holidays"
+            aria-label="RU/IL holiday overlay" style="position:relative;">
             <svg width="16" height="16" viewBox="0 0 16 16">
                 <path d="M8 1 A7 7 0 0 0 8 15 Z" fill="#999" />
                 <path d="M8 1 A7 7 0 0 1 8 15 Z" fill="#FFB6C1" />
@@ -167,7 +166,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
                 <line x1="1" y1="1" x2="23" y2="23" stroke-width="2" />
             </svg>
         </button>
-        <button id="week-start-btn" data-tooltip="Week start day" onclick="toggleWeekStart()">MO</button>
+        <button id="week-start-btn" data-tooltip="Week start day" onclick="toggleWeekStart()">SU</button>
         <input type="hidden" id="rows-slider" value="10">
         <span id="rows-value" style="display:none">10</span>
         <button class="rows-chip active" id="rows-cycle-btn" data-tooltip="Gantt rows" onclick="cycleRows()">10</button>
@@ -237,41 +236,44 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
         </div>
     </div>
 
-    <!-- Welcome carousel (mobile only, every visit) -->
+    <!-- Welcome carousel (mobile only) -->
     <div id="welcome-overlay" class="welcome-overlay" style="display:none">
-        <button class="welcome-skip" onclick="closeWelcome()">跳过</button>
+        <button class="welcome-skip" onclick="closeWelcome()">דלג</button>
         <div class="welcome-carousel" id="welcome-carousel">
             <div class="welcome-slide">
                 <span class="welcome-logo"
                     style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
-                <h2>把未来十年挂在墙上</h2>
-                <p>多年日历：甘特图、每日列表、迷你月历 — 全部在一张纸上。</p>
-                <p>打印出来，挂在墙上，一目了然。</p>
-                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「不谋万世者，不足谋一时」— 陈澄</p>
-                <p class="welcome-hint">左滑了解更多 →</p>
+                <h2>תכנן עשורים על הקיר</h2>
+                <p>לוח שנה רב-שנתי עם תרשים גנט, רשימת ימים, ומיני חודשים — הכל על דף אחד.</p>
+                <p>הדפס. תלה. ראה את התמונה הגדולה.</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">«חכם — הוא הרואה את הנולד» —
+                    תלמוד</p>
+                <p class="welcome-hint">החלק כדי ללמוד עוד →</p>
             </div>
             <div class="welcome-slide">
-                <div class="welcome-emoji"><img src="Flag_of_China.svg.png" alt="🇨🇳" width="64"
-                        style="border-radius:4px;"></div>
-                <h2>中国商务日历</h2>
-                <p>包含国务院公布的法定节假日、补班调休安排和生肖年标签。</p>
-                <p>开启俄中假日叠加，对比中俄两国假期。</p>
-                <p>切换语言：EN / RU / 中文</p>
-                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「凡事预则立，不预则废」—《中庸》</p>
+                <div class="welcome-emoji" style="font-size:48px;">✡️</div>
+                <h2>לוח עסקי לישראל</h2>
+                <p>כולל חגי ישראל, שנה עברית, שבת ומועדים.</p>
+                <p>שכבת חגים רוסיים להשוואת חופשות ישראל-רוסיה.</p>
+                <p>החלפת שפה: עב / RU / EN</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">«התחלה היא חצי מן הכול» —
+                    פתגם עברי</p>
             </div>
             <div class="welcome-slide">
                 <div class="welcome-emoji">🖨️</div>
-                <h2>打印贴墙上</h2>
-                <p>导出PDF，在家用A4打印 — 或去打印店用1米宽的工程纸打印。</p>
-                <p>计划一览无余，长度无限。</p>
-                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「千里之行，始于足下」— 老子</p>
+                <h2>הדפס על הקיר</h2>
+                <p>ייצא PDF, הדפס בבית על A4 — או בבית דפוס על נייר רול ברוחב מטר.</p>
+                <p>התוכניות שלך — במבט אחד. אורך אינסופי.</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">«מַיִם עֲמֻקִּים עֵצָה
+                    בְלֶב, וְאִישׁ תְּבוּנָה יִדְלֶנָּה» — משלי כ:ה</p>
             </div>
             <div class="welcome-slide">
                 <span class="welcome-logo"
                     style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
-                <h2>开始规划</h2>
-                <p>永久免费，无需注册，数据不离开浏览器。</p>
-                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「志不强者智不达」— 墨子</p>
+                <h2>התחל לתכנן</h2>
+                <p>חינם לנצח. ללא הרשמה. הנתונים לא עוזבים את הדפדפן.</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">«הָכֵן בַּחוּץ מְלַאכְתֶּךָ,
+                    אַחַר וּבָנִיתָ בֵיתֶךָ» — משלי כד:כז</p>
             </div>
         </div>
         <div class="welcome-bottom">
@@ -281,7 +283,7 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
                 <div class="welcome-dot"></div>
                 <div class="welcome-dot"></div>
             </div>
-            <button class="welcome-start" id="welcome-start-btn" onclick="closeWelcome()">开始规划</button>
+            <button class="welcome-start" id="welcome-start-btn" onclick="closeWelcome()">התחל לתכנן</button>
         </div>
     </div>
 
@@ -324,12 +326,12 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
         <div class="mob-sheet-section">
             <div class="mob-sheet-label">Week start</div>
             <div class="mob-toggle-group">
-                <button class="mob-toggle active" id="mob-week-mon" onclick="mobSetWeek('mon')">Mon</button>
-                <button class="mob-toggle" id="mob-week-sun" onclick="mobSetWeek('sun')">Sun</button>
+                <button class="mob-toggle" id="mob-week-mon" onclick="mobSetWeek('mon')">Mon</button>
+                <button class="mob-toggle active" id="mob-week-sun" onclick="mobSetWeek('sun')">Sun</button>
             </div>
         </div>
     </div>
-    <script src="../locales/zh.js"></script>
+    <script src="../locales/he.js"></script>
     <script src="../calendar.js"></script>
     <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
