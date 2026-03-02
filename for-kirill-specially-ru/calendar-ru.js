@@ -1399,7 +1399,7 @@ function toggleWeekStart() {
 function closeWelcome() {
 	const overlay = document.getElementById('welcome-overlay');
 	if (overlay) overlay.style.display = 'none';
-	localStorage.setItem('wallplan-welcome-seen', '1');
+
 }
 
 // ─── Mobile toolbar functions ───
@@ -2137,7 +2137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	// ─── Welcome carousel (mobile only) ───
-	if (window.innerWidth <= 768 && !localStorage.getItem('wallplan-welcome-seen')) {
+	if (window.innerWidth <= 768) {
 		const overlay = document.getElementById('welcome-overlay');
 		if (overlay) {
 			overlay.style.display = 'flex';

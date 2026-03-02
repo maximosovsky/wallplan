@@ -101,12 +101,43 @@ Replaced SVG image approach (`createImage()`) with native Miro board elements (`
 ### ~~Miro App — Phase 8: Production Hardening & Miroverse v2~~ *(18 Feb 2026)*
 Deployed to Vercel at [wallplan-miro.vercel.app](https://wallplan-miro.vercel.app/). Made generation robust for large calendars (24+ months): batch=10 with 500ms inter-batch delay, 30s pre-group wait, 3× retry for grouping with "already grouped" detection. Added panel footer (osovsky.com/wallplan · CC BY-SA 4.0). Re-submitted native-elements template to Miroverse: [2-Year Timeline Gantt Calendar 2026–2027](https://miro.com/miroverse/2year-timeline-gantt-calendar-20262027-yznazyvtm0b4kpa7/). Optimized assets: og-image.png→jpg (678KB→163KB), removed unused patchwork.png/webp.
 
+### ~~Weekend & Holiday Highlighting 🩷~~ *(02 Mar 2026)*
+Pink (`#FFB6C1`) background highlighting for weekends and holidays across all three calendar sections. Toggle button (pink circle SVG) in gantt-panel, cycles through 3 levels: 0 → Gantt only → +Box → +Vertical → off. URL parameter `&h=1/2/3`. Opacity: weekends 0.3, holidays 0.4 (Gantt), slightly higher in Box. Available on EN, RU, and ZH versions.
+
+### ~~Locale Refactoring 🔧 (6a)~~ *(02 Mar 2026)*
+Extracted locale-specific data from duplicated JS files into `locales/*.js`. Single shared `calendar.js` rendering engine reads `window.LOCALE` object. Deleted `calendar-ru.js` copies from `for-kirill-specially-ru/` and `@yka_yka/`. All HTML files now load `<script src="locales/XX.js">` before `calendar.js`.
+
+**Architecture:**
+```
+calendar.js           → shared rendering engine (reads window.LOCALE)
+locales/en.js         → { months, weekDays, holidays, weekStart: 'sun', monLabel, sunLabel }
+locales/ru.js         → { months, weekDays, holidays, weekStart: 'mon', monLabel: 'ПН' }
+locales/zh.js         → { months, weekDays, holidays, getZodiac(), switchLang(), getWorkdayOverrides() }
+```
+
+### ~~Chinese Calendar 🇨🇳 (6b)~~ *(02 Mar 2026)*
+English UI with Chinese public holidays and zodiac year labels. Path: `/zh/`. Target: businesses planning around China's work schedule.
+
+**Implemented features:**
+- **2026 holidays** from State Council decree: Spring Festival, Qingming, Labour Day, Dragon Boat, Mid-Autumn, National Day
+- **补班 workday overrides** — 6 makeup workdays excluded from pink highlighting
+- **Chinese Zodiac** — animal + element/color label (e.g. "🐴 Fire Horse") on 2nd visible month of each year
+- **EN/RU/中 language toggle** — button on `/zh/` page switches month names, weekdays, and holiday names between 3 languages
+- **RU/CN Holiday Overlay** — button (half-gray/half-pink circle) shows Russian holidays in gray on Chinese calendar. Gray highlight on RU-only weekday holidays. Stats popup on hover: `137/365` with breakdown
+- **URL params**: `&lang=ru`, `&ov=1` for shareable links
+- **CJK PDF support** — Noto Sans SC font loaded locally (`fonts/NotoSansSC/`) for PDF export with Chinese characters. Registered at weights 200/300/400/500
+- **Russian transferred holidays 2026** — Government Decree 1466 (Jan 9, Dec 31 as extra days off)
+- **WALLPLAN DAY** added to ZH locale (Jan 11)
+
+### ~~Favicon 🔖~~ *(02 Mar 2026)*
+Added `favicon.png` to all HTML files (EN, RU, ZH). Replaced inline SVG emoji favicon with PNG. Both `<link rel="icon">` and `<link rel="apple-touch-icon">` updated.
+
+### ~~Welcome Carousel (always) 🎠~~ *(02 Mar 2026)*
+Welcome carousel now shows on every mobile visit (removed `localStorage` gate). Added Chinese carousel to `/zh/` with 4 slides in Chinese + philosopher quotes (陈澄, 中庸, 老子, 墨子). Chinese flag PNG on slide 2. Added Chinese SEO keywords to meta tags.
+
 ---
 
 ## 🟢 Easy (1–2 days)
-
-### 0. Favicon 🔖
-Add favicon to WallPlan website. Currently no favicon exists — browser shows default icon. Options: SVG favicon (vector, crisp on all screens), emoji favicon (📅), or generated PNG. Should also add for Miro app panel.
 
 ### 1. Stickers 🟨🩷
 Two sticker types (yellow, pink) that stick directly onto the calendar. Click button → click on calendar → sticker appears. Double-click to edit text. Drag to move. Pure SVG (`<rect>` + `<text>`), exports cleanly to SVG and PDF. Persist in localStorage.
@@ -118,11 +149,6 @@ Single `renderOverlays()` function called after every `buildPages()` to re-rende
 
 **Why:** Technical prerequisite. Without a shared overlay architecture, each new creative tool (stickers, images, stamps) would duplicate rendering logic and break on rebuild. Build once, reuse for everything.
 
-### 3. Shareable Timeline Links 🔗
-Persist custom entries (`customEntries[]`) in URL params so calendars with annotations are shareable via link. Format: `&m=DD.MM:text,DD.MM:text,...` (URI-encoded). Parse in `init()`, serialize in `updateCalendar()`. For large data — compress with `LZString.compressToEncodedURIComponent()` (~5Kb library). Copy-link button in toolbar.
-
-**Why:** Zero-server sharing. Send a link in Slack or Telegram — recipient sees your calendar with all marked dates instantly. Like Excalidraw's URL-based state. Transforms WallPlan from a local tool into a **collaboration primitive**. Makes the existing custom entries feature useful beyond a single session.
-
 ---
 
 ## 🟡 Medium (3–5 days)
@@ -132,55 +158,9 @@ Upload images onto the calendar canvas. Resize on upload (max 800px, JPEG 80%) �
 
 **Why:** Corporate users want company logos, project photos, and team avatars on printed calendars. Makes WallPlan viable for branded office calendars and internal planning boards.
 
-### 5. Google Authentication
-Sign in with Google to save and load calendar configurations (duration, rows, paper format, stickers, images) to the cloud.
+### ~~6a. Locale Refactoring 🔧~~ *(done — see ✅ Done section)*
 
-**Why:** Currently state lives in URL params + localStorage — switching browser or device means starting over. Cloud sync = open on any device and everything is there. Also required for Google Calendar Import.
-
-### 6a. Locale Refactoring 🔧 *(prerequisite for 6b)*
-Extract locale-specific data from `calendar.js` / `calendar-ru.js` into separate locale files. Single shared rendering engine.
-
-**Current problem:** 4 copies of the same JS (EN + 2×RU + future ZH). Every feature (e.g. weekend highlighting) requires identical edits in all files.
-
-**Target architecture:**
-```
-calendar.js           → shared rendering engine (loadLocale)
-locales/en.js         → { months, weekDays, holidays, weekStart: 'sun' }
-locales/ru.js         → { months, weekDays, holidays, weekStart: 'mon' }
-locales/zh.js         → { months, weekDays, holidays, weekStart: 'mon' }
-```
-
-**Why:** Without this, each new locale = another copy = exponential maintenance cost. Refactor once → add locales freely.
-
-### 6b. Chinese Calendar 🇨🇳 *(depends on 6a)*
-English UI with Chinese public holidays and zodiac year labels. Path: `/zh/`. URL: `wallplan.osovsky.com/zh/`. Target: businesses planning around China's work schedule.
-
-**Decisions (confirmed with user):**
-- Language: **English** with Chinese holiday names in English
-- Week start: **Monday** (Chinese standard)
-- Zodiac years: show animal + element/color (e.g. "2025 — Wood Snake 🐍", "2026 — Fire Horse 🐴")
-- Lunar dates: show alongside Gregorian in Vertical calendar (R3)
-- 补班 (makeup workdays): **not marked** — just don't mark them as weekends
-
-**Holiday data strategy:**
-- **2026**: exact dates from State Council decree (国务院办公厅)
-- **2027+**: repeat 2026 pattern (fixed holidays) + compute lunar holidays algorithmically
-- Update annually when new decree is published
-
-**Chinese public holidays:**
-| Holiday | Date | Type |
-|---------|------|------|
-| New Year | Jan 1 | Fixed |
-| Spring Festival (春节) | Lunar Jan 1 | Lunar, 7 days |
-| Qingming Festival (清明节) | Apr 4–5 | Solar term |
-| Labour Day (劳动节) | May 1 | Fixed, 5 days |
-| Dragon Boat Festival (端午节) | Lunar May 5 | Lunar |
-| Mid-Autumn Festival (中秋节) | Lunar Aug 15 | Lunar |
-| National Day (国庆节) | Oct 1 | Fixed, 7 days |
-
-**Chinese Zodiac cycle (12 animals × 5 elements = 60-year cycle):**
-Animals: Rat, Ox, Tiger, Rabbit, Dragon, Snake, Horse, Goat, Monkey, Rooster, Dog, Pig
-Elements/Colors: Wood (Green), Fire (Red), Earth (Yellow), Metal (White), Water (Black)
+### ~~6b. Chinese Calendar 🇨🇳~~ *(done — see ✅ Done section)*
 
 ### 6c. Additional Locales 🌍 *(future, depends on 6a)*
 
@@ -229,14 +209,9 @@ Real-time notifications about important analytics events sent to Telegram.
 **Why:** Instant awareness of user engagement without checking dashboards. Critical for catching site outages (traffic = 0) and tracking growth (new countries, traffic spikes). Telegram = always in pocket, zero friction.
 
 ### 8. Google Calendar Import
-Import birthdays and events from Google Calendar. Display as markers or labels on corresponding dates. Requires Google Auth + Calendar API + OAuth scopes + event parsing.
+Import birthdays and events from Google Calendar. Display as markers or labels on corresponding dates. Requires Google OAuth + Calendar API + event parsing.
 
 **Why:** Instead of manually placing stickers for every birthday and meeting — pull them automatically. Print a 3-year calendar with all family birthdays already marked. This is the killer feature for personal users.
-
-### 9. Custom Sticker Packs 💬
-Custom SVG sticker sets — like Telegram sticker packs. Users can create, import, and share themed collections. Needs UI for pack management, import/export format, potential community marketplace.
-
-**Why:** Virality and monetization. Users create and share packs → attract new users. Potential for paid premium packs (project management, education, fitness tracking). Turns WallPlan into a platform.
 
 ---
 
@@ -427,7 +402,6 @@ White-label version with company logo, brand colors, internal holidays. Self-hos
 
 ### UX
 - **Onboarding** — first-visit tooltips (what to scroll, where is Gantt)
-- **Favicon.ico** — real `.ico` file (not all browsers support SVG favicon)
 
 ### Marketing & Distribution
 - **ProductHunt Launch** — free traffic + high-authority backlink

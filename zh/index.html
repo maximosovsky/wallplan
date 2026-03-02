@@ -16,7 +16,7 @@
     <meta name="description"
         content="Free wall calendar generator with official Chinese public holidays (Spring Festival, National Day, Mid-Autumn). Gantt charts for business planning around China's work schedule. SVG & PDF export.">
     <meta name="keywords"
-        content="china calendar, chinese holidays, spring festival, national day, chinese new year, business calendar china, gantt chart, wall calendar, china public holidays 2026, china work schedule, golden week, dragon boat festival, mid-autumn festival, qingming, labour day china, WallPlan">
+        content="挂历, 墙历, 甘特图, 时间轴, 多年日历, 日历生成器, 战略规划, 长期规划, 可打印日历, 导出PDF, 导出SVG, 法定节假日, 春节, 国庆节, 黄金周, 周末高亮, 补班, 生肖, 年度计划表, 商务日历, 项目管理, 免费在线工具, 无需注册, 卷纸, 工程纸, china calendar, chinese holidays, spring festival, national day, chinese new year, business calendar china, gantt chart, wall calendar, china public holidays 2026, china work schedule, golden week, dragon boat festival, mid-autumn festival, qingming, labour day china, WallPlan">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -41,10 +41,8 @@
     <link rel="alternate" hreflang="ru" href="https://osovsky.com/wallplan/for-kirill-specially-ru/">
     <link rel="alternate" hreflang="zh" href="https://osovsky.com/wallplan/zh/">
     <link rel="alternate" hreflang="x-default" href="https://osovsky.com/wallplan/">
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
-    <link rel="apple-touch-icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link rel="apple-touch-icon" href="../favicon.png">
     <link rel="manifest" href="../manifest.json">
 
     <meta name="theme-color" content="#F5F0E8">
@@ -229,6 +227,54 @@ Valentine's Day, 14.02" autocomplete="off" style="width:100%; box-sizing:border-
                 <button class="mob-dl-opt" onclick="downloadSVG(); toggleMobDL()">SVG</button>
                 <button class="mob-dl-opt" onclick="printPDF(); toggleMobDL()">PDF</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Welcome carousel (mobile only, every visit) -->
+    <div id="welcome-overlay" class="welcome-overlay" style="display:none">
+        <button class="welcome-skip" onclick="closeWelcome()">跳过</button>
+        <div class="welcome-carousel" id="welcome-carousel">
+            <div class="welcome-slide">
+                <span class="welcome-logo"
+                    style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
+                <h2>把未来十年挂在墙上</h2>
+                <p>多年日历：甘特图、每日列表、迷你月历 — 全部在一张纸上。</p>
+                <p>打印出来，挂在墙上，一目了然。</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「不谋万世者，不足谋一时」— 陈澄</p>
+                <p class="welcome-hint">左滑了解更多 →</p>
+            </div>
+            <div class="welcome-slide">
+                <div class="welcome-emoji"><img src="Flag_of_China.svg.png" alt="🇨🇳" width="64"
+                        style="border-radius:4px;"></div>
+                <h2>中国商务日历</h2>
+                <p>包含国务院公布的法定节假日、补班调休安排和生肖年标签。</p>
+                <p>开启俄中假日叠加，对比中俄两国假期。</p>
+                <p>切换语言：EN / RU / 中文</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「凡事预则立，不预则废」—《中庸》</p>
+            </div>
+            <div class="welcome-slide">
+                <div class="welcome-emoji">🖨️</div>
+                <h2>打印贴墙上</h2>
+                <p>导出PDF，在家用A4打印 — 或去打印店用1米宽的工程纸打印。</p>
+                <p>计划一览无余，长度无限。</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「千里之行，始于足下」— 老子</p>
+            </div>
+            <div class="welcome-slide">
+                <span class="welcome-logo"
+                    style="font-family:'Copper Penny DTP',serif; font-size:56px; color:var(--mol-red); line-height:1;">W</span>
+                <h2>开始规划</h2>
+                <p>永久免费，无需注册，数据不离开浏览器。</p>
+                <p style="font-style:italic; opacity:0.7; font-size:13px; margin-top:12px;">「志不强者智不达」— 墨子</p>
+            </div>
+        </div>
+        <div class="welcome-bottom">
+            <div class="welcome-dots" id="welcome-dots">
+                <div class="welcome-dot active"></div>
+                <div class="welcome-dot"></div>
+                <div class="welcome-dot"></div>
+                <div class="welcome-dot"></div>
+            </div>
+            <button class="welcome-start" id="welcome-start-btn" onclick="closeWelcome()">开始规划</button>
         </div>
     </div>
 
