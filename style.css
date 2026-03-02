@@ -460,6 +460,28 @@ body {
 	font-weight: 600;
 }
 
+#overlay-btn {
+	width: 36px;
+	height: 36px;
+	border: none;
+	border-radius: 8px;
+	background: transparent;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: background .15s;
+}
+
+#overlay-btn:hover {
+	background: rgba(153, 153, 153, 0.15);
+}
+
+#overlay-btn.active {
+	background: rgba(153, 153, 153, 0.3);
+}
+
 /* Entry modal */
 .entry-box {
 	min-width: 300px;
