@@ -224,7 +224,7 @@ Each month column contains three sections, top to bottom:
 | Month colors | Temperature-based palette when enabled — names and day numbers tinted by season |
 | Weekend highlighting | Pink background on weekends/holidays (3 levels) |
 | RU overlay (ZH only) | Gray background and text for Russian holidays |
-| Zodiac label (ZH only) | Animal + element label (e.g. 🐴 Fire Horse) above 2nd month of each year |
+| Zodiac label (ZH only) | Animal + element label (e.g. 🐴 Fire Horse) in March column of each year |
 
 ---
 
@@ -293,7 +293,7 @@ The Chinese calendar at `/zh/` is designed for businesses planning around China�
 **What’s shown:**
 - Chinese public holidays (Spring Festival, Qingming, Labour Day, Dragon Boat, Mid-Autumn, National Day)
 - 补班 (makeup workdays) — marked as `⚠️ Workday 补班`, not highlighted pink on weekends
-- Chinese Zodiac — animal + element label (e.g. `🐴 Fire Horse`) above the 2nd visible month of each year
+- Chinese Zodiac — animal + element label (e.g. `🐴 Fire Horse`) in the March column of each year
 - WALLPLAN DAY (Jan 11)
 
 > 💡 **PDF note**: Non-Latin characters (Chinese, Hebrew, Arabic) render correctly in PDF via dedicated Noto Sans fonts. Emoji are auto-stripped from PDF — use SVG export or `Ctrl+P` → “Save as PDF” for full emoji support.
@@ -324,7 +324,7 @@ A: A temperature-based color palette (Material Design) that tints month names an
 A: On multi-language calendars (ZH, HE, AR, IT), the half-circle button shows comparison holidays. When switched to Russian language → shows Russian holidays in gray. When switched to English → shows US holidays. When on the native language (e.g., Italian), overlay is hidden — only local holidays shown.
 
 **Q: How do I get Chinese zodiac years?**
-A: Open the Chinese calendar at `/zh/`. Zodiac labels (animal + element, e.g. "🐴 Fire Horse") appear automatically above the second month of each year.
+A: Open the Chinese calendar at `/zh/`. Zodiac labels (animal + element, e.g. "🐴 Fire Horse") appear automatically in the March column of each year.
 
 **Q: Why don't emoji appear in PDF?**
 A: PDF fonts don't support emoji. WallPlan auto-strips emoji from PDF output. Emoji are visible in SVG export and in-browser. For PDF with emoji, use `Ctrl+P` → "Save as PDF" instead of the Download PDF button.

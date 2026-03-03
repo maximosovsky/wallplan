@@ -664,15 +664,19 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}
 		}
 
-		// Zodiac annotation: place in March column of each year (year row)
-		if (LOCALE.getZodiac && m.monthNum === 3 && !_zodiacPlaced[m.year]) {
-			const z = LOCALE.getZodiac(parseInt(m.year));
-			svgEl('text', {
-				x: xCursor + 10, y: yYear + r1H - 2,
-				'font-size': '7', 'font-weight': '300',
-				fill: '#999',
-			}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
-			_zodiacPlaced[m.year] = 2;
+		// Zodiac annotation: prefer March column, fallback to first visible month ≥ March
+		if (LOCALE.getZodiac && _zodiacPlaced[m.year] !== 2) {
+			if (m.monthNum >= 3) {
+				const z = LOCALE.getZodiac(parseInt(m.year));
+				svgEl('text', {
+					x: xCursor + 10, y: yYear + r1H - 2,
+					'font-size': '7', 'font-weight': '300',
+					fill: '#999',
+				}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
+				_zodiacPlaced[m.year] = 2;
+			} else {
+				_zodiacPlaced[m.year] = 1; // before March, wait
+			}
 		}
 
 		// ── R2: Month name (colored by temperature) ──

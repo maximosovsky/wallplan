@@ -121,7 +121,7 @@ English UI with Chinese public holidays and zodiac year labels. Path: `/zh/`. Ta
 **Implemented features:**
 - **2026 holidays** from State Council decree: Spring Festival, Qingming, Labour Day, Dragon Boat, Mid-Autumn, National Day
 - **补班 workday overrides** — 6 makeup workdays excluded from pink highlighting
-- **Chinese Zodiac** — animal + element/color label (e.g. "🐴 Fire Horse") on 2nd visible month of each year
+- **Chinese Zodiac** — animal + element/color label (e.g. "🐴 Fire Horse") in March column of each year
 - **EN/RU/中 language toggle** — button on `/zh/` page switches month names, weekdays, and holiday names between 3 languages
 - **RU/CN Holiday Overlay** — button (half-gray/half-pink circle) shows Russian holidays in gray on Chinese calendar. Gray highlight on RU-only weekday holidays. Stats popup on hover: `137/365` with breakdown
 - **URL params**: `&lang=ru`, `&ov=1` for shareable links
@@ -140,6 +140,18 @@ Welcome carousel now shows on every mobile visit (removed `localStorage` gate). 
 - **PWA**: Created `sw.js` with versioned cache (`wallplan-v1`), cache-first strategy, `skipWaiting()` + `clients.claim()`. Pre-caches HTML, CSS, JS, favicon, locale files
 - **Manifest**: Updated `manifest.json` with `favicon.png` icon (replaced SVG emoji)
 - Service Worker registered in all 4 HTML files (EN, RU×2, ZH)
+
+### ~~Asset Optimization 🗜️~~ *(03 Mar 2026)*
+Compressed fonts and images for faster page load (~20 MB saved total):
+- **IBM Plex Sans**: removed 10 unused TTF files (Thin/Italic/SemiBold/Bold = 1.9 MB), converted 4 used weights to WOFF2 for CSS (733 KB → 230 KB). TTF kept for jsPDF PDF export.
+- **Copper Penny DTP**: TTF → WOFF2 for CSS (108 KB → 31 KB). TTF kept for PDF/SVG export.
+- **NotoSansSC**: subset from 17.7 MB → 175 KB TTF (PDF) + 92 KB WOFF2. Characters extracted from `locales/zh.js`.
+- **NotoSansArabic/Hebrew**: converted to WOFF2 for local delivery.
+- **Background**: `patchwork.jpg` (281 KB) → `patchwork.webp` (192 KB).
+- **CSS**: removed 3 unused `@font-face` (Thin 100, SemiBold 600, Bold 700), adjusted `font-weight: 600→500` for `.active` button.
+- **SW cache**: bumped `wallplan-v4` → `wallplan-v5`.
+- **Zodiac label**: moved from 2nd visible month to March column.
+- **Alt-calendar day labels**: replaced hardcoded Hebrew `ש׳` symbol with locale-aware `WEEK_DAYS_BASE[rawDow]` — Arabic calendar now shows `سبت` instead of Hebrew character.
 
 ---
 

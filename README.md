@@ -153,7 +153,7 @@ Bottom toolbar uses CSS Grid with 6 equal columns — each element centered in i
 | `sw.js` | Service Worker for offline PWA support (versioned cache) |
 | `favicon.png` | Site favicon (PNG, all HTML files) |
 | `manifest.json` | PWA manifest with favicon.png icon |
-| `fonts/` | IBM Plex Sans (7 weights) + Copper Penny DTP + Noto Sans SC/Hebrew/Arabic |
+| `fonts/` | IBM Plex Sans (4 weights, WOFF2+TTF) + Copper Penny DTP + Noto Sans SC subset + Noto Sans Hebrew/Arabic |
 | `og-image.jpg` | OG social preview image (1200×630) |
 | `USER_MANUAL.md` | Comprehensive user guide |
 | `COLORS.md` | Month color palette reference (hex, names, rationale) |

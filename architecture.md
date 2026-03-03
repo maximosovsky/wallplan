@@ -150,8 +150,8 @@ Button with half-gray / half-pink SVG circle in top-bar. Toggles `overlayRU` sta
 
 **`printPDF()`** — Programmatic PDF generation:
 - Uses `jspdf` + `svg2pdf.js` for vector PDF
-- IBM Plex Sans fonts (Light/Regular/Medium) fetched from `fonts/` with `../fonts/` fallback for subdirectory locales, cached as base64
-- **CJK support**: Noto Sans SC loaded on demand for ZH locale
+- IBM Plex Sans fonts (4 weights TTF) fetched from `fonts/` with `../fonts/` fallback for subdirectory locales, cached as base64
+- **CJK support**: Noto Sans SC subset TTF (175 KB, down from 17.7 MB) loaded on demand for ZH locale
 - **Hebrew support**: Noto Sans Hebrew loaded for HE locale
 - **Arabic support**: Noto Sans Arabic loaded for AR locale
 - **IT/EN/RU**: standard IBM Plex Sans (no special font needed)
@@ -192,7 +192,7 @@ Button with half-gray / half-pink SVG circle in top-bar. Toggles `overlayRU` sta
 
 ### 6. Styling System (`style.css`)
 - CSS variables: `--mol-paper`, `--mol-ink`, `--mol-ink-light`
-- Typography: IBM Plex Sans (calendar + UI)
+- Typography: IBM Plex Sans — WOFF2 for CSS `@font-face` (4 weights: ExtraLight/Light/Regular/Medium), TTF for jsPDF PDF export
 - Print: `@media print` ensures WYSIWYG
 - `touch-action: none` globally, `auto` on controls
 - `pointer-events: none` on `#calendar` (touches pass through to handler)
@@ -221,7 +221,7 @@ Button with half-gray / half-pink SVG circle in top-bar. Toggles `overlayRU` sta
 - `ar/index.html` — AR version (Arabic/Hijri calendar)
 - `it/index.html` — IT version (Italian/Venice calendar)
 - `calendar.js` — SVG renderer, viewport, export, touch, mobile UI logic (shared across all locales)
-- `sw.js` — Service Worker: versioned cache (`wallplan-v1`), cache-first strategy, offline PWA support
+- `sw.js` — Service Worker: versioned cache (`wallplan-v5`), cache-first strategy, offline PWA support
 - `locales/en.js` — English locale (months, weekdays, US holidays)
 - `locales/ru.js` — Russian locale (months, weekdays, Russian holidays + transferred days)
 - `locales/zh.js` — Chinese locale (holidays, zodiac, lang toggle, overlay, workday overrides)
@@ -229,10 +229,11 @@ Button with half-gray / half-pink SVG circle in top-bar. Toggles `overlayRU` sta
 - `locales/ar.js` — Arabic locale (algorithmic Hijri months 2025-2034, Islamic holidays, AR/RU/EN toggle)
 - `locales/it.js` — Italian locale (national + Venice holidays, Easter 2024-2045, IT/RU/EN toggle)
 - `style.css` — Themes, mobile toolkit, print optimization
-- `fonts/` — IBM Plex Sans (14 weights), Copper Penny DTP
-- `fonts/NotoSansSC/` — Noto Sans SC CJK font for PDF
-- `fonts/NotoSansHebrew/` — Noto Sans Hebrew for PDF
-- `fonts/NotoSansArabic/` — Noto Sans Arabic for PDF
+- `fonts/` — IBM Plex Sans (4 weights: WOFF2 for CSS, TTF for PDF), Copper Penny DTP (WOFF2 + TTF)
+- `fonts/NotoSansSC/` — Noto Sans SC subset (WOFF2 92 KB for CSS, TTF 175 KB for PDF; original 17.7 MB removed)
+- `fonts/NotoSansHebrew/` — Noto Sans Hebrew (TTF for PDF)
+- `fonts/NotoSansArabic/` — Noto Sans Arabic (TTF for PDF)
+- `assets/patchwork.webp` — Background image (192 KB, converted from JPG 281 KB)
 - `og-image.png` — Social preview image (1200×630)
 - `robots.txt` — Crawler rules (Google, Bing, AI bots)
 - `sitemap.xml` — URL map with hreflang alternates (EN, RU, ZH, HE, AR, IT)
