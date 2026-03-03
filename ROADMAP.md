@@ -143,32 +143,9 @@ Welcome carousel now shows on every mobile visit (removed `localStorage` gate). 
 
 ---
 
-## 🟢 Easy (1–2 days)
+## 🎨 Front (Design) — приоритет сверху вниз
 
-### 1. Stickers 🟨🩷
-Two sticker types (yellow, pink) that stick directly onto the calendar. Click button → click on calendar → sticker appears. Double-click to edit text. Drag to move. Pure SVG (`<rect>` + `<text>`), exports cleanly to SVG and PDF. Persist in localStorage.
-
-**Why:** Users print calendars on the wall for planning. Stickers let them annotate deadlines, milestones, vacations _before_ printing. This is the single most requested feature — it transforms WallPlan from a static calendar into a lightweight planning tool.
-
-### 2. Unified Overlay System
-Single `renderOverlays()` function called after every `buildPages()` to re-render stickers and images from a shared data model. Required foundation for stickers + images.
-
-**Why:** Technical prerequisite. Without a shared overlay architecture, each new creative tool (stickers, images, stamps) would duplicate rendering logic and break on rebuild. Build once, reuse for everything.
-
----
-
-## 🟡 Medium (3–5 days)
-
-### 4. Image Upload 📎
-Upload images onto the calendar canvas. Resize on upload (max 800px, JPEG 80%) → embed as base64 `<image>` in SVG. Drag and resize on canvas. Exports to both SVG and PDF. Depends on Overlay System.
-
-**Why:** Corporate users want company logos, project photos, and team avatars on printed calendars. Makes WallPlan viable for branded office calendars and internal planning boards.
-
-### ~~6a. Locale Refactoring 🔧~~ *(done — see ✅ Done section)*
-
-### ~~6b. Chinese Calendar 🇨🇳~~ *(done — see ✅ Done section)*
-
-### 6c. Additional Locales 🌍 *(future, depends on 6a)*
+### F1. Additional Locales 🌍 ⬅️ NEXT
 
 | Locale | Path | Holidays |
 |--------|------|----------|
@@ -177,13 +154,50 @@ Upload images onto the calendar canvas. Resize on upload (max 800px, JPEG 80%) �
 | 🇪🇸 Spanish | `/es/` | Año Nuevo, Día de la Hispanidad, Navidad, Reyes... |
 | 🇦🇪 Arabic (UAE) | `/ar/` | عيد الفطر, عيد الأضحى, اليوم الوطني... (RTL layout required) |
 
-**Why:** WallPlan is useful worldwide — calendars are universal. Italian/French/Spanish = EU market (400M people). Chinese = world's largest internet market. Arabic (Dubai) = high-value corporate market. Each locale = new SEO domain, new traffic source, new hreflang cluster.
+**Why:** Each locale = new SEO domain, new traffic source, new hreflang cluster. EU market (400M), Arabic (Dubai) = high-value corporate market.
+
+### F2. Unified Overlay System
+Single `renderOverlays()` function called after every `buildPages()` to re-render stickers and images from a shared data model. Required foundation for stickers + images.
+
+**Why:** Technical prerequisite. Without a shared overlay architecture, each new creative tool (stickers, images, stamps) would duplicate rendering logic and break on rebuild. Build once, reuse for everything.
+
+### F3. Stickers 🟨🩷
+Two sticker types (yellow, pink) that stick directly onto the calendar. Click button → click on calendar → sticker appears. Double-click to edit text. Drag to move. Pure SVG (`<rect>` + `<text>`), exports cleanly to SVG and PDF. Persist in localStorage.
+
+**Why:** Users print calendars on the wall for planning. Stickers let them annotate deadlines, milestones, vacations _before_ printing. This is the single most requested feature — it transforms WallPlan from a static calendar into a lightweight planning tool.
+
+### F4. Image Upload 📎
+Upload images onto the calendar canvas. Resize on upload (max 800px, JPEG 80%) → embed as base64 `<image>` in SVG. Drag and resize on canvas. Exports to both SVG and PDF. Depends on F2.
+
+**Why:** Corporate users want company logos, project photos, and team avatars on printed calendars. Makes WallPlan viable for branded office calendars and internal planning boards.
 
 ---
 
-## 🔴 Hard (1–3 weeks)
+## ⚙️ Back (Tech) — приоритет сверху вниз
 
-### 7. GA4 → Telegram Alerts 📲
+### B1. Miro Marketplace Submission 📝 *(2–3 days)*
+Prepare listing: title, description, screenshots (panel UI, generated calendar, close-up). Privacy policy URL, support email, app icon (128×128 SVG). Submit to [Miro Marketplace](https://miro.com/marketplace/). See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md). Phases 1–8 complete.
+
+| Requirement | Status |
+|-------------|--------|
+| OAuth 2.0 authorization | ✅ |
+| HTTPS only (Vercel) | ☐ |
+| Privacy policy URL | ☐ |
+| Support email | ☐ |
+| App icon (128×128 SVG) | ☐ |
+| Marketplace listing (4 screenshots) | ☐ |
+| Mirotone CSS for UI | ✅ |
+
+**Review timeline:** 6–8 weeks after submission.
+
+**Why:** 60M+ Miro users = built-in distribution channel. Different audience (product managers, agile teams).
+
+### B2. Google Calendar Import 📅
+Import birthdays and events from Google Calendar. Display as markers or labels on corresponding dates. Requires Google OAuth + Calendar API + event parsing.
+
+**Why:** Instead of manually placing stickers for every birthday and meeting — pull them automatically. Print a 3-year calendar with all family birthdays already marked. Killer feature for personal users.
+
+### B3. GA4 → Telegram Alerts 📲
 Real-time notifications about important analytics events sent to Telegram.
 
 **Event tracking (client-side, `calendar.js`):**
@@ -212,39 +226,69 @@ Real-time notifications about important analytics events sent to Telegram.
 
 **Alternative (simpler):** GA4 Custom Insights → email alerts → Zapier/n8n → Telegram Bot.
 
-**Why:** Instant awareness of user engagement without checking dashboards. Critical for catching site outages (traffic = 0) and tracking growth (new countries, traffic spikes). Telegram = always in pocket, zero friction.
-
-### 8. Google Calendar Import
-Import birthdays and events from Google Calendar. Display as markers or labels on corresponding dates. Requires Google OAuth + Calendar API + event parsing.
-
-**Why:** Instead of manually placing stickers for every birthday and meeting — pull them automatically. Print a 3-year calendar with all family birthdays already marked. This is the killer feature for personal users.
+**Why:** Instant awareness of user engagement without checking dashboards. Critical for catching site outages (traffic = 0) and tracking growth. Telegram = always in pocket.
 
 ---
 
-## 🔥 Priority: Miro App — Remaining Phases
+## 📣 Marketing (Sales) — приоритет сверху вниз
 
-See [MIRO_APP_PLAN.md](./MIRO_APP_PLAN.md) for full architecture. Current status: **Phases 1–6 complete** (setup, engine, panel, generator, deployment, Miroverse). Remaining:
+### S1. ProductHunt Launch 🚀
+Main channel for indie tools. Free traffic + high-authority backlink. Prepare listing, screenshots, maker story.
 
-### M7. Marketplace Submission 📝 (2–3 days)
-Prepare listing: title, description, screenshots (panel UI, generated calendar, close-up). Privacy policy URL, support email, app icon (128×128 SVG). Submit to [Miro Marketplace](https://miro.com/marketplace/).
+### S2. Social Proof & Landing Page
+- Add **download counter** and embed reviews on landing
+- Create `/wallplan/about/` with SEO text targeting long-tail keywords
+- Add **"Who is it for"** section (managers, entrepreneurs, teams)
+- Show **numbers** (downloads, users, countries)
 
-**Requirements checklist:**
-| Requirement | Status |
-|-------------|--------|
-| OAuth 2.0 authorization | ✅ |
-| HTTPS only (Vercel) | ☐ |
-| Privacy policy URL | ☐ |
-| Support email | ☐ |
-| App icon (128×128 SVG) | ☐ |
-| Marketplace listing (4 screenshots) | ☐ |
-| Mirotone CSS for UI | ✅ |
+### S3. SEO Landing Pages
+Separate pages by calendar type for keyword coverage:
+- `/gantt-calendar` — «Multi-year Gantt Calendar Generator»
+- `/wall-calendar` — «Printable Wall Calendar for Large Paper»
+- `/roll-calendar` — «914mm Roll Paper Calendar»
+- Add **FAQ section** for rich snippets
 
-**Review timeline:** 6–8 weeks after submission.
+### S4. Community & Content
+- **Reddit** — posts in r/productivity, r/selfhosted, r/webdev
+- **Hacker News** — Show HN post
+- **Medium/Blog** — expand (2 articles published)
+- **GitHub Stars** — promote OSS
 
-**Why:** 60M+ Miro users = built-in distribution channel. WallPlan as a native Miro tool for roadmapping and project planning. Different audience (product managers, agile teams).
+### S5. Marketplaces
+Prepare **Etsy/Gumroad listing** with ready-made PDFs for 2026–2027. Passive income channel.
 
-### M8. Post-Launch Analytics 📊 (ongoing)
-Miro App Metrics Dashboard: total installs, daily active users, churn rate, user reviews. Iterate based on feedback.
+---
+
+## 💰 Monetization *(future, after traffic)*
+
+### M1. Print-as-a-Service 🖨️
+"Order Print & Delivery" button → user creates calendar → WallPlan generates PDF → sends to print API → printed on heavy paper → delivered worldwide. Integration with **Gelato** (130+ print partners, 32 countries, A3/A2/A1 posters) or **Printful**. Payment via Stripe. Margin: $10-30 per calendar.
+
+**Why:** Most natural monetization — user already wants to print. One click from free tool to paid product. No subscription fatigue.
+
+### M2. Freemium 💎
+| Free | Pro ($29 one-time) |
+|------|--------------------|
+| Up to 12 months | Up to 20 years |
+| 3 Gantt rows | Unlimited rows |
+| Watermark on PDF | Clean PDF |
+| Basic holidays | Holidays for all countries |
+| — | Cloud save (Google Auth) |
+| — | Custom sticker packs |
+
+### M3. Brand Collaborations 🤝
+Sponsored calendar templates / themed editions with brands:
+- **Monopoly** — calendar with Monopoly property grid aesthetic
+- **LEGO** — brick-style calendar blocks, LEGO color palette
+- **IKEA** — minimalist Scandinavian calendar design
+- **Designers** — limited edition calendars by invited graphic designers
+- **Sports teams** — season calendars with club colors and match dates
+- **Universities** — academic year calendars with semester dates
+
+Revenue model: licensing fee per template + revenue share on prints. Brands get exposure, WallPlan gets content and distribution.
+
+### M4. Corporate Licensing 🏢
+White-label version with company logo, brand colors, internal holidays. Self-hosted option for intranet. $200-500/year per company.
 
 ---
 
@@ -294,12 +338,6 @@ Miro App Metrics Dashboard: total installs, daily active users, churn rate, user
 | **Audience personas** | Implicit (README only) | ✅ Separate sections: Designers, Agencies, Photographers, Publishers, Developers | ❌ | ✅ Via template categories |
 | **Languages** | EN + RU | DE + EN (4 locales) | EN (RU author, EN site) | EN |
 
-**🔑 Takeaways for WallPlan:**
-- Add **social proof** section (reviews, download counter)
-- Add **"Who is it for"** section (managers, entrepreneurs, teams)
-- Show **numbers** (downloads, users, countries)
-- Repurpose **welcome carousel** (already exists on mobile) as desktop first-visit intro
-
 #### SEO
 
 | | **WallPlan** | **Calidar.io** | **Kruglendar** | **Notion Planners** |
@@ -311,14 +349,6 @@ Miro App Metrics Dashboard: total installs, daily active users, churn rate, user
 | **llms.txt** | ✅ | ❌ | ❌ | ❌ |
 | **AI crawler access** | ✅ GPTBot, ClaudeBot | Unknown | ❌ | ❌ |
 | **Keyword coverage** | Narrow niche | ✅ Broad: «Photo calendar», «Desk calendar», «Family planner»… 13+ types | Narrow | Broad (long-tail) |
-
-**🔑 Takeaways for WallPlan:**
-- **Calidar** creates a separate page for each calendar type → drives SEO traffic on specific queries. WallPlan can create landing pages:
-  - `/gantt-calendar` — «Multi-year Gantt Calendar Generator»
-  - `/wall-calendar` — «Printable Wall Calendar for Large Paper»
-  - `/roll-calendar` — «914mm Roll Paper Calendar»
-- Add **FAQ section** (Google rich snippets)
-- Create **`/use-cases`** or **`/for-who`** page (like Calidar: «for managers», «for teams»)
 
 #### Monetization Comparison
 
@@ -335,7 +365,7 @@ Miro App Metrics Dashboard: total installs, daily active users, churn rate, user
 |---------|-------------|----------------|---------------------|-----------------|---------------------|
 | **ProductHunt** | ❌ | ❌ | ✅ Launch | ❌ | ✅ **Must do** |
 | **Miroverse** | ❌ | ❌ | ❌ | ✅ Done | ✅ Already done |
-| **Newsletter** | ✅ rapidmail | ❌ | ❌ | ❌ | ✅ Add |
+| **Newsletter** | ✅ rapidmail | ❌ | ❌ | ❌ | 💡 Later |
 | **Trustpilot/Google** | ✅ 4.5★ | ❌ | ❌ | ❌ | ✅ Create profile |
 | **Telegram** | ❌ | ✅ Author's channel | ❌ | ❌ | ✅ Channel or bot |
 | **Medium/Blog** | ❌ | ❌ | ❌ | ✅ 2 articles | ✅ Expand |
@@ -344,78 +374,7 @@ Miro App Metrics Dashboard: total installs, daily active users, churn rate, user
 
 ---
 
-### Action Plan (derived from competitive analysis)
-
-**Quick wins (1–2 days):**
-1. **ProductHunt launch** — main channel for indie tools, free traffic + high-authority backlink
-2. Add **social proof** to landing (download counter, embed reviews)
-3. Complete **GitHub About section** (Description + Topics + Website)
-
-**Mid-term (1–2 weeks):**
-4. Create **SEO landing pages** by type (`/gantt`, `/wall`, `/roll`)
-5. Prepare **Etsy/Gumroad listing** with ready-made PDFs for 2026–2027
-6. Add **FAQ section** for rich snippets
-
-**Strategic (1–3 months):**
-7. **Freemium model**: paid custom branding / white-label (see § Monetization)
-8. **Newsletter** for annual updates (like Kruglendar — yearly email notifications)
-9. **API** for corporate clients (like Calidar)
-
----
-
 ## 📌 Notes
 - Stickers and images use the same SVG-based architecture
 - All creative tools work offline (localStorage), cloud sync requires Google Auth
 - GA4 alerts require a separate backend (Cloud Function or Zapier)
-- **Miro App is the current priority** — deploy → Miroverse template → marketplace submission
-
----
-
-## 💰 Monetization
-
-### 11. Print-as-a-Service 🖨️
-"Order Print & Delivery" button → user creates calendar → WallPlan generates PDF → sends to print API → printed on heavy paper → delivered worldwide. Integration with **Gelato** (130+ print partners, 32 countries, A3/A2/A1 posters) or **Printful**. Payment via Stripe. Margin: $10-30 per calendar.
-
-**Why:** Most natural monetization — user already wants to print. One click from free tool to paid product. No subscription fatigue.
-
-### 12. Freemium 💎
-| Free | Pro ($29 one-time) |
-|------|--------------------|
-| Up to 12 months | Up to 20 years |
-| 3 Gantt rows | Unlimited rows |
-| Watermark on PDF | Clean PDF |
-| Basic holidays | Holidays for all countries |
-| — | Cloud save (Google Auth) |
-| — | Custom sticker packs |
-
-### 13. Brand Collaborations 🤝
-Sponsored calendar templates / themed editions with brands:
-- **Monopoly** — calendar with Monopoly property grid aesthetic
-- **LEGO** — brick-style calendar blocks, LEGO color palette
-- **IKEA** — minimalist Scandinavian calendar design
-- **Designers** — limited edition calendars by invited graphic designers
-- **Sports teams** — season calendars with club colors and match dates
-- **Universities** — academic year calendars with semester dates
-
-Revenue model: licensing fee per template + revenue share on prints. Brands get exposure, WallPlan gets content and distribution.
-
-### 14. Corporate Licensing 🏢
-White-label version with company logo, brand colors, internal holidays. Self-hosted option for intranet. $200-500/year per company.
-
----
-
-## 💡 Improvements (no new features)
-
-### UX
-- **Onboarding** — first-visit tooltips (what to scroll, where is Gantt)
-
-### Marketing & Distribution
-- **ProductHunt Launch** — free traffic + high-authority backlink
-- **Reddit** — posts in r/productivity, r/selfhosted, r/webdev
-- **Hacker News** — Show HN post
-- **Landing Page** — `/wallplan/about/` with SEO text targeting long-tail keywords
-
-### Technical
-- **Error Tracking** — Sentry for JS errors
-- **Lazy Font Loading** — load fonts on demand
-- **A/B Testing** — experiment with title/description for better CTR

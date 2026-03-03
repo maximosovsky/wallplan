@@ -606,6 +606,21 @@ body {
 	cursor: pointer;
 }
 
+.entry-hints {
+	margin-top: 4px;
+	padding: 8px 10px;
+	background: rgba(200, 184, 154, 0.15);
+	border-radius: 6px;
+}
+
+.entry-hints p {
+	margin: 0;
+	padding: 2px 0;
+	font-size: 11px;
+	line-height: 1.5;
+	color: var(--mol-ink-light);
+}
+
 /* Miro-style black tooltips */
 .gantt-panel [data-tooltip] {
 	position: relative;
