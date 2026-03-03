@@ -1,0 +1,95 @@
+# WallPlan — Generatore di Calendari per la Pianificazione a Lungo Termine
+
+## Panoramica
+
+WallPlan è uno strumento online gratuito che genera calendari pluriennali con diagrammi di Gantt per la pianificazione strategica. Ogni anno pubblichiamo una nuova versione del calendario pluriennale. L'editoria produce generalmente calendari solo per l'anno successivo, limitando la nostra capacità di pianificare in dettaglio molti anni avanti.
+
+Quattordici anni fa, nell'ottobre 2012, è stato pubblicato il primo calendario che copriva due anni. Per molti anni i calendari sono stati impaginati manualmente, fino a quando nel 2020 Michael Kvrivishvili — il designer della mappa ufficiale della Metro di Boston — ha sviluppato un servizio appositamente per generare un calendario per qualsiasi numero di mesi, con qualsiasi numero di righe Gantt.
+
+«Se la meta è nobile, anche il cammino deve essere ragionato» — Tommaso d'Aquino
+
+- **URL**: https://osovsky.com/wallplan/it/
+- **Autore**: Maxim Osovsky (https://www.wikidata.org/wiki/Q107189449)
+- **Co-autore**: Michael Kvrivishvili
+- **Licenza**: CC BY-SA 4.0
+- **Tecnologia**: JavaScript puro, SVG, CSS. Zero dipendenze npm.
+
+## Funzionalità
+
+### Motore SVG
+Output SVG puro con tre tipi di calendario:
+- **Verticale**: Lista giorni con numeri e nomi
+- **Gantt**: Griglia di pianificazione orizzontale con righe configurabili (6, 8, 10 o 12)
+- **Mini-mese**: Griglia mensile tradizionale 7×6
+
+### Durata
+Da 1 mese a 20 anni. Selettore a rotella per mobile (anni + mesi), input numerico per desktop.
+
+### Modalità Nascondi Giorni
+Nasconde i dettagli giornalieri. Le righe Gantt si ridistribuiscono per riempire tutta l'altezza — ideale per la pianificazione strategica. URL: `&d=1`.
+
+### Formati Carta
+- A4, A3 (adattamento automatico, 7-8 mesi per pagina)
+- Rotolo singolo 914 mm
+- 914 mm ×2 (doppio)
+- 914 mm ×4 (quadruplo)
+
+### Esportazione
+Download in SVG o PDF vettoriale con font IBM Plex Sans integrati. Gratuito, senza registrazione.
+
+### Calendario Italiano (`/it/`)
+Calendario con festività nazionali italiane e veneziane. Progettato per la pianificazione aziendale in Italia con focus su Venezia.
+
+- **Festività nazionali**: Capodanno, Epifania, Pasquetta, 25 Aprile, 1° Maggio, 2 Giugno, Ferragosto, Ognissanti, Immacolata, Natale, Santo Stefano
+- **Festività veneziane**: Carnevale, Festa della Sensa, Redentore, Regata Storica, Madonna della Salute
+- **Cambio lingua**: IT / RU / EN — cambia nomi mesi, giorni e festività
+- **Overlay festività**: Festività russe (grigio) e americane per confronto
+- **URL**: `&lang=ru`, `&ov=1`
+
+«Pianifica come se dovessi vivere per sempre. Agisci come se dovessi morire domani» — Machiavelli
+
+### Voci Personalizzate
+Aggiungi annotazioni con il pulsante W. Supporta formato DD.MM. Opzione ripetizione annuale. Appaiono con le festività ed esportate in SVG/PDF.
+
+### Colori Mensili
+Codifica cromatica basata sulla temperatura: nero (gennaio) passando per rosso (luglio) fino a grigio (dicembre). Palette Material Design.
+
+### Evidenziazione Weekend/Festività
+Sfondo rosa, 3 livelli: Gantt → +Mini-mese → +Verticale. URL: `&h=1/2/3`.
+
+### Mobile
+Scorrimento e zoom con tocco. Barra strumenti inferiore stile iOS. Foglio impostazioni con selettore a rotella.
+
+### Stampa
+I calendari pluriennali possono essere stampati in tipografia su carta ingegneristica larga un metro.
+
+«Il tempo resta abbastanza a lungo per chi ne fa uso» — Leonardo da Vinci
+
+## Architettura
+
+| File | Scopo |
+|------|-------|
+| calendar.js | Motore SVG, viewport, esportazione (condiviso tra tutte le lingue) |
+| locales/it.js | Locale italiano (festività nazionali + veneziane, Pasqua 2024-2045, toggle IT/RU/EN) |
+| style.css | Interfaccia, layout responsivo |
+| it/index.html | Versione calendario italiano |
+| fonts/ | IBM Plex Sans (standard per IT) |
+
+## Dettagli Tecnici
+
+- Rendering SVG puro
+- Ottimizzazione batch dei percorsi SVG
+- Aggiornamenti viewport basati su requestAnimationFrame
+- Righelli e guide (etichette cm/m)
+- Zero dipendenze esterne
+- Google Analytics GA4
+
+## Altre Lingue
+
+- 🇺🇸 English: https://osovsky.com/wallplan/
+- 🇷🇺 Русский: https://osovsky.com/wallplan/ru/
+- 🇨🇳 中文: https://osovsky.com/wallplan/zh/
+- 🇮🇱 עברית: https://osovsky.com/wallplan/he/
+- 🇦🇪 العربية: https://osovsky.com/wallplan/ar/
+
+«I libri vivono più a lungo dei palazzi — annota i tuoi progetti» — Bessarione

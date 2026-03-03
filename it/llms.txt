@@ -1,0 +1,17 @@
+# WallPlan — Generatore di Calendari per la Pianificazione a Lungo Termine
+
+> Generatore gratuito di calendari pluriennali con diagrammi di Gantt per la pianificazione strategica. Esportazione SVG e PDF.
+
+## Informazioni
+
+WallPlan genera calendari pluriennali con diagrammi di Gantt per la pianificazione strategica. Durata da 1 mese a 20 anni. Formati carta: A4, A3, rotolo 914 mm. Esportazione in SVG o PDF vettoriale. Palette colori mensile basata sulla temperatura (Material Design). Evidenziazione weekend e festività. Festività italiane: Capodanno, Epifania, Pasquetta, Liberazione, Festa del Lavoro, Festa della Repubblica, Ferragosto, Natale. Festività veneziane: Carnevale, Sensa, Redentore, Regata Storica, Madonna della Salute. Commutazione IT/RU/EN. Confronto festività russe e americane. PWA offline. Gratuito, senza registrazione.
+
+«Il tempo resta abbastanza a lungo per chi ne fa uso» — Leonardo da Vinci
+
+- Autore: [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449)
+- URL: https://osovsky.com/wallplan/it/
+- Licenza: CC BY-SA 4.0
+
+## Documentazione
+
+- [Documentazione completa](https://osovsky.com/wallplan/it/llms-full.txt): Lista funzionalità, architettura e dettagli d'uso

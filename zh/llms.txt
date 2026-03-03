@@ -1,0 +1,17 @@
+# WallPlan — 挂历生成器
+
+> 免费多年挂历生成器，带甘特图，适用于长期战略规划。SVG 和 PDF 导出。
+
+## 关于
+
+WallPlan 生成多年挂历，带甘特图，适用于战略规划。时长从1个月到20年。纸张尺寸：A4、A3、914mm 工程卷纸。导出矢量 SVG 或 PDF。温度色彩月份调色板（Material Design）。周末/假日高亮显示。中国法定节假日（国务院发布）：春节、清明、劳动节、端午、中秋、国庆。补班调休安排。中国生肖年标签。EN/RU/中 三语切换。俄中假日叠加对比。离线 PWA。免费，无需注册。
+
+「不谋万世者，不足谋一时」— 陈澄
+
+- 作者: [Maxim Osovsky](https://www.wikidata.org/wiki/Q107189449)
+- 网址: https://osovsky.com/wallplan/zh/
+- 许可: CC BY-SA 4.0
+
+## 文档
+
+- [完整文档](https://osovsky.com/wallplan/zh/llms-full.txt): 功能列表、架构和使用说明
