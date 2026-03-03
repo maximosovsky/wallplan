@@ -664,21 +664,15 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}
 		}
 
-		// Zodiac annotation: place on 2nd visible month of each year
-		if (LOCALE.getZodiac) {
-			const yr = m.year;
-			if (_zodiacPlaced[yr] === 1) {
-				// This is the 2nd month of this year — place zodiac here
-				const z = LOCALE.getZodiac(parseInt(yr));
-				svgEl('text', {
-					x: xCursor + 10, y: yYear + r1H - 2,
-					'font-size': '7', 'font-weight': '300',
-					fill: '#999',
-				}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
-				_zodiacPlaced[yr] = 2;
-			} else if (!_zodiacPlaced[yr]) {
-				_zodiacPlaced[yr] = 1; // mark 1st month seen
-			}
+		// Zodiac annotation: place in March column of each year (year row)
+		if (LOCALE.getZodiac && m.monthNum === 3 && !_zodiacPlaced[m.year]) {
+			const z = LOCALE.getZodiac(parseInt(m.year));
+			svgEl('text', {
+				x: xCursor + 10, y: yYear + r1H - 2,
+				'font-size': '7', 'font-weight': '300',
+				fill: '#999',
+			}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
+			_zodiacPlaced[m.year] = 2;
 		}
 
 		// ── R2: Month name (colored by temperature) ──
@@ -742,12 +736,12 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 						class: textClass,
 					}, svg);
 					if (dayData.altDay) {
-						if (dayData.rawDow === 6) dowEl.textContent = 'ש׳';
-						else if (dayData.day === 1) {
+						if (dayData.day === 1) {
 							dowEl.textContent = LOCALE.months[dayData.gregMonth];
 							dowEl.setAttribute('font-weight', '500');
 							dowEl.style.fill = '#000';
 						}
+						else if (dayData.isWeekend) dowEl.textContent = WEEK_DAYS_BASE[dayData.rawDow];
 						else dowEl.textContent = dayData.day;
 					} else {
 						dowEl.textContent = WEEK_DAYS_BASE[dayData.rawDow];
@@ -2344,8 +2338,8 @@ async function _loadPDFFonts(doc) {
 		if (LOCALE._strings && LOCALE._strings.zh) {
 			try {
 				// Try local path (works from root), fallback to parent path (works from /zh/)
-				let cjkResp = await fetch('fonts/NotoSansSC/NotoSansSC.ttf');
-				if (!cjkResp.ok) cjkResp = await fetch('../fonts/NotoSansSC/NotoSansSC.ttf');
+				let cjkResp = await fetch('fonts/NotoSansSC/NotoSansSC-subset.ttf');
+				if (!cjkResp.ok) cjkResp = await fetch('../fonts/NotoSansSC/NotoSansSC-subset.ttf');
 				if (cjkResp.ok) {
 					const cjkBuf = await cjkResp.arrayBuffer();
 					const cjkB64 = _arrayBufferToBase64(cjkBuf);

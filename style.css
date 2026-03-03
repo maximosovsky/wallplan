@@ -1,15 +1,7 @@
-/* ─── Local IBM Plex Sans ─── */
+/* ─── Local IBM Plex Sans (WOFF2) ─── */
 @font-face {
 	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-Thin.ttf') format('truetype');
-	font-weight: 100;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-ExtraLight.ttf') format('truetype');
+	src: url('fonts/IBMPlexSans/IBMPlexSans-ExtraLight.woff2') format('woff2');
 	font-weight: 200;
 	font-style: normal;
 	font-display: swap;
@@ -17,7 +9,7 @@
 
 @font-face {
 	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-Light.ttf') format('truetype');
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Light.woff2') format('woff2');
 	font-weight: 300;
 	font-style: normal;
 	font-display: swap;
@@ -25,7 +17,7 @@
 
 @font-face {
 	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-Regular.ttf') format('truetype');
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Regular.woff2') format('woff2');
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
@@ -33,31 +25,15 @@
 
 @font-face {
 	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-Medium.ttf') format('truetype');
+	src: url('fonts/IBMPlexSans/IBMPlexSans-Medium.woff2') format('woff2');
 	font-weight: 500;
 	font-style: normal;
 	font-display: swap;
 }
 
 @font-face {
-	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-SemiBold.ttf') format('truetype');
-	font-weight: 600;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'IBM Plex Sans';
-	src: url('fonts/IBMPlexSans/IBMPlexSans-Bold.ttf') format('truetype');
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
 	font-family: 'Copper Penny DTP';
-	src: url('fonts/cooper/Copper Penny DTP.ttf') format('truetype');
+	src: url('fonts/cooper/CopperPennyDTP.woff2') format('woff2');
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
@@ -91,7 +67,7 @@ body {
 	padding: 0;
 	height: 100vh;
 	background: var(--mol-desk);
-	background-image: url('assets/patchwork.jpg');
+	background-image: url('assets/patchwork.webp');
 	background-size: 400px 400px;
 	background-repeat: repeat;
 }
@@ -474,7 +450,7 @@ body {
 #weekend-hl-btn.active {
 	background: rgba(255, 182, 193, 0.35);
 	color: #C41E3A;
-	font-weight: 600;
+	font-weight: 500;
 }
 
 #overlay-btn {
