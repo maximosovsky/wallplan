@@ -767,6 +767,25 @@ body {
 	pointer-events: none;
 }
 
+/* Desk button — draggable badge on the desk surface */
+.desk-button {
+	position: fixed;
+	z-index: 3;
+	cursor: grab;
+	user-select: none;
+	border-radius: 50%;
+	filter: drop-shadow(2px 2px 4px rgba(60, 40, 20, .3));
+	transition: filter .15s, opacity .3s;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.desk-button:active {
+	cursor: grabbing;
+	filter: drop-shadow(3px 3px 8px rgba(60, 40, 20, .4));
+}
+
 #calendar {
 	z-index: 2;
 	overflow: visible;

@@ -1369,6 +1369,13 @@ const viewport = {
 };
 let bgOffX = 0, bgOffY = 0;  // background origin — only updated during zoom
 
+// ─── Desk button state (world coords in px at zoom=1) ───
+const _deskBtn = {
+	x: -25 * (96 / 25.4),   // -2.5 cm left of page origin
+	y: 120,  // world px from viewport origin
+	size: 20 * (96 / 25.4),  // 2 cm in px
+};
+
 const PAPER_SIZES = {
 	a4: { w: 297, h: 210 },
 	a3: { w: 420, h: 297 },
@@ -1722,6 +1729,17 @@ function applyViewport() {
 	const bgSize = bgBase * viewport.zoom;
 	document.body.style.backgroundSize = bgSize + 'px ' + bgSize + 'px';
 	document.body.style.backgroundPosition = bgOffX + 'px ' + bgOffY + 'px';
+
+	// Desk button position & size
+	const deskBtnEl = document.getElementById('desk-button');
+	if (deskBtnEl) {
+		const btnSize = _deskBtn.size * viewport.zoom;
+		deskBtnEl.style.width = btnSize + 'px';
+		deskBtnEl.style.height = btnSize + 'px';
+		deskBtnEl.style.left = (viewport.left + _deskBtn.x * viewport.zoom) + 'px';
+		deskBtnEl.style.top = (viewport.top + _deskBtn.y * viewport.zoom) + 'px';
+		if (!deskBtnEl._shown) { deskBtnEl._shown = true; deskBtnEl.style.opacity = '1'; }
+	}
 
 	drawRulers();
 }
@@ -2705,7 +2723,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	let _rafId = 0;
 
 	document.addEventListener('mousedown', (e) => {
-		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.confirm-overlay')) return;
+		if (e.target.closest('.controls') || e.target.closest('.ruler') || e.target.closest('.ruler-corner') || e.target.closest('.confirm-overlay') || e.target.closest('.desk-button')) return;
 		isPanning = true;
 		panStartX = e.clientX;
 		panStartY = e.clientY;
@@ -2857,6 +2875,68 @@ document.addEventListener('DOMContentLoaded', () => {
 			isDraggingPanel = false;
 		});
 	});
+
+	// ─── Desk button drag ───
+	{
+		const deskBtnEl = document.getElementById('desk-button');
+		if (deskBtnEl) {
+			let isDragging = false, dragStartX, dragStartY, dragBtnX, dragBtnY;
+			let didMove = false;
+
+			deskBtnEl.addEventListener('mousedown', (e) => {
+				isDragging = true;
+				didMove = false;
+				dragStartX = e.clientX;
+				dragStartY = e.clientY;
+				dragBtnX = _deskBtn.x;
+				dragBtnY = _deskBtn.y;
+				e.stopPropagation();
+				e.preventDefault();
+			});
+
+			document.addEventListener('mousemove', (e) => {
+				if (!isDragging) return;
+				const dx = e.clientX - dragStartX;
+				const dy = e.clientY - dragStartY;
+				if (Math.abs(dx) > 5 || Math.abs(dy) > 5) didMove = true;
+				_deskBtn.x = dragBtnX + dx / viewport.zoom;
+				_deskBtn.y = dragBtnY + dy / viewport.zoom;
+				const btnSize = _deskBtn.size * viewport.zoom;
+				deskBtnEl.style.left = (viewport.left + _deskBtn.x * viewport.zoom) + 'px';
+				deskBtnEl.style.top = (viewport.top + _deskBtn.y * viewport.zoom) + 'px';
+			});
+
+			document.addEventListener('mouseup', () => {
+				if (isDragging && !didMove) {
+					window.open('https://fishcard.me/', '_blank');
+				}
+				isDragging = false;
+			});
+
+			// Touch drag
+			deskBtnEl.addEventListener('touchstart', (e) => {
+				if (e.touches.length !== 1) return;
+				isDragging = true;
+				dragStartX = e.touches[0].clientX;
+				dragStartY = e.touches[0].clientY;
+				dragBtnX = _deskBtn.x;
+				dragBtnY = _deskBtn.y;
+				e.stopPropagation();
+			}, { passive: true });
+
+			document.addEventListener('touchmove', (e) => {
+				if (!isDragging) return;
+				_deskBtn.x = dragBtnX + (e.touches[0].clientX - dragStartX) / viewport.zoom;
+				_deskBtn.y = dragBtnY + (e.touches[0].clientY - dragStartY) / viewport.zoom;
+				deskBtnEl.style.left = (viewport.left + _deskBtn.x * viewport.zoom) + 'px';
+				deskBtnEl.style.top = (viewport.top + _deskBtn.y * viewport.zoom) + 'px';
+			}, { passive: true });
+
+			document.addEventListener('touchend', () => {
+				isDragging = false;
+			});
+		}
+	}
 
 	// ─── Welcome carousel (mobile only, every visit) ───
 	if (window.innerWidth <= 768) {
