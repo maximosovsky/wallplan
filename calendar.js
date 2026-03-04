@@ -2917,22 +2917,30 @@ document.addEventListener('DOMContentLoaded', () => {
 			deskBtnEl.addEventListener('touchstart', (e) => {
 				if (e.touches.length !== 1) return;
 				isDragging = true;
+				didMove = false;
 				dragStartX = e.touches[0].clientX;
 				dragStartY = e.touches[0].clientY;
 				dragBtnX = _deskBtn.x;
 				dragBtnY = _deskBtn.y;
 				e.stopPropagation();
-			}, { passive: true });
+				e.preventDefault();
+			}, { passive: false });
 
 			document.addEventListener('touchmove', (e) => {
 				if (!isDragging) return;
-				_deskBtn.x = dragBtnX + (e.touches[0].clientX - dragStartX) / viewport.zoom;
-				_deskBtn.y = dragBtnY + (e.touches[0].clientY - dragStartY) / viewport.zoom;
+				const dx = e.touches[0].clientX - dragStartX;
+				const dy = e.touches[0].clientY - dragStartY;
+				if (Math.abs(dx) > 5 || Math.abs(dy) > 5) didMove = true;
+				_deskBtn.x = dragBtnX + dx / viewport.zoom;
+				_deskBtn.y = dragBtnY + dy / viewport.zoom;
 				deskBtnEl.style.left = (viewport.left + _deskBtn.x * viewport.zoom) + 'px';
 				deskBtnEl.style.top = (viewport.top + _deskBtn.y * viewport.zoom) + 'px';
 			}, { passive: true });
 
 			document.addEventListener('touchend', () => {
+				if (isDragging && !didMove) {
+					window.open('https://fishcard.me/', '_blank');
+				}
 				isDragging = false;
 			});
 		}
