@@ -233,7 +233,7 @@ Button with half-gray / half-pink SVG circle in top-bar. Toggles `overlayRU` sta
 - `fonts/NotoSansSC/` — Noto Sans SC subset (WOFF2 92 KB for CSS, TTF 175 KB for PDF; original 17.7 MB removed)
 - `fonts/NotoSansHebrew/` — Noto Sans Hebrew (TTF for PDF)
 - `fonts/NotoSansArabic/` — Noto Sans Arabic (TTF for PDF)
-- `assets/patchwork.webp` — Background image (192 KB, converted from JPG 281 KB)
+- `assets/patchwork.jpg` — Background image (281 KB)
 - `og-image.png` — Social preview image (1200×630)
 - `robots.txt` — Crawler rules (Google, Bing, AI bots)
 - `sitemap.xml` — URL map with hreflang alternates (EN, RU, ZH, HE, AR, IT)

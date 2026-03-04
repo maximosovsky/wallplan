@@ -147,7 +147,7 @@ Compressed fonts and images for faster page load (~20 MB saved total):
 - **Copper Penny DTP**: TTF → WOFF2 for CSS (108 KB → 31 KB). TTF kept for PDF/SVG export.
 - **NotoSansSC**: subset from 17.7 MB → 175 KB TTF (PDF) + 92 KB WOFF2. Characters extracted from `locales/zh.js`.
 - **NotoSansArabic/Hebrew**: converted to WOFF2 for local delivery.
-- **Background**: `patchwork.jpg` (281 KB) → `patchwork.webp` (192 KB).
+- **Background**: `patchwork.jpg` (281 KB).
 - **CSS**: removed 3 unused `@font-face` (Thin 100, SemiBold 600, Bold 700), adjusted `font-weight: 600→500` for `.active` button.
 - **SW cache**: bumped `wallplan-v4` → `wallplan-v5`.
 - **Zodiac label**: moved from 2nd visible month to March column.
@@ -239,6 +239,22 @@ Real-time notifications about important analytics events sent to Telegram.
 **Alternative (simpler):** GA4 Custom Insights → email alerts → Zapier/n8n → Telegram Bot.
 
 **Why:** Instant awareness of user engagement without checking dashboards. Critical for catching site outages (traffic = 0) and tracking growth. Telegram = always in pocket.
+
+### B4. WallPlan as Component in TeamForge 🔗 *(из рефлексии 03-03)*
+Embed WallPlan as `<iframe>` or JS module inside TeamForge. When TeamForge generates a startup, auto-create a WallPlan timeline (12–36 months) with milestones from the startup's roadmap.
+
+**Integration options:**
+1. **Iframe** — `<iframe src="wallplan.osovsky.com?months=24&h=1">` with URL params. Simplest, zero coupling.
+2. **JS module** — extract `calendar.js` as importable ES module. TeamForge calls `renderCalendar(container, options)`. Tighter integration, locale-aware.
+3. **API** — WallPlan generates SVG server-side → TeamForge embeds as `<img>`. Requires backend (currently client-only).
+
+**Milestones:**
+- [ ] Define TeamForge → WallPlan data contract (months, start date, Gantt labels)
+- [ ] Prototype iframe embed with URL param passing
+- [ ] Test JS module extraction from `calendar.js`
+- [ ] Demo: TeamForge startup → auto-generated timeline
+
+**Why:** Dog-fooding — every TeamForge startup gets a visual timeline. Proves WallPlan's value as infrastructure, not just a standalone tool.
 
 ---
 
