@@ -664,16 +664,20 @@ function generateCalendarSVG(months, emptyRows, weekStart, startOffset = 0, maxM
 			}
 		}
 
-		// Zodiac annotation: prefer March column, fallback to first visible month ≥ March
-		if (LOCALE.getZodiac && _zodiacPlaced[m.year] !== 2) {
-			if (m.monthNum >= 3) {
+		// Zodiac annotation: place in the column AFTER the first visible month ≥ March
+		// States: undefined/0 = unseen, 1 = before March, 2 = March+ seen (need next col), 3 = placed
+		if (LOCALE.getZodiac && _zodiacPlaced[m.year] !== 3) {
+			if (_zodiacPlaced[m.year] === 2) {
+				// Previous column was ≥ March — place zodiac HERE (second column)
 				const z = LOCALE.getZodiac(parseInt(m.year));
 				svgEl('text', {
 					x: xCursor + 10, y: yYear + r1H - 2,
 					'font-size': '7', 'font-weight': '300',
 					fill: '#999',
 				}, svg).textContent = z.emoji + ' ' + z.element + ' ' + z.animal;
-				_zodiacPlaced[m.year] = 2;
+				_zodiacPlaced[m.year] = 3;
+			} else if (m.monthNum >= 3) {
+				_zodiacPlaced[m.year] = 2; // mark: next column gets the zodiac
 			} else {
 				_zodiacPlaced[m.year] = 1; // before March, wait
 			}
